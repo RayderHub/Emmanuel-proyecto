@@ -1,11 +1,5 @@
 import { bootstrapApplication } from '@angular/platform-browser';
-import { provideAnimations } from '@angular/platform-browser/animations';
 import { appConfig } from './app/app.config';
 import { App } from './app/app';
 
-bootstrapApplication(App, {
-  ...appConfig,
-  providers: [
-    provideAnimations()
-  ]
-});
+bootstrapApplication(App, appConfig);
