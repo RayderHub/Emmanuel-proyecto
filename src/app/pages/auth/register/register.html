@@ -1,20 +1,112 @@
 <div class="auth-container">
+  <p-toast />
   <p-card header="Registro">
-    <div class="field">
-      <label for="username">Usuario</label>
-      <input id="username" type="text" pInputText placeholder="Nombre de usuario" />
-    </div>
-    <div class="field">
-      <label for="email">Correo</label>
-      <input id="email" type="email" pInputText placeholder="tu@correo.com" />
-    </div>
-    <div class="field">
-      <label for="password">Contraseña</label>
-      <p-password inputId="password" toggleMask [feedback]="false" />
-    </div>
-    <div class="actions">
-      <button pButton label="Registrarse" severity="primary"></button>
-      <button pButton label="Ya tengo cuenta" severity="secondary" [text]="true" routerLink="/auth/login"></button>
-    </div>
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+      <!-- Usuario -->
+      <div class="field">
+        <label for="username">Usuario <span class="required">*</span></label>
+        <input id="username" type="text" pInputText placeholder="Nombre de usuario" formControlName="username"
+          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('username') }" />
+        @if (isFieldInvalid('username')) {
+        <p-message severity="error" text="El usuario es requerido" />
+        }
+      </div>
+
+      <!-- Email -->
+      <div class="field">
+        <label for="email">Correo electrónico <span class="required">*</span></label>
+        <input id="email" type="email" pInputText placeholder="tu@correo.com" formControlName="email"
+          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('email') }" />
+        @if (isFieldInvalid('email') && f['email'].errors?.['required']) {
+        <p-message severity="error" text="El correo es requerido" />
+        }
+        @if (isFieldInvalid('email') && f['email'].errors?.['email']) {
+        <p-message severity="error" text="Ingresa un correo válido" />
+        }
+      </div>
+
+      <!-- Contraseña -->
+      <div class="field">
+        <label for="password">Contraseña <span class="required">*</span></label>
+        <p-password inputId="password" formControlName="password" toggleMask [feedback]="true"
+          placeholder="Mínimo 10 caracteres con símbolo especial"
+          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('password') }" />
+        @if (isFieldInvalid('password') && f['password'].errors?.['required']) {
+        <p-message severity="error" text="La contraseña es requerida" />
+        }
+        @if (isFieldInvalid('password') && f['password'].errors?.['passwordStrength']) {
+        <p-message severity="error" text="Mínimo 10 caracteres y al menos un símbolo especial (!@#$%^&*)" />
+        }
+      </div>
+
+      <!-- Confirmación de contraseña -->
+      <div class="field">
+        <label for="confirmPassword">Confirmar contraseña <span class="required">*</span></label>
+        <p-password inputId="confirmPassword" formControlName="confirmPassword" toggleMask [feedback]="false"
+          placeholder="Repite tu contraseña"
+          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('confirmPassword') || (submitted && registerForm.errors?.['passwordsMismatch']) }" />
+        @if (isFieldInvalid('confirmPassword') && f['confirmPassword'].errors?.['required']) {
+        <p-message severity="error" text="Debes confirmar tu contraseña" />
+        }
+        @if (submitted && !f['confirmPassword'].errors?.['required'] && registerForm.errors?.['passwordsMismatch']) {
+        <p-message severity="error" text="Las contraseñas no coinciden" />
+        }
+      </div>
+
+      <!-- Nombre completo -->
+      <div class="field">
+        <label for="fullName">Nombre completo <span class="required">*</span></label>
+        <input id="fullName" type="text" pInputText placeholder="Tu nombre completo" formControlName="fullName"
+          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('fullName') }" />
+        @if (isFieldInvalid('fullName')) {
+        <p-message severity="error" text="El nombre completo es requerido" />
+        }
+      </div>
+
+      <!-- Fecha de nacimiento -->
+      <div class="field">
+        <label for="birthDate">Fecha de nacimiento <span class="required">*</span></label>
+        <p-datepicker inputId="birthDate" formControlName="birthDate" dateFormat="dd/mm/yy" placeholder="DD/MM/AAAA"
+          [showIcon]="true" [maxDate]="maxBirthDate"
+          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('birthDate') }" />
+        @if (isFieldInvalid('birthDate') && f['birthDate'].errors?.['required']) {
+        <p-message severity="error" text="La fecha de nacimiento es requerida" />
+        }
+        @if (isFieldInvalid('birthDate') && f['birthDate'].errors?.['notAdult']) {
+        <p-message severity="error" text="Debes ser mayor de 18 años para registrarte" />
+        }
+      </div>
+
+      <!-- Dirección -->
+      <div class="field">
+        <label for="address">Dirección <span class="required">*</span></label>
+        <input id="address" type="text" pInputText placeholder="Tu dirección" formControlName="address"
+          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('address') }" />
+        @if (isFieldInvalid('address')) {
+        <p-message severity="error" text="La dirección es requerida" />
+        }
+      </div>
+
+      <!-- Teléfono -->
+      <div class="field">
+        <label for="phone">Número de teléfono <span class="required">*</span></label>
+        <p-inputmask id="phone" mask="9999999999" formControlName="phone" placeholder="10 dígitos"
+          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('phone') }" />
+        @if (isFieldInvalid('phone') && f['phone'].errors?.['required']) {
+        <p-message severity="error" text="El teléfono es requerido" />
+        }
+        @if (isFieldInvalid('phone') && f['phone'].errors?.['pattern']) {
+        <p-message severity="error" text="Solo se permiten números (10 dígitos)" />
+        }
+      </div>
+
+      <div class="actions">
+        <button pButton type="submit" label="Registrarse" severity="primary"></button>
+        <button pButton type="button" label="Ya tengo cuenta" severity="secondary" [text]="true"
+          routerLink="/auth/login"></button>
+      </div>
+
+    </form>
   </p-card>
 </div>
