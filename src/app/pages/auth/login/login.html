@@ -1,9 +1,10 @@
+<app-sidebar></app-sidebar>
 <div class="auth-container">
   <p-toast />
   <p-card header="Iniciar sesión">
     <div class="field">
-      <label for="email">Correo</label>
-      <input id="email" type="email" pInputText placeholder="tu@correo.com" [(ngModel)]="email"
+      <label for="email">Usuario</label>
+      <input id="email" type="text" pInputText placeholder="Nombre de usuario" [(ngModel)]="email" name="email" 
         [ngClass]="{ 'ng-invalid ng-dirty': loginError }" />
     </div>
     <div class="field">

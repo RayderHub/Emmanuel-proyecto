@@ -11,6 +11,7 @@ import { MessageService } from 'primeng/api';
 import { DatePickerModule } from 'primeng/datepicker';
 import { CommonModule } from '@angular/common';
 import { InputMaskModule } from 'primeng/inputmask';
+import { Sidebar } from '../../../components/sidebar/sidebar';
 
 // Validador: al menos 10 caracteres, letras mayúsculas, letras minúsculas, números y al menos un símbolo especial (!@#$%^&*)
 function passwordStrengthValidator(control: AbstractControl): ValidationErrors | null {
@@ -57,7 +58,8 @@ function adultValidator(control: AbstractControl): ValidationErrors | null {
     ToastModule,
     DatePickerModule,
     CommonModule,
-    InputMaskModule
+    InputMaskModule,
+    Sidebar
   ],
   providers: [MessageService],
   templateUrl: './register.html',

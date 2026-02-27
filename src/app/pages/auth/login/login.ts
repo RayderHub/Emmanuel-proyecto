@@ -9,11 +9,12 @@ import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { Sidebar } from '../../../components/sidebar/sidebar';
 
-// Credenciales hardcodeadas
+// Credenciales hardcodeadas - Usuario: job, Contraseña: 1234abcd#
 const VALID_CREDENTIALS = {
-  email: 'admin@correo.com',
-  password: 'Admin@12345'
+  email: 'job',
+  password: '1234abcd#'
 };
 
 @Component({
@@ -28,7 +29,8 @@ const VALID_CREDENTIALS = {
     FormsModule,
     CommonModule,
     MessageModule,
-    ToastModule
+    ToastModule,
+    Sidebar
   ],
   providers: [MessageService],
   templateUrl: './login.html',
