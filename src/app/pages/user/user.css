@@ -1,0 +1,94 @@
+.user-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #0f0f0f;
+  margin-left: 280px;
+  width: calc(100% - 280px);
+  padding: 2rem;
+}
+
+.user-card {
+  width: 100%;
+  max-width: 600px;
+  background: #1a1a1a;
+  border: none;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.profile-info h2 {
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+  font-size: 1.8rem;
+}
+
+.username {
+  color: #667eea;
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+}
+
+.role {
+  color: #a0a0a0;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.profile-details {
+  margin: 2rem 0;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  color: #ffffff;
+}
+
+.detail-item i {
+  color: #667eea;
+  width: 20px;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #333;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat h3 {
+  color: #667eea;
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+}
+
+.stat p {
+  color: #a0a0a0;
+  margin: 0;
+  font-size: 0.9rem;
+}
