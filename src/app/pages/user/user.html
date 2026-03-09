@@ -1,67 +1,85 @@
 <app-sidebar></app-sidebar>
 <div class="user-container">
+  @if (!isDeleted) {
   <p-card header="Perfil de Usuario" styleClass="user-card">
     <div class="profile-header">
   <div class="avatar">
     <i class="pi pi-user" style="font-size: 3rem"></i>
   </div>
   <div class="profile-info">
-    <h2>Emmanuel Hernandez</h2>
-    <p class="username">@emmanuelh</p>
-    <p class="role">Desarrollador Full Stack</p>
+    <h2>{{ profile.fullName }}</h2>
+    <p class="username">@{{ profile.username }}</p>
+    <p class="role">{{ profile.role }}</p>
   </div>
 </div>
 
     <div class="profile-details">
   <div class="detail-item">
     <i class="pi pi-user"></i>
-    <span>emmanuelh</span>
+    <span>{{ profile.username }}</span>
     <small>Usuario</small>
   </div>
   <div class="detail-item">
     <i class="pi pi-envelope"></i>
-    <span>emmanuel.hernandez@email.com</span>
+    <span>{{ profile.email }}</span>
     <small>Correo electrónico</small>
   </div>
   <div class="detail-item">
     <i class="pi pi-user"></i>
-    <span>Emmanuel Hernandez Rodriguez</span>
+    <span>{{ profile.fullName }}</span>
     <small>Nombre completo</small>
   </div>
   <div class="detail-item">
     <i class="pi pi-calendar"></i>
-    <span>15/03/1995 (28 años)</span>
+    <span>{{ profile.birthDate }} ({{ profile.age }} años)</span>
     <small>Fecha de nacimiento</small>
   </div>
   <div class="detail-item">
     <i class="pi pi-map-marker"></i>
-    <span>Av. Insurgentes Sur 123, Col. Roma Norte, CDMX</span>
+    <span>{{ profile.address }}</span>
     <small>Dirección</small>
   </div>
   <div class="detail-item">
     <i class="pi pi-phone"></i>
-    <span>5512345678</span>
+    <span>{{ profile.phone }}</span>
     <small>Teléfono</small>
   </div>
       <div class="detail-item">
         <i class="pi pi-calendar"></i>
-        <span>Miembro desde: Enero 2023</span>
+        <span>Miembro desde: {{ profile.memberSince }}</span>
       </div>
     </div>
 
     <div class="stats">
       <div class="stat">
-        <h3>25</h3>
+        <h3>{{ profile.projects }}</h3>
         <p>Proyectos</p>
       </div>
       <div class="stat">
-        <h3>128</h3>
+        <h3>{{ profile.followers }}</h3>
         <p>Seguidores</p>
       </div>
       <div class="stat">
-        <h3>56</h3>
+        <h3>{{ profile.following }}</h3>
         <p>Siguiendo</p>
       </div>
     </div>
+
+    <div class="user-actions">
+      <button pButton label="Editar Perfil" icon="pi pi-user-edit" severity="info" class="user-action-btn" (click)="editProfile()"></button>
+      <button pButton label="Eliminar Cuenta" icon="pi pi-trash" severity="danger" class="user-action-btn" (click)="deleteProfile()"></button>
+    </div>
   </p-card>
+  } @else {
+    <div class="deleted-message">
+      <p-card>
+        <div class="text-center p-4">
+          <i class="pi pi-info-circle" style="font-size: 3rem; color: #e74c3c; margin-bottom: 1rem; display: block;"></i>
+          <h2 style="color: #ffffff; margin-bottom: 1rem;">Perfil Eliminado Visualmente</h2>
+          <p style="color: #a0a0a0; margin-bottom: 2rem;">Los cambios son temporales ya que no hay backend.</p>
+          <button pButton label="Restaurar Perfil" icon="pi pi-refresh" (click)="restoreProfile()"></button>
+        </div>
+      </p-card>
+    </div>
+  }
 </div>

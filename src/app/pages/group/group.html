@@ -1,62 +1,149 @@
 <app-sidebar></app-sidebar>
 <div class="group-container">
-  <p-card header="Grupos" styleClass="group-card">
-    <div class="group-header">
-      <h2>Miembros del Grupo</h2>
-      <div class="member-count">
+  <div class="crud-content">
+    <!-- Card TOTAL -->
+    <div class="total-card">
+      <div class="card-left">
+        <span class="card-label uppercase">TOTAL</span>
+        <h1 class="card-number">{{ memberCount }}</h1>
+      </div>
+      <div class="card-right">
         <i class="pi pi-users"></i>
-        <span>Total: {{ memberCount }} miembros</span>
       </div>
     </div>
 
-    <div class="cards-grid">
-      <div class="group-card-item">
-        <div class="card-icon">
-          <i class="pi pi-code" style="font-size: 2rem"></i>
-        </div>
-        <h3>Desarrolladores</h3>
-        <p>Grupo de desarrollo web y móvil</p>
-        <div class="card-stats">
-          <span>15 miembros</span>
-          <span class="online">8 en línea</span>
-        </div>
-      </div>
+    <!-- Botón Nuevo Alumno -->
+    <div class="action-bar">
+      <button *appPermission="'group.create'" pButton label="Nuevo Alumno" icon="pi pi-plus" class="new-group-btn" severity="success" (click)="addStudent()"></button>
+    </div>
 
-      <div class="group-card-item">
-        <div class="card-icon">
-          <i class="pi pi-palette" style="font-size: 2rem"></i>
-        </div>
-        <h3>Diseñadores</h3>
-        <p>Equipo de diseño UX/UI</p>
-        <div class="card-stats">
-          <span>12 miembros</span>
-          <span class="online">5 en línea</span>
-        </div>
-      </div>
-
-      <div class="group-card-item">
-        <div class="card-icon">
-          <i class="pi pi-chart-line" style="font-size: 2rem"></i>
-        </div>
-        <h3>Marketing</h3>
-        <p>Estrategias de crecimiento</p>
-        <div class="card-stats">
-          <span>8 miembros</span>
-          <span class="online">3 en línea</span>
-        </div>
-      </div>
-
-      <div class="group-card-item">
-        <div class="card-icon">
-          <i class="pi pi-shield" style="font-size: 2rem"></i>
-        </div>
-        <h3>Seguridad</h3>
-        <p>Protección de datos y sistemas</p>
-        <div class="card-stats">
-          <span>7 miembros</span>
-          <span class="online">2 en línea</span>
+    <!-- Tabla CRUD -->
+    <div class="crud-table-container">
+      <table class="crud-table">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Email</th>
+            <th>Nombre Completo</th>
+            <th>Fecha Nac.</th>
+            <th>Dirección</th>
+            <th>Teléfono</th>
+            <th>Integrantes</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (student of students; track student.id) {
+            <tr>
+              <td>{{ student.username }}</td>
+              <td>{{ student.email }}</td>
+              <td>{{ student.fullName }}</td>
+              <td>{{ student.birthDate }}</td>
+              <td>{{ student.address }}</td>
+              <td>{{ student.phone }}</td>
+              <td>{{ memberCount }}</td>
+              <td>
+                <div class="table-actions">
+                  <button *appPermission="'group.edit'" pButton label="Editar" icon="pi pi-pencil" severity="info" class="action-btn edit-btn" (click)="editStudent(student)"></button>
+                  <button *appPermission="'group.delete'" pButton label="Borrar" icon="pi pi-trash" severity="danger" class="action-btn delete-btn" (click)="deleteStudent(student.id)"></button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      
+      <!-- Paginación -->
+      <div class="table-pagination">
+        <div class="pagination-controls">
+          <i class="pi pi-angle-double-left"></i>
+          <i class="pi pi-angle-left"></i>
+          <span class="page-number active">1</span>
+          <i class="pi pi-angle-right"></i>
+          <i class="pi pi-angle-double-right"></i>
         </div>
       </div>
     </div>
-  </p-card>
+  </div>
+
+  <!-- Modal Dialog para Agregar/Editar Estudiantes -->
+  <p-dialog 
+    header="{{ editMode ? 'Editar Estudiante' : 'Nuevo Estudiante' }}" 
+    [(visible)]="displayDialog" 
+    [modal]="true" 
+    [style]="{ width: '600px' }"
+    [draggable]="false" 
+    [resizable]="false">
+    
+    <div class="dialog-content">
+      <div class="form-grid">
+        <div class="field">
+          <label for="username">Usuario</label>
+          <input 
+            id="username" 
+            pInputText 
+            [(ngModel)]="selectedStudent.username" 
+            placeholder="@usuario"
+            class="w-full" />
+        </div>
+        
+        <div class="field">
+          <label for="fullName">Nombre Completo</label>
+          <input 
+            id="fullName" 
+            pInputText 
+            [(ngModel)]="selectedStudent.fullName" 
+            placeholder="Nombre completo"
+            class="w-full" />
+        </div>
+        
+        <div class="field">
+          <label for="birthDate">Fecha de Nacimiento</label>
+          <p-datePicker 
+            id="birthDate" 
+            [(ngModel)]="selectedStudent.birthDate" 
+            dateFormat="dd/mm/yy"
+            placeholder="dd/mm/aaaa"
+            class="w-full" />
+        </div>
+        
+        <div class="field">
+          <label for="address">Dirección</label>
+          <input 
+            id="address" 
+            pInputText 
+            [(ngModel)]="selectedStudent.address" 
+            placeholder="Dirección completa"
+            class="w-full" />
+        </div>
+        
+        <div class="field">
+          <label for="phone">Teléfono</label>
+          <p-inputMask 
+            id="phone" 
+            [(ngModel)]="selectedStudent.phone" 
+            mask="(999) 999-9999"
+            placeholder="(555) 123-4567"
+            class="w-full" />
+        </div>
+      </div>
+    </div>
+    
+    <ng-template pTemplate="footer">
+      <button 
+        pButton 
+        label="Cancelar" 
+        icon="pi pi-times" 
+        class="p-button-text" 
+        (click)="hideDialog()">
+      </button>
+      <button 
+        pButton 
+        label="{{ editMode ? 'Actualizar' : 'Guardar' }}" 
+        icon="pi pi-check" 
+        (click)="saveStudent()"
+        [disabled]="!selectedStudent.username || !selectedStudent.fullName">
+      </button>
+    </ng-template>
+  </p-dialog>
 </div>

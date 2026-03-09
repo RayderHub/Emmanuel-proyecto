@@ -1,102 +1,207 @@
 .group-container {
   display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: 100vh;
-  background: #0f0f0f;
+  background: #f8f9fa; /* Fondo claro como en la imagen */
   margin-left: 280px;
   width: calc(100% - 280px);
-  padding: 2rem;
+  padding: 3rem;
 }
 
-.group-card {
+.crud-content {
   width: 100%;
-  max-width: 1000px;
-  background: #1a1a1a;
-  border: none;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.group-header {
+/* Card TOTAL */
+.total-card {
+  background: #1e1e2d; /* Color oscuro azulado */
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  color: white;
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-.group-header h2 {
-  color: #ffffff;
+.card-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #a0a0a0;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.card-number {
+  font-size: 3.5rem;
+  font-weight: 700;
   margin: 0;
-  font-size: 2rem;
 }
 
-.member-count {
+.total-card i {
+  font-size: 3rem;
+  opacity: 0.8;
+}
+
+/* Action Bar */
+.action-bar {
+  margin-bottom: 1.5rem;
+}
+
+.new-group-btn {
+  background-color: #2ecc71 !important;
+  border: none !important;
+  border-radius: 0.5rem !important;
+  padding: 0.75rem 1.5rem !important;
+  font-weight: 600 !important;
+}
+
+/* CRUD Table */
+.crud-table-container {
+  background: #1e1e2d; /* Ahora el fondo es oscuro para que no se vea blanco al scrollear */
+  border-radius: 1rem;
+  overflow-x: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.crud-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1400px;
+}
+
+.crud-table thead tr {
+  background: #1e1e2d;
+  color: white;
+  text-align: left;
+}
+
+.crud-table th, .crud-table td {
+  padding: 1.25rem 1rem;
+  white-space: nowrap; /* Evita que el texto se rompa en varias líneas */
+}
+
+.crud-table tbody tr {
+  background: white; /* Las filas se mantienen blancas para legibilidad */
+  border-bottom: 1px solid #f0f0f0;
+  color: #333;
+}
+
+.group-name {
+  display: flex;
+  flex-direction: column;
+}
+
+.primary-text {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.secondary-text {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+/* Table Actions */
+.table-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  border-radius: 0.5rem !important;
+  padding: 0.5rem 1rem !important; /* Más ancho para el texto */
+  white-space: nowrap;
+}
+
+.edit-btn {
+  background-color: #3498db !important;
+  border-color: #3498db !important;
+}
+
+.delete-btn {
+  background-color: #e74c3c !important;
+  border-color: #e74c3c !important;
+}
+
+/* Pagination */
+.table-pagination {
+  background: #1e1e2d;
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 1400px; /* Igual que la tabla para que no se vea blanco al scrollear */
+}
+
+.pagination-controls {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  color: #667eea;
-  font-size: 1.1rem;
-}
-
-.member-count i {
-  font-size: 1.2rem;
-}
-
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
-  margin-top: 2rem;
+  color: #888;
 }
 
-.group-card-item {
-  background: #2a2a2a;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  border: 1px solid #333;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.pagination-controls i {
+  cursor: pointer;
+  transition: color 0.2s;
 }
 
-.group-card-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-  border-color: #667eea;
+.pagination-controls i:hover {
+  color: white;
 }
 
-.card-icon {
-  text-align: center;
+.page-number {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #2a2a3d;
+  color: white;
+  font-weight: 600;
+}
+
+.page-number.active {
+  background: #2ecc71;
+  color: #1e1e2d;
+}
+
+/* Modal Dialog Styles */
+.dialog-content {
+  padding: 1rem 0;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
   margin-bottom: 1rem;
-  color: #667eea;
 }
 
-.group-card-item h3 {
-  color: #ffffff;
-  margin: 0 0 0.5rem 0;
-  font-size: 1.2rem;
-  text-align: center;
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.group-card-item p {
-  color: #a0a0a0;
-  margin: 0 0 1rem 0;
-  text-align: center;
+.field label {
+  font-weight: 600;
+  color: #333;
   font-size: 0.9rem;
 }
 
-.card-stats {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #333;
+.field input,
+.field p-calendar,
+.field p-inputMask {
+  width: 100%;
 }
 
-.card-stats span {
-  color: #a0a0a0;
-  font-size: 0.8rem;
-}
-
-.online {
-  color: #4caf50 !important;
-  font-weight: bold;
+/* Responsive */
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
 }
