@@ -22,6 +22,16 @@ interface Student {
   phone: string;
 }
 
+interface GroupData {
+  id: number;
+  name: string;
+  description: string;
+  course: string;
+  semester: string;
+  createdAt: string;
+  studentCount: number;
+}
+
 @Component({
     selector: 'app-group',
     standalone: true,
@@ -34,6 +44,11 @@ export class Group implements OnInit {
   displayDialog: boolean = false;
   editMode: boolean = false;
   selectedStudent: Student = this.createEmptyStudent();
+  
+  // Properties for groups CRUD
+  displayGroupDialog: boolean = false;
+  groupEditMode: boolean = false;
+  selectedGroup: GroupData = this.createEmptyGroup();
 
   constructor(private permissionService: PermissionService) {}
 
@@ -55,6 +70,18 @@ export class Group implements OnInit {
       birthDate: '',
       address: '',
       phone: ''
+    };
+  }
+
+  createEmptyGroup(): GroupData {
+    return {
+      id: 0,
+      name: '',
+      description: '',
+      course: '',
+      semester: '',
+      createdAt: new Date().toLocaleDateString(),
+      studentCount: 0
     };
   }
   
@@ -85,6 +112,36 @@ export class Group implements OnInit {
       birthDate: '22/11/2000',
       address: 'Paseo de la Reforma 456, Col. Juarez, CDMX',
       phone: '5544332211'
+    }
+  ];
+
+  groups: GroupData[] = [
+    {
+      id: 1,
+      name: 'Grupo A',
+      description: 'Grupo de programación avanzada',
+      course: 'Programación',
+      semester: '2024-1',
+      createdAt: '15/01/2024',
+      studentCount: 25
+    },
+    {
+      id: 2,
+      name: 'Grupo B', 
+      description: 'Grupo de bases de datos',
+      course: 'Bases de Datos',
+      semester: '2024-1',
+      createdAt: '20/01/2024',
+      studentCount: 18
+    },
+    {
+      id: 3,
+      name: 'Grupo C',
+      description: 'Grupo de desarrollo web',
+      course: 'Desarrollo Web',
+      semester: '2024-2',
+      createdAt: '05/02/2024',
+      studentCount: 22
     }
   ];
 
@@ -130,5 +187,47 @@ export class Group implements OnInit {
   hideDialog(): void {
     this.displayDialog = false;
     this.selectedStudent = this.createEmptyStudent();
+  }
+
+  // Group CRUD methods
+  addGroup(): void {
+    this.selectedGroup = this.createEmptyGroup();
+    this.groupEditMode = false;
+    this.displayGroupDialog = true;
+  }
+
+  editGroup(group: GroupData): void {
+    this.selectedGroup = { ...group };
+    this.groupEditMode = true;
+    this.displayGroupDialog = true;
+  }
+
+  deleteGroup(id: number): void {
+    this.groups = this.groups.filter(g => g.id !== id);
+  }
+
+  saveGroup(): void {
+    if (this.groupEditMode) {
+      // Actualizar grupo existente
+      const index = this.groups.findIndex(g => g.id === this.selectedGroup.id);
+      if (index !== -1) {
+        this.groups[index] = { ...this.selectedGroup };
+      }
+    } else {
+      // Agregar nuevo grupo
+      const newGroup: GroupData = {
+        ...this.selectedGroup,
+        id: Date.now()
+      };
+      this.groups.push(newGroup);
+    }
+    
+    this.displayGroupDialog = false;
+    this.selectedGroup = this.createEmptyGroup();
+  }
+
+  hideGroupDialog(): void {
+    this.displayGroupDialog = false;
+    this.selectedGroup = this.createEmptyGroup();
   }
 }

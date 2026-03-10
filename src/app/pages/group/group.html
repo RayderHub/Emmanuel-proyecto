@@ -64,6 +64,51 @@
         </div>
       </div>
     </div>
+
+    <!-- Sección de Grupos -->
+    <div class="groups-section">
+      <h2 class="section-title">Gestión de Grupos</h2>
+      
+      <!-- Botón Nuevo Grupo -->
+      <div class="action-bar">
+        <button *appPermission="'group.create'" pButton label="Nuevo Grupo" icon="pi pi-plus" class="new-group-btn" severity="success" (click)="addGroup()"></button>
+      </div>
+
+      <!-- Tabla de Grupos -->
+      <div class="crud-table-container">
+        <table class="crud-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th>Curso</th>
+              <th>Semestre</th>
+              <th>Fecha Creación</th>
+              <th>Estudiantes</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (group of groups; track group.id) {
+              <tr>
+                <td>{{ group.name }}</td>
+                <td>{{ group.description }}</td>
+                <td>{{ group.course }}</td>
+                <td>{{ group.semester }}</td>
+                <td>{{ group.createdAt }}</td>
+                <td>{{ group.studentCount }}</td>
+                <td>
+                  <div class="table-actions">
+                    <button *appPermission="'group.edit'" pButton label="Editar" icon="pi pi-pencil" severity="info" class="action-btn edit-btn" (click)="editGroup(group)"></button>
+                    <button *appPermission="'group.delete'" pButton label="Borrar" icon="pi pi-trash" severity="danger" class="action-btn delete-btn" (click)="deleteGroup(group.id)"></button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <!-- Modal Dialog para Agregar/Editar Estudiantes -->
@@ -143,6 +188,88 @@
         icon="pi pi-check" 
         (click)="saveStudent()"
         [disabled]="!selectedStudent.username || !selectedStudent.fullName">
+      </button>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Modal Dialog para Agregar/Editar Grupos -->
+  <p-dialog 
+    header="{{ groupEditMode ? 'Editar Grupo' : 'Nuevo Grupo' }}" 
+    [(visible)]="displayGroupDialog" 
+    [modal]="true" 
+    [style]="{ width: '600px' }"
+    [draggable]="false" 
+    [resizable]="false">
+    
+    <div class="dialog-content">
+      <div class="form-grid">
+        <div class="field">
+          <label for="groupName">Nombre del Grupo</label>
+          <input 
+            id="groupName" 
+            pInputText 
+            [(ngModel)]="selectedGroup.name" 
+            placeholder="Nombre del grupo"
+            class="w-full" />
+        </div>
+        
+        <div class="field">
+          <label for="groupDescription">Descripción</label>
+          <input 
+            id="groupDescription" 
+            pInputText 
+            [(ngModel)]="selectedGroup.description" 
+            placeholder="Descripción del grupo"
+            class="w-full" />
+        </div>
+        
+        <div class="field">
+          <label for="groupCourse">Curso</label>
+          <input 
+            id="groupCourse" 
+            pInputText 
+            [(ngModel)]="selectedGroup.course" 
+            placeholder="Nombre del curso"
+            class="w-full" />
+        </div>
+        
+        <div class="field">
+          <label for="groupSemester">Semestre</label>
+          <input 
+            id="groupSemester" 
+            pInputText 
+            [(ngModel)]="selectedGroup.semester" 
+            placeholder="Semestre (ej: 2024-1)"
+            class="w-full" />
+        </div>
+        
+        <div class="field">
+          <label for="groupStudentCount">Cantidad de Estudiantes</label>
+          <input 
+            id="groupStudentCount" 
+            type="number"
+            pInputText 
+            [(ngModel)]="selectedGroup.studentCount" 
+            placeholder="0"
+            class="w-full" />
+        </div>
+      </div>
+    </div>
+    
+    <ng-template pTemplate="footer">
+      <button 
+        pButton 
+        label="Cancelar" 
+        icon="pi pi-times" 
+        class="p-button-text" 
+        (click)="hideGroupDialog()">
+      </button>
+      <button 
+        pButton 
+        label="{{ groupEditMode ? 'Actualizar' : 'Guardar' }}" 
+        icon="pi pi-check" 
+        (click)="saveGroup()"
+        [disabled]="!selectedGroup.name || !selectedGroup.course">
       </button>
     </ng-template>
   </p-dialog>
