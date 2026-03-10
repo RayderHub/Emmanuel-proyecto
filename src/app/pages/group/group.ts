@@ -43,6 +43,7 @@ interface Ticket {
   assignedTo: string;
   createdAt: string;
   dueDate: string;
+  groupId?: number; // ID del grupo al que pertenece el ticket
 }
 
 @Component({
@@ -69,6 +70,7 @@ export class Group implements OnInit {
   displayTicketDialog: boolean = false;
   ticketEditMode: boolean = false;
   selectedTicket: Ticket = this.createEmptyTicket();
+  selectedGroupForTickets: GroupData | null = null; // Grupo seleccionado para ver tickets
 
   constructor(private permissionService: PermissionService) {}
 
@@ -187,7 +189,8 @@ export class Group implements OnInit {
       priority: 'alta',
       assignedTo: 'Desarrollador Frontend',
       createdAt: '01/03/2024',
-      dueDate: '05/03/2024'
+      dueDate: '05/03/2024',
+      groupId: 1 // Grupo A
     },
     {
       id: 2,
@@ -197,7 +200,8 @@ export class Group implements OnInit {
       priority: 'media',
       assignedTo: 'Diseñador UI/UX',
       createdAt: '02/03/2024',
-      dueDate: '08/03/2024'
+      dueDate: '08/03/2024',
+      groupId: 1 // Grupo A
     },
     {
       id: 3,
@@ -207,7 +211,8 @@ export class Group implements OnInit {
       priority: 'alta',
       assignedTo: 'Desarrollador Backend',
       createdAt: '03/03/2024',
-      dueDate: '10/03/2024'
+      dueDate: '10/03/2024',
+      groupId: 2 // Grupo B
     },
     {
       id: 4,
@@ -217,7 +222,8 @@ export class Group implements OnInit {
       priority: 'media',
       assignedTo: 'QA Tester',
       createdAt: '04/03/2024',
-      dueDate: '12/03/2024'
+      dueDate: '12/03/2024',
+      groupId: 3 // Grupo C
     }
   ];
 
@@ -323,6 +329,10 @@ export class Group implements OnInit {
 
   addTicket(): void {
     this.selectedTicket = this.createEmptyTicket();
+    // Asignar el grupo actual al nuevo ticket
+    if (this.selectedGroupForTickets) {
+      this.selectedTicket.groupId = this.selectedGroupForTickets.id;
+    }
     this.ticketEditMode = false;
     this.displayTicketDialog = true;
   }
@@ -369,7 +379,23 @@ export class Group implements OnInit {
     }
   }
 
+  // Método para ver tickets de un grupo específico
+  viewGroupTickets(group: GroupData): void {
+    this.selectedGroupForTickets = group;
+    this.currentView = 'tickets';
+    this.ticketView = 'lista';
+  }
+
+  // Obtener tickets filtrados por grupo seleccionado
+  getFilteredTickets(): Ticket[] {
+    if (this.selectedGroupForTickets) {
+      return this.tickets.filter(ticket => ticket.groupId === this.selectedGroupForTickets?.id);
+    }
+    return this.tickets;
+  }
+
   getTicketsByStatus(status: Ticket['status']): Ticket[] {
-    return this.tickets.filter(ticket => ticket.status === status);
+    const filteredTickets = this.getFilteredTickets();
+    return filteredTickets.filter(ticket => ticket.status === status);
   }
 }

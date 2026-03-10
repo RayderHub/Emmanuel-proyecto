@@ -1,28 +1,13 @@
 <app-sidebar></app-sidebar>
 <div class="group-container">
   <div class="crud-content">
-    <!-- View Selection Buttons -->
-    <div class="view-selection-buttons">
-      <button 
-        pButton 
-        label="Grupos" 
-        icon="pi pi-users" 
-        [severity]="currentView === 'groups' ? 'primary' : 'secondary'" 
-        (click)="showGroupsView()"
-        class="view-selection-btn">
-      </button>
-      <button 
-        pButton 
-        label="Tickets" 
-        icon="pi pi-ticket" 
-        [severity]="currentView === 'tickets' ? 'primary' : 'secondary'" 
-        (click)="showTicketsView()"
-        class="view-selection-btn">
-      </button>
+    <!-- Header Section -->
+    <div class="header-section">
+      <h1 class="page-title">Gestión de Grupos</h1>
+      <p class="page-subtitle">Administra los grupos académicos y sus tickets</p>
     </div>
 
     <!-- Groups Section -->
-    @if (currentView === 'groups') {
       <!-- Card TOTAL -->
       <div class="total-card">
       <div class="card-left">
@@ -121,6 +106,7 @@
                 <td>{{ group.studentCount }}</td>
                 <td>
                   <div class="table-actions">
+                    <button pButton label="Tickets" icon="pi pi-ticket" severity="help" class="action-btn tickets-btn" (click)="viewGroupTickets(group)"></button>
                     <button *appPermission="'group.edit'" pButton label="Editar" icon="pi pi-pencil" severity="info" class="action-btn edit-btn" (click)="editGroup(group)"></button>
                     <button *appPermission="'group.delete'" pButton label="Borrar" icon="pi pi-trash" severity="danger" class="action-btn delete-btn" (click)="deleteGroup(group.id)"></button>
                   </div>
@@ -131,11 +117,16 @@
         </table>
       </div>
     </div>
-    }
 
     <!-- Ticket System Section -->
     @if (currentView === 'tickets') {
       <div class="tickets-section">
+        <!-- Header with back button -->
+        <div class="tickets-header">
+          <button pButton label="Volver a Grupos" icon="pi pi-arrow-left" severity="secondary" (click)="currentView = 'groups'"></button>
+          <h2 class="tickets-title">Tickets de {{ selectedGroupForTickets?.name }}</h2>
+        </div>
+
         <!-- View Toggle Buttons -->
         <div class="view-toggle-buttons">
           <button 
@@ -178,7 +169,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @for (ticket of tickets; track ticket.id) {
+                  @for (ticket of getFilteredTickets(); track ticket.id) {
                     <tr>
                       <td>{{ ticket.title }}</td>
                       <td>{{ ticket.description }}</td>

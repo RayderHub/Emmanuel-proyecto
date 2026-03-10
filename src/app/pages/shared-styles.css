@@ -1,0 +1,148 @@
+/* ===== SISTEMA DE DISEÑO UNIFICADO ===== */
+/* Basado en el estilo visual del Kanban */
+
+/* Colores Principales */
+:root {
+  --primary-bg: #1e1e2d;
+  --secondary-bg: #2a2a3d;
+  --card-bg: #1e1e2d;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --text-muted: #888888;
+  --border-color: #2a2a3d;
+  --accent-blue: #3498db;
+  --accent-green: #2ecc71;
+  --accent-red: #e74c3c;
+  --accent-orange: #f39c12;
+  --accent-purple: #9b59b6;
+}
+
+/* Botones Mejorados */
+.unified-btn {
+  border-radius: 0.75rem !important;
+  border: none !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+  padding: 0.75rem 1.5rem !important;
+}
+
+.unified-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.unified-btn:active {
+  transform: translateY(0);
+}
+
+/* Tarjetas y Contenedores */
+.unified-card {
+  background: var(--card-bg) !important;
+  border-radius: 0.75rem !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.2s ease !important;
+}
+
+.unified-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  border-color: var(--accent-blue) !important;
+}
+
+/* Formularios y Inputs */
+.unified-input {
+  background: var(--secondary-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 0.5rem !important;
+  color: var(--text-primary) !important;
+  padding: 0.75rem 1rem !important;
+  transition: all 0.2s ease !important;
+}
+
+.unified-input:focus {
+  border-color: var(--accent-blue) !important;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1) !important;
+}
+
+.unified-input::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* Espaciado Consistente */
+.unified-spacing {
+  margin-bottom: 1.5rem !important;
+}
+
+.unified-spacing-sm {
+  margin-bottom: 1rem !important;
+}
+
+.unified-spacing-lg {
+  margin-bottom: 2rem !important;
+}
+
+/* Tipografía Mejorada */
+.unified-title {
+  color: var(--text-primary) !important;
+  font-weight: 700 !important;
+  margin-bottom: 1rem !important;
+}
+
+.unified-subtitle {
+  color: var(--text-secondary) !important;
+  font-weight: 500 !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.unified-text {
+  color: var(--text-secondary) !important;
+  line-height: 1.5 !important;
+}
+
+/* Badges y Indicadores */
+.unified-badge {
+  border-radius: 1rem !important;
+  padding: 0.25rem 0.75rem !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+}
+
+/* Animaciones */
+@keyframes unified-pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+.unified-pulse {
+  animation: unified-pulse 2s infinite;
+}
+
+/* Layout Responsive */
+.unified-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.unified-flex {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Estados de Prioridad (para tickets) */
+.priority-baja { background-color: var(--accent-green) !important; color: white !important; }
+.priority-media { background-color: var(--accent-orange) !important; color: white !important; }
+.priority-alta { background-color: var(--accent-red) !important; color: white !important; }
+.priority-urgente { 
+  background-color: var(--accent-purple) !important; 
+  color: white !important; 
+  animation: unified-pulse 2s infinite;
+}
+
+/* Estados de Progreso */
+.status-pendiente { border-left: 4px solid var(--accent-red) !important; }
+.status-en-proceso { border-left: 4px solid var(--accent-orange) !important; }
+.status-revision { border-left: 4px solid var(--accent-blue) !important; }
+.status-finalizado { border-left: 4px solid var(--accent-green) !important; }
