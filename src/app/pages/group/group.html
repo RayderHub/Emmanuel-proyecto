@@ -1,8 +1,30 @@
 <app-sidebar></app-sidebar>
 <div class="group-container">
   <div class="crud-content">
-    <!-- Card TOTAL -->
-    <div class="total-card">
+    <!-- View Selection Buttons -->
+    <div class="view-selection-buttons">
+      <button 
+        pButton 
+        label="Grupos" 
+        icon="pi pi-users" 
+        [severity]="currentView === 'groups' ? 'primary' : 'secondary'" 
+        (click)="showGroupsView()"
+        class="view-selection-btn">
+      </button>
+      <button 
+        pButton 
+        label="Tickets" 
+        icon="pi pi-ticket" 
+        [severity]="currentView === 'tickets' ? 'primary' : 'secondary'" 
+        (click)="showTicketsView()"
+        class="view-selection-btn">
+      </button>
+    </div>
+
+    <!-- Groups Section -->
+    @if (currentView === 'groups') {
+      <!-- Card TOTAL -->
+      <div class="total-card">
       <div class="card-left">
         <span class="card-label uppercase">TOTAL</span>
         <h1 class="card-number">{{ memberCount }}</h1>
@@ -109,6 +131,188 @@
         </table>
       </div>
     </div>
+    }
+
+    <!-- Ticket System Section -->
+    @if (currentView === 'tickets') {
+      <div class="tickets-section">
+        <!-- View Toggle Buttons -->
+        <div class="view-toggle-buttons">
+          <button 
+            pButton 
+            label="Lista" 
+            [severity]="ticketView === 'lista' ? 'primary' : 'secondary'" 
+            (click)="switchTicketView('lista')"
+            class="view-toggle-btn">
+          </button>
+          <button 
+            pButton 
+            label="Kanban" 
+            [severity]="ticketView === 'kanban' ? 'primary' : 'secondary'" 
+            (click)="switchTicketView('kanban')"
+            class="view-toggle-btn">
+          </button>
+        </div>
+
+        <!-- List View -->
+        @if (ticketView === 'lista') {
+          <div class="tickets-list-view">
+            <!-- Action Bar -->
+            <div class="action-bar">
+              <button pButton label="Nuevo Ticket" icon="pi pi-plus" severity="success" (click)="addTicket()"></button>
+            </div>
+
+            <!-- Tickets Table -->
+            <div class="crud-table-container">
+              <table class="crud-table">
+                <thead>
+                  <tr>
+                    <th>Título</th>
+                    <th>Descripción</th>
+                    <th>Estado</th>
+                    <th>Prioridad</th>
+                    <th>Asignado a</th>
+                    <th>Fecha Creación</th>
+                    <th>Fecha Límite</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (ticket of tickets; track ticket.id) {
+                    <tr>
+                      <td>{{ ticket.title }}</td>
+                      <td>{{ ticket.description }}</td>
+                      <td>
+                        <span class="status-badge status-{{ticket.status}}">
+                          {{ ticket.status }}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="priority-badge priority-{{ticket.priority}}">
+                          {{ ticket.priority }}
+                        </span>
+                      </td>
+                      <td>{{ ticket.assignedTo }}</td>
+                      <td>{{ ticket.createdAt }}</td>
+                      <td>{{ ticket.dueDate }}</td>
+                      <td>
+                        <div class="table-actions">
+                          <button pButton label="Editar" icon="pi pi-pencil" severity="info" class="action-btn edit-btn" (click)="editTicket(ticket)"></button>
+                          <button pButton label="Borrar" icon="pi pi-trash" severity="danger" class="action-btn delete-btn" (click)="deleteTicket(ticket.id)"></button>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+
+        <!-- Kanban View -->
+        @if (ticketView === 'kanban') {
+          <div class="kanban-view">
+            <div class="kanban-columns">
+              <!-- Pendiente Column -->
+              <div class="kanban-column">
+                <h3 class="column-title">Pendiente</h3>
+                @for (ticket of getTicketsByStatus('pendiente'); track ticket.id) {
+                  <div class="kanban-card status-pendiente" (click)="editTicket(ticket)">
+                    <div class="card-header">
+                      <h4 class="card-title">{{ ticket.title }}</h4>
+                      <span class="priority-indicator priority-{{ticket.priority}}"></span>
+                    </div>
+                    <p class="card-description">{{ ticket.description }}</p>
+                    <div class="card-footer">
+                      <div class="assignee-info">
+                        <i class="pi pi-user"></i>
+                        <span class="assigned-to">{{ ticket.assignedTo }}</span>
+                      </div>
+                      <div class="due-date">
+                        <i class="pi pi-calendar"></i>
+                        <span>{{ ticket.dueDate }}</span>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <!-- En Proceso Column -->
+              <div class="kanban-column">
+                <h3 class="column-title">En Proceso</h3>
+                @for (ticket of getTicketsByStatus('en-proceso'); track ticket.id) {
+                  <div class="kanban-card status-en-proceso" (click)="editTicket(ticket)">
+                    <div class="card-header">
+                      <h4 class="card-title">{{ ticket.title }}</h4>
+                      <span class="priority-indicator priority-{{ticket.priority}}"></span>
+                    </div>
+                    <p class="card-description">{{ ticket.description }}</p>
+                    <div class="card-footer">
+                      <div class="assignee-info">
+                        <i class="pi pi-user"></i>
+                        <span class="assigned-to">{{ ticket.assignedTo }}</span>
+                      </div>
+                      <div class="due-date">
+                        <i class="pi pi-calendar"></i>
+                        <span>{{ ticket.dueDate }}</span>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <!-- Revisión Column -->
+              <div class="kanban-column">
+                <h3 class="column-title">Revisión</h3>
+                @for (ticket of getTicketsByStatus('revision'); track ticket.id) {
+                  <div class="kanban-card status-revision" (click)="editTicket(ticket)">
+                    <div class="card-header">
+                      <h4 class="card-title">{{ ticket.title }}</h4>
+                      <span class="priority-indicator priority-{{ticket.priority}}"></span>
+                    </div>
+                    <p class="card-description">{{ ticket.description }}</p>
+                    <div class="card-footer">
+                      <div class="assignee-info">
+                        <i class="pi pi-user"></i>
+                        <span class="assigned-to">{{ ticket.assignedTo }}</span>
+                      </div>
+                      <div class="due-date">
+                        <i class="pi pi-calendar"></i>
+                        <span>{{ ticket.dueDate }}</span>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <!-- Finalizado Column -->
+              <div class="kanban-column">
+                <h3 class="column-title">Finalizado</h3>
+                @for (ticket of getTicketsByStatus('finalizado'); track ticket.id) {
+                  <div class="kanban-card status-finalizado" (click)="editTicket(ticket)">
+                    <div class="card-header">
+                      <h4 class="card-title">{{ ticket.title }}</h4>
+                      <span class="priority-indicator priority-{{ticket.priority}}"></span>
+                    </div>
+                    <p class="card-description">{{ ticket.description }}</p>
+                    <div class="card-footer">
+                      <div class="assignee-info">
+                        <i class="pi pi-user"></i>
+                        <span class="assigned-to">{{ ticket.assignedTo }}</span>
+                      </div>
+                      <div class="due-date">
+                        <i class="pi pi-calendar"></i>
+                        <span>{{ ticket.dueDate }}</span>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
   </div>
 
   <!-- Modal Dialog para Agregar/Editar Estudiantes -->
@@ -270,6 +474,103 @@
         icon="pi pi-check" 
         (click)="saveGroup()"
         [disabled]="!selectedGroup.name || !selectedGroup.course">
+      </button>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Modal Dialog para Agregar/Editar Tickets -->
+  <p-dialog 
+    header="{{ ticketEditMode ? 'Editar Ticket' : 'Nuevo Ticket' }}" 
+    [(visible)]="displayTicketDialog" 
+    [modal]="true" 
+    [style]="{ width: '700px' }"
+    [draggable]="false" 
+    [resizable]="false">
+    
+    <div class="dialog-content">
+      <div class="form-grid">
+        <div class="field">
+          <label for="ticketTitle">Título</label>
+          <input 
+            id="ticketTitle" 
+            pInputText 
+            [(ngModel)]="selectedTicket.title" 
+            placeholder="Título del ticket"
+            class="w-full" />
+        </div>
+        
+        <div class="field">
+          <label for="ticketDescription">Descripción</label>
+          <textarea 
+            id="ticketDescription" 
+            [(ngModel)]="selectedTicket.description" 
+            placeholder="Descripción detallada"
+            rows="3"
+            class="w-full p-inputtext"></textarea>
+        </div>
+        
+        <div class="field">
+          <label for="ticketStatus">Estado</label>
+          <select 
+            id="ticketStatus"
+            [(ngModel)]="selectedTicket.status" 
+            class="w-full p-inputtext">
+            <option value="pendiente">Pendiente</option>
+            <option value="en-proceso">En Proceso</option>
+            <option value="revision">Revisión</option>
+            <option value="finalizado">Finalizado</option>
+          </select>
+        </div>
+        
+        <div class="field">
+          <label for="ticketPriority">Prioridad</label>
+          <select 
+            id="ticketPriority"
+            [(ngModel)]="selectedTicket.priority" 
+            class="w-full p-inputtext">
+            <option value="baja">Baja</option>
+            <option value="media">Media</option>
+            <option value="alta">Alta</option>
+            <option value="urgente">Urgente</option>
+          </select>
+        </div>
+        
+        <div class="field">
+          <label for="ticketAssignedTo">Asignado a</label>
+          <input 
+            id="ticketAssignedTo" 
+            pInputText 
+            [(ngModel)]="selectedTicket.assignedTo" 
+            placeholder="Persona asignada"
+            class="w-full" />
+        </div>
+        
+        <div class="field">
+          <label for="ticketDueDate">Fecha Límite</label>
+          <p-datePicker 
+            id="ticketDueDate" 
+            [(ngModel)]="selectedTicket.dueDate" 
+            dateFormat="dd/mm/yy"
+            placeholder="dd/mm/aaaa"
+            class="w-full" />
+        </div>
+      </div>
+    </div>
+    
+    <ng-template pTemplate="footer">
+      <button 
+        pButton 
+        label="Cancelar" 
+        icon="pi pi-times" 
+        class="p-button-text" 
+        (click)="hideTicketDialog()">
+      </button>
+      <button 
+        pButton 
+        label="{{ ticketEditMode ? 'Actualizar' : 'Guardar' }}" 
+        icon="pi pi-check" 
+        (click)="saveTicket()"
+        [disabled]="!selectedTicket.title || !selectedTicket.description">
       </button>
     </ng-template>
   </p-dialog>

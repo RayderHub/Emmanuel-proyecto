@@ -4,8 +4,10 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
+// InputTextareaModule no disponible en esta versión - usando InputTextModule en su lugar
 import { InputMaskModule } from 'primeng/inputmask';
 import { DatePicker } from 'primeng/datepicker';
+// DropdownModule no disponible en esta versión - usando alternativas nativas
 import { FormsModule } from '@angular/forms';
 import { Sidebar } from '../../components/sidebar/sidebar';
 import { CommonModule } from '@angular/common';
@@ -32,6 +34,17 @@ interface GroupData {
   studentCount: number;
 }
 
+interface Ticket {
+  id: number;
+  title: string;
+  description: string;
+  status: 'pendiente' | 'en-proceso' | 'revision' | 'finalizado';
+  priority: 'baja' | 'media' | 'alta' | 'urgente';
+  assignedTo: string;
+  createdAt: string;
+  dueDate: string;
+}
+
 @Component({
     selector: 'app-group',
     standalone: true,
@@ -49,6 +62,13 @@ export class Group implements OnInit {
   displayGroupDialog: boolean = false;
   groupEditMode: boolean = false;
   selectedGroup: GroupData = this.createEmptyGroup();
+
+  // Properties for view management
+  currentView: 'groups' | 'tickets' = 'groups';
+  ticketView: 'lista' | 'kanban' = 'lista';
+  displayTicketDialog: boolean = false;
+  ticketEditMode: boolean = false;
+  selectedTicket: Ticket = this.createEmptyTicket();
 
   constructor(private permissionService: PermissionService) {}
 
@@ -82,6 +102,19 @@ export class Group implements OnInit {
       semester: '',
       createdAt: new Date().toLocaleDateString(),
       studentCount: 0
+    };
+  }
+
+  createEmptyTicket(): Ticket {
+    return {
+      id: 0,
+      title: '',
+      description: '',
+      status: 'pendiente',
+      priority: 'media',
+      assignedTo: '',
+      createdAt: new Date().toLocaleDateString(),
+      dueDate: ''
     };
   }
   
@@ -142,6 +175,49 @@ export class Group implements OnInit {
       semester: '2024-2',
       createdAt: '05/02/2024',
       studentCount: 22
+    }
+  ];
+
+  tickets: Ticket[] = [
+    {
+      id: 1,
+      title: 'Implementar CRUD de estudiantes',
+      description: 'Crear funcionalidad completa para gestionar estudiantes',
+      status: 'finalizado',
+      priority: 'alta',
+      assignedTo: 'Desarrollador Frontend',
+      createdAt: '01/03/2024',
+      dueDate: '05/03/2024'
+    },
+    {
+      id: 2,
+      title: 'Diseñar interfaz de grupos',
+      description: 'Crear diseño para la gestión de grupos académicos',
+      status: 'en-proceso',
+      priority: 'media',
+      assignedTo: 'Diseñador UI/UX',
+      createdAt: '02/03/2024',
+      dueDate: '08/03/2024'
+    },
+    {
+      id: 3,
+      title: 'Revisar código de autenticación',
+      description: 'Revisar y optimizar el módulo de autenticación',
+      status: 'pendiente',
+      priority: 'alta',
+      assignedTo: 'Desarrollador Backend',
+      createdAt: '03/03/2024',
+      dueDate: '10/03/2024'
+    },
+    {
+      id: 4,
+      title: 'Testear funcionalidad de tickets',
+      description: 'Realizar pruebas exhaustivas del sistema de tickets',
+      status: 'revision',
+      priority: 'media',
+      assignedTo: 'QA Tester',
+      createdAt: '04/03/2024',
+      dueDate: '12/03/2024'
     }
   ];
 
@@ -229,5 +305,71 @@ export class Group implements OnInit {
   hideGroupDialog(): void {
     this.displayGroupDialog = false;
     this.selectedGroup = this.createEmptyGroup();
+  }
+
+  // View management methods
+  showGroupsView(): void {
+    this.currentView = 'groups';
+  }
+
+  showTicketsView(): void {
+    this.currentView = 'tickets';
+    this.ticketView = 'lista';
+  }
+
+  switchTicketView(view: 'lista' | 'kanban'): void {
+    this.ticketView = view;
+  }
+
+  addTicket(): void {
+    this.selectedTicket = this.createEmptyTicket();
+    this.ticketEditMode = false;
+    this.displayTicketDialog = true;
+  }
+
+  editTicket(ticket: Ticket): void {
+    this.selectedTicket = { ...ticket };
+    this.ticketEditMode = true;
+    this.displayTicketDialog = true;
+  }
+
+  deleteTicket(id: number): void {
+    this.tickets = this.tickets.filter(t => t.id !== id);
+  }
+
+  saveTicket(): void {
+    if (this.ticketEditMode) {
+      // Actualizar ticket existente
+      const index = this.tickets.findIndex(t => t.id === this.selectedTicket.id);
+      if (index !== -1) {
+        this.tickets[index] = { ...this.selectedTicket };
+      }
+    } else {
+      // Agregar nuevo ticket
+      const newTicket: Ticket = {
+        ...this.selectedTicket,
+        id: Date.now()
+      };
+      this.tickets.push(newTicket);
+    }
+    
+    this.displayTicketDialog = false;
+    this.selectedTicket = this.createEmptyTicket();
+  }
+
+  hideTicketDialog(): void {
+    this.displayTicketDialog = false;
+    this.selectedTicket = this.createEmptyTicket();
+  }
+
+  updateTicketStatus(ticket: Ticket, newStatus: Ticket['status']): void {
+    const index = this.tickets.findIndex(t => t.id === ticket.id);
+    if (index !== -1) {
+      this.tickets[index].status = newStatus;
+    }
+  }
+
+  getTicketsByStatus(status: Ticket['status']): Ticket[] {
+    return this.tickets.filter(ticket => ticket.status === status);
   }
 }
