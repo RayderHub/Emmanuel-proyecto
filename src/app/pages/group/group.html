@@ -118,17 +118,19 @@
       </div>
     </div>
 
-    <!-- Ticket System Section -->
-    @if (currentView === 'tickets') {
+    <!-- Ticket System Section Modal -->
+    <p-dialog 
+      header="Tickets de {{ selectedGroupForTickets?.name }}" 
+      [(visible)]="displayTicketsModal" 
+      [modal]="true" 
+      [style]="{ width: '75vw' }"
+      [maximizable]="true"
+      [draggable]="false" 
+      [resizable]="false">
+      
       <div class="tickets-section">
-        <!-- Header with back button -->
-        <div class="tickets-header">
-          <button pButton label="Volver a Grupos" icon="pi pi-arrow-left" severity="secondary" (click)="currentView = 'groups'"></button>
-          <h2 class="tickets-title">Tickets de {{ selectedGroupForTickets?.name }}</h2>
-        </div>
-
         <!-- View Toggle Buttons -->
-        <div class="view-toggle-buttons">
+        <div class="view-toggle-buttons" style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
           <button 
             pButton 
             label="Lista" 
@@ -205,10 +207,10 @@
           <div class="kanban-view">
             <div class="kanban-columns">
               <!-- Pendiente Column -->
-              <div class="kanban-column">
+              <div class="kanban-column" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'pendiente')">
                 <h3 class="column-title">Pendiente</h3>
                 @for (ticket of getTicketsByStatus('pendiente'); track ticket.id) {
-                  <div class="kanban-card status-pendiente" (click)="editTicket(ticket)">
+                  <div class="kanban-card status-pendiente" (click)="editTicket(ticket)" draggable="true" (dragstart)="onDragStart($event, ticket)">
                     <div class="card-header">
                       <h4 class="card-title">{{ ticket.title }}</h4>
                       <span class="priority-indicator priority-{{ticket.priority}}"></span>
@@ -229,10 +231,10 @@
               </div>
 
               <!-- En Proceso Column -->
-              <div class="kanban-column">
+              <div class="kanban-column" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'en-proceso')">
                 <h3 class="column-title">En Proceso</h3>
                 @for (ticket of getTicketsByStatus('en-proceso'); track ticket.id) {
-                  <div class="kanban-card status-en-proceso" (click)="editTicket(ticket)">
+                  <div class="kanban-card status-en-proceso" (click)="editTicket(ticket)" draggable="true" (dragstart)="onDragStart($event, ticket)">
                     <div class="card-header">
                       <h4 class="card-title">{{ ticket.title }}</h4>
                       <span class="priority-indicator priority-{{ticket.priority}}"></span>
@@ -253,10 +255,10 @@
               </div>
 
               <!-- Revisión Column -->
-              <div class="kanban-column">
+              <div class="kanban-column" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'revision')">
                 <h3 class="column-title">Revisión</h3>
                 @for (ticket of getTicketsByStatus('revision'); track ticket.id) {
-                  <div class="kanban-card status-revision" (click)="editTicket(ticket)">
+                  <div class="kanban-card status-revision" (click)="editTicket(ticket)" draggable="true" (dragstart)="onDragStart($event, ticket)">
                     <div class="card-header">
                       <h4 class="card-title">{{ ticket.title }}</h4>
                       <span class="priority-indicator priority-{{ticket.priority}}"></span>
@@ -277,10 +279,10 @@
               </div>
 
               <!-- Finalizado Column -->
-              <div class="kanban-column">
+              <div class="kanban-column" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'finalizado')">
                 <h3 class="column-title">Finalizado</h3>
                 @for (ticket of getTicketsByStatus('finalizado'); track ticket.id) {
-                  <div class="kanban-card status-finalizado" (click)="editTicket(ticket)">
+                  <div class="kanban-card status-finalizado" (click)="editTicket(ticket)" draggable="true" (dragstart)="onDragStart($event, ticket)">
                     <div class="card-header">
                       <h4 class="card-title">{{ ticket.title }}</h4>
                       <span class="priority-indicator priority-{{ticket.priority}}"></span>
@@ -303,7 +305,7 @@
           </div>
         }
       </div>
-    }
+    </p-dialog>
   </div>
 
   <!-- Modal Dialog para Agregar/Editar Estudiantes -->

@@ -65,12 +65,13 @@ export class Group implements OnInit {
   selectedGroup: GroupData = this.createEmptyGroup();
 
   // Properties for view management
-  currentView: 'groups' | 'tickets' = 'groups';
+  displayTicketsModal: boolean = false;
   ticketView: 'lista' | 'kanban' = 'lista';
   displayTicketDialog: boolean = false;
   ticketEditMode: boolean = false;
   selectedTicket: Ticket = this.createEmptyTicket();
   selectedGroupForTickets: GroupData | null = null; // Grupo seleccionado para ver tickets
+  draggedTicket: Ticket | null = null; // Para Drag And Drop
 
   constructor(private permissionService: PermissionService) {}
 
@@ -315,11 +316,11 @@ export class Group implements OnInit {
 
   // View management methods
   showGroupsView(): void {
-    this.currentView = 'groups';
+    this.displayTicketsModal = false;
   }
 
   showTicketsView(): void {
-    this.currentView = 'tickets';
+    this.displayTicketsModal = true;
     this.ticketView = 'lista';
   }
 
@@ -382,7 +383,7 @@ export class Group implements OnInit {
   // Método para ver tickets de un grupo específico
   viewGroupTickets(group: GroupData): void {
     this.selectedGroupForTickets = group;
-    this.currentView = 'tickets';
+    this.displayTicketsModal = true;
     this.ticketView = 'lista';
   }
 
@@ -397,5 +398,30 @@ export class Group implements OnInit {
   getTicketsByStatus(status: Ticket['status']): Ticket[] {
     const filteredTickets = this.getFilteredTickets();
     return filteredTickets.filter(ticket => ticket.status === status);
+  }
+
+  // Drag and Drop Methods
+  onDragStart(event: DragEvent, ticket: Ticket): void {
+    this.draggedTicket = ticket;
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', ticket.id.toString());
+    }
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault(); // Necesario para permitir el drop
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+  }
+
+  onDrop(event: DragEvent, status: Ticket['status']): void {
+    event.preventDefault();
+    if (this.draggedTicket) {
+      // Evitar abrir el el edit dialog al soltar
+      this.updateTicketStatus(this.draggedTicket, status);
+      this.draggedTicket = null;
+    }
   }
 }

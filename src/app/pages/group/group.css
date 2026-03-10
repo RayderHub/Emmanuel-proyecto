@@ -372,6 +372,17 @@ input[type="number"]::-webkit-inner-spin-button {
   border-radius: 0.5rem;
   padding: 1rem;
   min-height: 500px;
+  transition: background-color 0.2s ease, border 0.2s ease;
+  border: 2px dashed transparent;
+}
+
+/* Kanban Cards Drag state */
+.kanban-card[draggable] {
+  cursor: grab;
+}
+
+.kanban-card[draggable]:active {
+  cursor: grabbing;
 }
 
 .column-title {
