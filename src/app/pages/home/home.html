@@ -1,7 +1,91 @@
 <app-sidebar></app-sidebar>
-<div class="home-container">
-  <div class="home-card">
-    <h1>Bienvenido</h1>
-    <p>metete al inicio ptm</p>
-  </div>
+
+<div class="home-main">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="status-dot-sm"></span>
+        Plataforma Educativa
+      </div>
+      <h1 class="hero-title">
+        Bienvenido a <br>
+        <span class="gradient-text">EmmanuelApp</span>
+      </h1>
+      <p class="hero-subtitle">
+        Gestiona grupos, estudiantes y tickets de forma intuitiva.<br>
+        Una plataforma moderna para la educación del futuro.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" routerLink="/group">
+          <i class="pi pi-users"></i>
+          Ver Grupos
+        </a>
+        <a class="btn btn-secondary" routerLink="/user">
+          <i class="pi pi-user"></i>
+          Mi Perfil
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="home-stats">
+    <div class="stat-card">
+      <div class="stat-icon indigo">
+        <i class="pi pi-users"></i>
+      </div>
+      <div>
+        <div class="stat-label">Grupos Activos</div>
+        <div class="stat-value">3</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green">
+        <i class="pi pi-check-circle"></i>
+      </div>
+      <div>
+        <div class="stat-label">Estudiantes</div>
+        <div class="stat-value">65</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon amber">
+        <i class="pi pi-ticket"></i>
+      </div>
+      <div>
+        <div class="stat-label">Tickets Totales</div>
+        <div class="stat-value">4</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features-section">
+    <h2 class="section-heading">¿Qué puedes hacer?</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(99,102,241,0.12);color:#818cf8">
+          <i class="pi pi-users"></i>
+        </div>
+        <h3>Gestión de Grupos</h3>
+        <p>Crea, edita y organiza grupos académicos con toda su información.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(16,185,129,0.12);color:#34d399">
+          <i class="pi pi-ticket"></i>
+        </div>
+        <h3>Sistema de Tickets</h3>
+        <p>Administra tareas con vistas en lista y tablero Kanban con drag & drop.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(245,158,11,0.12);color:#fbbf24">
+          <i class="pi pi-user"></i>
+        </div>
+        <h3>Perfiles de Usuario</h3>
+        <p>Administra tus datos de perfil, estadísticas y configuración de cuenta.</p>
+      </div>
+    </div>
+  </section>
 </div>

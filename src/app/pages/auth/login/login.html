@@ -1,25 +1,51 @@
 <app-sidebar></app-sidebar>
-<div class="auth-container">
+<div class="login-page">
   <p-toast />
-  <p-card header="Iniciar sesión">
-    <div class="field">
-      <label for="email">Usuario</label>
-      <input id="email" type="text" pInputText placeholder="Nombre de usuario" [(ngModel)]="email" name="email" 
-        [ngClass]="{ 'ng-invalid ng-dirty': loginError }" />
+  <div class="auth-box">
+    <!-- Logo -->
+    <div class="auth-logo">
+      <div class="auth-logo-icon">
+        <i class="pi pi-bolt"></i>
+      </div>
+      <div>
+        <div class="auth-logo-name">EmmanuelApp</div>
+      </div>
     </div>
-    <div class="field">
-      <label for="password">Contraseña</label>
-      <p-password inputId="password" [(ngModel)]="password" toggleMask [feedback]="false"
-        [ngClass]="{ 'ng-invalid ng-dirty': loginError }" />
+
+    <h1 class="auth-title">Bienvenido de vuelta</h1>
+    <p class="auth-subtitle">Ingresa tus credenciales para continuar</p>
+
+    <div class="form-group">
+      <label class="form-label" for="email">Usuario</label>
+      <input id="email" type="text" class="form-input" placeholder="Ingresa tu usuario" [(ngModel)]="email" name="email"
+        [class.input-error]="loginError" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="password">Contraseña</label>
+      <p-password inputId="password" [(ngModel)]="password" toggleMask [feedback]="false" styleClass="w-full"
+        inputStyleClass="form-input w-full" [ngClass]="{ 'ng-invalid ng-dirty': loginError }" />
     </div>
 
     @if (loginError) {
-    <p-message severity="error" text="Correo o contraseña incorrectos" styleClass="w-full mb-3" />
+    <div class="error-alert">
+      <i class="pi pi-exclamation-circle"></i>
+      <span>Usuario o contraseña incorrectos</span>
+    </div>
     }
 
-    <div class="actions">
-      <button pButton label="Entrar" severity="primary" [disabled]="!email || !password" (click)="onLogin()"></button>
-      <button pButton label="Crear cuenta" severity="secondary" [text]="true" routerLink="/auth/register"></button>
+    <button class="btn-submit" [disabled]="!email || !password" (click)="onLogin()">
+      <i class="pi pi-sign-in"></i>
+      Iniciar Sesión
+    </button>
+
+    <div class="auth-divider">
+      <span>o</span>
     </div>
-  </p-card>
+
+    <div class="auth-footer-row">
+      <span>¿No tienes cuenta?</span>
+      <button class="link-btn" routerLink="/auth/register">Crear cuenta gratis</button>
+    </div>
+  </div>
 </div>

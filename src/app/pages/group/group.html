@@ -1,32 +1,46 @@
 <app-sidebar></app-sidebar>
-<div class="group-container">
-  <div class="crud-content">
-    <!-- Header Section -->
-    <div class="header-section">
-      <h1 class="page-title">Gestión de Grupos</h1>
-      <p class="page-subtitle">Administra los grupos académicos y sus tickets</p>
-    </div>
+<div class="group-main">
 
-    <!-- Groups Section -->
-      <!-- Card TOTAL -->
-      <div class="total-card">
-      <div class="card-left">
-        <span class="card-label uppercase">TOTAL</span>
-        <h1 class="card-number">{{ memberCount }}</h1>
-      </div>
-      <div class="card-right">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">Gestión de Grupos</h1>
+    <p class="page-subtitle">Administra los grupos académicos y sus tickets</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-icon indigo">
         <i class="pi pi-users"></i>
       </div>
+      <div>
+        <span class="stat-label">Alumnos Totales</span>
+        <div class="stat-value">{{ memberCount }}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green">
+        <i class="pi pi-folder"></i>
+      </div>
+      <div>
+        <span class="stat-label">Grupos Activos</span>
+        <div class="stat-value">{{ groups.length }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== STUDENTS SECTION ===== -->
+  <div class="section">
+    <div class="section-head">
+      <h2 class="section-title">Alumnos</h2>
+      <button *appPermission="'group.create'" class="btn btn-success" (click)="addStudent()">
+        <i class="pi pi-plus"></i>
+        Nuevo Alumno
+      </button>
     </div>
 
-    <!-- Botón Nuevo Alumno -->
-    <div class="action-bar">
-      <button *appPermission="'group.create'" pButton label="Nuevo Alumno" icon="pi pi-plus" class="new-group-btn" severity="success" (click)="addStudent()"></button>
-    </div>
-
-    <!-- Tabla CRUD -->
-    <div class="crud-table-container">
-      <table class="crud-table">
+    <div class="table-wrap">
+      <table class="app-table">
         <thead>
           <tr>
             <th>Usuario</th>
@@ -35,536 +49,503 @@
             <th>Fecha Nac.</th>
             <th>Dirección</th>
             <th>Teléfono</th>
-            <th>Integrantes</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           @for (student of students; track student.id) {
             <tr>
-              <td>{{ student.username }}</td>
-              <td>{{ student.email }}</td>
-              <td>{{ student.fullName }}</td>
-              <td>{{ student.birthDate }}</td>
-              <td>{{ student.address }}</td>
-              <td>{{ student.phone }}</td>
-              <td>{{ memberCount }}</td>
               <td>
-                <div class="table-actions">
-                  <button *appPermission="'group.edit'" pButton label="Editar" icon="pi pi-pencil" severity="info" class="action-btn edit-btn" (click)="editStudent(student)"></button>
-                  <button *appPermission="'group.delete'" pButton label="Borrar" icon="pi pi-trash" severity="danger" class="action-btn delete-btn" (click)="deleteStudent(student.id)"></button>
+                <span style="color:#818cf8;font-weight:600">{{ student.username }}</span>
+              </td>
+              <td class="td-muted">{{ student.email }}</td>
+              <td>{{ student.fullName }}</td>
+              <td class="td-muted">{{ student.birthDate }}</td>
+              <td class="td-muted" style="max-width:200px;overflow:hidden;text-overflow:ellipsis">{{ student.address }}</td>
+              <td class="td-muted">{{ student.phone }}</td>
+              <td>
+                <div class="action-group">
+                  <button *appPermission="'group.edit'"
+                    class="btn btn-sm btn-info"
+                    (click)="editStudent(student)">
+                    <i class="pi pi-pencil"></i>
+                    Editar
+                  </button>
+                  <button *appPermission="'group.delete'"
+                    class="btn btn-sm btn-danger"
+                    (click)="deleteStudent(student.id)">
+                    <i class="pi pi-trash"></i>
+                    Borrar
+                  </button>
                 </div>
               </td>
             </tr>
           }
         </tbody>
       </table>
-      
-      <!-- Paginación -->
       <div class="table-pagination">
-        <div class="pagination-controls">
-          <i class="pi pi-angle-double-left"></i>
-          <i class="pi pi-angle-left"></i>
-          <span class="page-number active">1</span>
-          <i class="pi pi-angle-right"></i>
-          <i class="pi pi-angle-double-right"></i>
-        </div>
+        <div class="page-btn"><i class="pi pi-angle-double-left"></i></div>
+        <div class="page-btn"><i class="pi pi-angle-left"></i></div>
+        <div class="page-btn active">1</div>
+        <div class="page-btn"><i class="pi pi-angle-right"></i></div>
+        <div class="page-btn"><i class="pi pi-angle-double-right"></i></div>
       </div>
     </div>
-
-    <!-- Sección de Grupos -->
-    <div class="groups-section">
-      <h2 class="section-title">Gestión de Grupos</h2>
-      
-      <!-- Botón Nuevo Grupo -->
-      <div class="action-bar">
-        <button *appPermission="'group.create'" pButton label="Nuevo Grupo" icon="pi pi-plus" class="new-group-btn" severity="success" (click)="addGroup()"></button>
-      </div>
-
-      <!-- Tabla de Grupos -->
-      <div class="crud-table-container">
-        <table class="crud-table">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Descripción</th>
-              <th>Curso</th>
-              <th>Semestre</th>
-              <th>Fecha Creación</th>
-              <th>Estudiantes</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (group of groups; track group.id) {
-              <tr>
-                <td>{{ group.name }}</td>
-                <td>{{ group.description }}</td>
-                <td>{{ group.course }}</td>
-                <td>{{ group.semester }}</td>
-                <td>{{ group.createdAt }}</td>
-                <td>{{ group.studentCount }}</td>
-                <td>
-                  <div class="table-actions">
-                    <button pButton label="Tickets" icon="pi pi-ticket" severity="help" class="action-btn tickets-btn" (click)="viewGroupTickets(group)"></button>
-                    <button *appPermission="'group.edit'" pButton label="Editar" icon="pi pi-pencil" severity="info" class="action-btn edit-btn" (click)="editGroup(group)"></button>
-                    <button *appPermission="'group.delete'" pButton label="Borrar" icon="pi pi-trash" severity="danger" class="action-btn delete-btn" (click)="deleteGroup(group.id)"></button>
-                  </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Ticket System Section Modal -->
-    <p-dialog 
-      header="Tickets de {{ selectedGroupForTickets?.name }}" 
-      [(visible)]="displayTicketsModal" 
-      [modal]="true" 
-      [style]="{ width: '75vw' }"
-      [maximizable]="true"
-      [draggable]="false" 
-      [resizable]="false">
-      
-      <div class="tickets-section">
-        <!-- View Toggle Buttons -->
-        <div class="view-toggle-buttons" style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
-          <button 
-            pButton 
-            label="Lista" 
-            [severity]="ticketView === 'lista' ? 'primary' : 'secondary'" 
-            (click)="switchTicketView('lista')"
-            class="view-toggle-btn">
-          </button>
-          <button 
-            pButton 
-            label="Kanban" 
-            [severity]="ticketView === 'kanban' ? 'primary' : 'secondary'" 
-            (click)="switchTicketView('kanban')"
-            class="view-toggle-btn">
-          </button>
-        </div>
-
-        <!-- List View -->
-        @if (ticketView === 'lista') {
-          <div class="tickets-list-view">
-            <!-- Action Bar -->
-            <div class="action-bar">
-              <button pButton label="Nuevo Ticket" icon="pi pi-plus" severity="success" (click)="addTicket()"></button>
-            </div>
-
-            <!-- Tickets Table -->
-            <div class="crud-table-container">
-              <table class="crud-table">
-                <thead>
-                  <tr>
-                    <th>Título</th>
-                    <th>Descripción</th>
-                    <th>Estado</th>
-                    <th>Prioridad</th>
-                    <th>Asignado a</th>
-                    <th>Fecha Creación</th>
-                    <th>Fecha Límite</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (ticket of getFilteredTickets(); track ticket.id) {
-                    <tr>
-                      <td>{{ ticket.title }}</td>
-                      <td>{{ ticket.description }}</td>
-                      <td>
-                        <span class="status-badge status-{{ticket.status}}">
-                          {{ ticket.status }}
-                        </span>
-                      </td>
-                      <td>
-                        <span class="priority-badge priority-{{ticket.priority}}">
-                          {{ ticket.priority }}
-                        </span>
-                      </td>
-                      <td>{{ ticket.assignedTo }}</td>
-                      <td>{{ ticket.createdAt }}</td>
-                      <td>{{ ticket.dueDate }}</td>
-                      <td>
-                        <div class="table-actions">
-                          <button pButton label="Editar" icon="pi pi-pencil" severity="info" class="action-btn edit-btn" (click)="editTicket(ticket)"></button>
-                          <button pButton label="Borrar" icon="pi pi-trash" severity="danger" class="action-btn delete-btn" (click)="deleteTicket(ticket.id)"></button>
-                        </div>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          </div>
-        }
-
-        <!-- Kanban View -->
-        @if (ticketView === 'kanban') {
-          <div class="kanban-view">
-            <div class="kanban-columns">
-              <!-- Pendiente Column -->
-              <div class="kanban-column" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'pendiente')">
-                <h3 class="column-title">Pendiente</h3>
-                @for (ticket of getTicketsByStatus('pendiente'); track ticket.id) {
-                  <div class="kanban-card status-pendiente" (click)="editTicket(ticket)" draggable="true" (dragstart)="onDragStart($event, ticket)">
-                    <div class="card-header">
-                      <h4 class="card-title">{{ ticket.title }}</h4>
-                      <span class="priority-indicator priority-{{ticket.priority}}"></span>
-                    </div>
-                    <p class="card-description">{{ ticket.description }}</p>
-                    <div class="card-footer">
-                      <div class="assignee-info">
-                        <i class="pi pi-user"></i>
-                        <span class="assigned-to">{{ ticket.assignedTo }}</span>
-                      </div>
-                      <div class="due-date">
-                        <i class="pi pi-calendar"></i>
-                        <span>{{ ticket.dueDate }}</span>
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
-
-              <!-- En Proceso Column -->
-              <div class="kanban-column" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'en-proceso')">
-                <h3 class="column-title">En Proceso</h3>
-                @for (ticket of getTicketsByStatus('en-proceso'); track ticket.id) {
-                  <div class="kanban-card status-en-proceso" (click)="editTicket(ticket)" draggable="true" (dragstart)="onDragStart($event, ticket)">
-                    <div class="card-header">
-                      <h4 class="card-title">{{ ticket.title }}</h4>
-                      <span class="priority-indicator priority-{{ticket.priority}}"></span>
-                    </div>
-                    <p class="card-description">{{ ticket.description }}</p>
-                    <div class="card-footer">
-                      <div class="assignee-info">
-                        <i class="pi pi-user"></i>
-                        <span class="assigned-to">{{ ticket.assignedTo }}</span>
-                      </div>
-                      <div class="due-date">
-                        <i class="pi pi-calendar"></i>
-                        <span>{{ ticket.dueDate }}</span>
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
-
-              <!-- Revisión Column -->
-              <div class="kanban-column" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'revision')">
-                <h3 class="column-title">Revisión</h3>
-                @for (ticket of getTicketsByStatus('revision'); track ticket.id) {
-                  <div class="kanban-card status-revision" (click)="editTicket(ticket)" draggable="true" (dragstart)="onDragStart($event, ticket)">
-                    <div class="card-header">
-                      <h4 class="card-title">{{ ticket.title }}</h4>
-                      <span class="priority-indicator priority-{{ticket.priority}}"></span>
-                    </div>
-                    <p class="card-description">{{ ticket.description }}</p>
-                    <div class="card-footer">
-                      <div class="assignee-info">
-                        <i class="pi pi-user"></i>
-                        <span class="assigned-to">{{ ticket.assignedTo }}</span>
-                      </div>
-                      <div class="due-date">
-                        <i class="pi pi-calendar"></i>
-                        <span>{{ ticket.dueDate }}</span>
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
-
-              <!-- Finalizado Column -->
-              <div class="kanban-column" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'finalizado')">
-                <h3 class="column-title">Finalizado</h3>
-                @for (ticket of getTicketsByStatus('finalizado'); track ticket.id) {
-                  <div class="kanban-card status-finalizado" (click)="editTicket(ticket)" draggable="true" (dragstart)="onDragStart($event, ticket)">
-                    <div class="card-header">
-                      <h4 class="card-title">{{ ticket.title }}</h4>
-                      <span class="priority-indicator priority-{{ticket.priority}}"></span>
-                    </div>
-                    <p class="card-description">{{ ticket.description }}</p>
-                    <div class="card-footer">
-                      <div class="assignee-info">
-                        <i class="pi pi-user"></i>
-                        <span class="assigned-to">{{ ticket.assignedTo }}</span>
-                      </div>
-                      <div class="due-date">
-                        <i class="pi pi-calendar"></i>
-                        <span>{{ ticket.dueDate }}</span>
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-          </div>
-        }
-      </div>
-    </p-dialog>
   </div>
 
-  <!-- Modal Dialog para Agregar/Editar Estudiantes -->
-  <p-dialog 
-    header="{{ editMode ? 'Editar Estudiante' : 'Nuevo Estudiante' }}" 
-    [(visible)]="displayDialog" 
-    [modal]="true" 
-    [style]="{ width: '600px' }"
-    [draggable]="false" 
+  <div class="section-divider"></div>
+
+  <!-- ===== GROUPS SECTION ===== -->
+  <div class="section">
+    <div class="section-head">
+      <h2 class="section-title">Grupos Académicos</h2>
+      <button *appPermission="'group.create'" class="btn btn-success" (click)="addGroup()">
+        <i class="pi pi-plus"></i>
+        Nuevo Grupo
+      </button>
+    </div>
+
+    <div class="table-wrap">
+      <table class="app-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Curso</th>
+            <th>Semestre</th>
+            <th>Fecha Creación</th>
+            <th>Estudiantes</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (group of groups; track group.id) {
+            <tr>
+              <td style="font-weight:600">{{ group.name }}</td>
+              <td class="td-muted">{{ group.description }}</td>
+              <td>{{ group.course }}</td>
+              <td class="td-muted">{{ group.semester }}</td>
+              <td class="td-muted">{{ group.createdAt }}</td>
+              <td>
+                <span style="color:#34d399;font-weight:700">{{ group.studentCount }}</span>
+              </td>
+              <td>
+                <div class="action-group">
+                  <button class="btn btn-sm btn-purple" (click)="viewGroupTickets(group)">
+                    <i class="pi pi-ticket"></i>
+                    Tickets
+                  </button>
+                  <button *appPermission="'group.edit'"
+                    class="btn btn-sm btn-info"
+                    (click)="editGroup(group)">
+                    <i class="pi pi-pencil"></i>
+                    Editar
+                  </button>
+                  <button *appPermission="'group.delete'"
+                    class="btn btn-sm btn-danger"
+                    (click)="deleteGroup(group.id)">
+                    <i class="pi pi-trash"></i>
+                    Borrar
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== MODAL: TICKETS ===== -->
+  <p-dialog
+    header="Tickets — {{ selectedGroupForTickets?.name }}"
+    [(visible)]="displayTicketsModal"
+    [modal]="true"
+    [style]="{ width: '80vw', maxWidth: '1100px' }"
+    [maximizable]="true"
+    [draggable]="false"
     [resizable]="false">
-    
-    <div class="dialog-content">
-      <div class="form-grid">
-        <div class="field">
-          <label for="username">Usuario</label>
-          <input 
-            id="username" 
-            pInputText 
-            [(ngModel)]="selectedStudent.username" 
-            placeholder="@usuario"
-            class="w-full" />
+
+    <div class="tickets-modal-body">
+      <!-- Toggle View -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem">
+        <div class="view-toggle">
+          <button
+            class="toggle-btn"
+            [class.active]="ticketView === 'lista'"
+            (click)="switchTicketView('lista')">
+            <i class="pi pi-list"></i> Lista
+          </button>
+          <button
+            class="toggle-btn"
+            [class.active]="ticketView === 'kanban'"
+            (click)="switchTicketView('kanban')">
+            <i class="pi pi-th-large"></i> Kanban
+          </button>
         </div>
-        
-        <div class="field">
-          <label for="fullName">Nombre Completo</label>
-          <input 
-            id="fullName" 
-            pInputText 
-            [(ngModel)]="selectedStudent.fullName" 
-            placeholder="Nombre completo"
-            class="w-full" />
+        <button class="btn btn-success btn-sm" (click)="addTicket()">
+          <i class="pi pi-plus"></i> Nuevo Ticket
+        </button>
+      </div>
+
+      <!-- List View -->
+      @if (ticketView === 'lista') {
+        <div class="table-wrap">
+          <table class="app-table" style="min-width:900px">
+            <thead>
+              <tr>
+                <th>Título</th>
+                <th>Descripción</th>
+                <th>Estado</th>
+                <th>Prioridad</th>
+                <th>Asignado a</th>
+                <th>Creación</th>
+                <th>Fecha Límite</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (ticket of getFilteredTickets(); track ticket.id) {
+                <tr>
+                  <td style="font-weight:600">{{ ticket.title }}</td>
+                  <td class="td-muted" style="max-width:150px;overflow:hidden;text-overflow:ellipsis">{{ ticket.description }}</td>
+                  <td>
+                    <span class="status-badge status-{{ ticket.status }}">{{ ticket.status }}</span>
+                  </td>
+                  <td>
+                    <span class="priority-badge priority-{{ ticket.priority }}">{{ ticket.priority }}</span>
+                  </td>
+                  <td class="td-muted">{{ ticket.assignedTo }}</td>
+                  <td class="td-muted">{{ ticket.createdAt }}</td>
+                  <td class="td-muted">{{ ticket.dueDate }}</td>
+                  <td>
+                    <div class="action-group">
+                      <button class="btn btn-sm btn-info" (click)="editTicket(ticket)">
+                        <i class="pi pi-pencil"></i>
+                      </button>
+                      <button class="btn btn-sm btn-danger" (click)="deleteTicket(ticket.id)">
+                        <i class="pi pi-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
         </div>
-        
-        <div class="field">
-          <label for="birthDate">Fecha de Nacimiento</label>
-          <p-datePicker 
-            id="birthDate" 
-            [(ngModel)]="selectedStudent.birthDate" 
-            dateFormat="dd/mm/yy"
-            placeholder="dd/mm/aaaa"
-            class="w-full" />
+      }
+
+      <!-- Kanban View -->
+      @if (ticketView === 'kanban') {
+        <div class="kanban-board">
+          <!-- Pendiente -->
+          <div class="kanban-col"
+            (dragover)="onDragOver($event)"
+            (drop)="onDrop($event, 'pendiente')">
+            <div class="kanban-col-header">
+              <span class="col-indicator pendiente"></span>
+              <span class="col-title">Pendiente</span>
+              <span class="col-badge">{{ getTicketsByStatus('pendiente').length }}</span>
+            </div>
+            @for (ticket of getTicketsByStatus('pendiente'); track ticket.id) {
+              <div class="kanban-card status-pendiente"
+                draggable="true"
+                (dragstart)="onDragStart($event, ticket)"
+                (click)="editTicket(ticket)">
+                <div class="card-header-row">
+                  <span class="card-title">{{ ticket.title }}</span>
+                  <span class="priority-dot priority-{{ ticket.priority }}"></span>
+                </div>
+                <p class="card-desc">{{ ticket.description }}</p>
+                <div class="card-footer-row">
+                  <span><i class="pi pi-user"></i><span class="card-assignee">{{ ticket.assignedTo }}</span></span>
+                  <span><i class="pi pi-calendar"></i>{{ ticket.dueDate }}</span>
+                </div>
+              </div>
+            }
+            @if (!getTicketsByStatus('pendiente').length) {
+              <div class="empty-kanban"><i class="pi pi-inbox"></i>Sin tickets</div>
+            }
+          </div>
+
+          <!-- En Proceso -->
+          <div class="kanban-col"
+            (dragover)="onDragOver($event)"
+            (drop)="onDrop($event, 'en-proceso')">
+            <div class="kanban-col-header">
+              <span class="col-indicator en-proceso"></span>
+              <span class="col-title">En Proceso</span>
+              <span class="col-badge">{{ getTicketsByStatus('en-proceso').length }}</span>
+            </div>
+            @for (ticket of getTicketsByStatus('en-proceso'); track ticket.id) {
+              <div class="kanban-card status-en-proceso"
+                draggable="true"
+                (dragstart)="onDragStart($event, ticket)"
+                (click)="editTicket(ticket)">
+                <div class="card-header-row">
+                  <span class="card-title">{{ ticket.title }}</span>
+                  <span class="priority-dot priority-{{ ticket.priority }}"></span>
+                </div>
+                <p class="card-desc">{{ ticket.description }}</p>
+                <div class="card-footer-row">
+                  <span><i class="pi pi-user"></i><span class="card-assignee">{{ ticket.assignedTo }}</span></span>
+                  <span><i class="pi pi-calendar"></i>{{ ticket.dueDate }}</span>
+                </div>
+              </div>
+            }
+            @if (!getTicketsByStatus('en-proceso').length) {
+              <div class="empty-kanban"><i class="pi pi-inbox"></i>Sin tickets</div>
+            }
+          </div>
+
+          <!-- Revisión -->
+          <div class="kanban-col"
+            (dragover)="onDragOver($event)"
+            (drop)="onDrop($event, 'revision')">
+            <div class="kanban-col-header">
+              <span class="col-indicator revision"></span>
+              <span class="col-title">Revisión</span>
+              <span class="col-badge">{{ getTicketsByStatus('revision').length }}</span>
+            </div>
+            @for (ticket of getTicketsByStatus('revision'); track ticket.id) {
+              <div class="kanban-card status-revision"
+                draggable="true"
+                (dragstart)="onDragStart($event, ticket)"
+                (click)="editTicket(ticket)">
+                <div class="card-header-row">
+                  <span class="card-title">{{ ticket.title }}</span>
+                  <span class="priority-dot priority-{{ ticket.priority }}"></span>
+                </div>
+                <p class="card-desc">{{ ticket.description }}</p>
+                <div class="card-footer-row">
+                  <span><i class="pi pi-user"></i><span class="card-assignee">{{ ticket.assignedTo }}</span></span>
+                  <span><i class="pi pi-calendar"></i>{{ ticket.dueDate }}</span>
+                </div>
+              </div>
+            }
+            @if (!getTicketsByStatus('revision').length) {
+              <div class="empty-kanban"><i class="pi pi-inbox"></i>Sin tickets</div>
+            }
+          </div>
+
+          <!-- Finalizado -->
+          <div class="kanban-col"
+            (dragover)="onDragOver($event)"
+            (drop)="onDrop($event, 'finalizado')">
+            <div class="kanban-col-header">
+              <span class="col-indicator finalizado"></span>
+              <span class="col-title">Finalizado</span>
+              <span class="col-badge">{{ getTicketsByStatus('finalizado').length }}</span>
+            </div>
+            @for (ticket of getTicketsByStatus('finalizado'); track ticket.id) {
+              <div class="kanban-card status-finalizado"
+                draggable="true"
+                (dragstart)="onDragStart($event, ticket)"
+                (click)="editTicket(ticket)">
+                <div class="card-header-row">
+                  <span class="card-title">{{ ticket.title }}</span>
+                  <span class="priority-dot priority-{{ ticket.priority }}"></span>
+                </div>
+                <p class="card-desc">{{ ticket.description }}</p>
+                <div class="card-footer-row">
+                  <span><i class="pi pi-user"></i><span class="card-assignee">{{ ticket.assignedTo }}</span></span>
+                  <span><i class="pi pi-calendar"></i>{{ ticket.dueDate }}</span>
+                </div>
+              </div>
+            }
+            @if (!getTicketsByStatus('finalizado').length) {
+              <div class="empty-kanban"><i class="pi pi-inbox"></i>Sin tickets</div>
+            }
+          </div>
         </div>
-        
-        <div class="field">
-          <label for="address">Dirección</label>
-          <input 
-            id="address" 
-            pInputText 
-            [(ngModel)]="selectedStudent.address" 
-            placeholder="Dirección completa"
-            class="w-full" />
-        </div>
-        
-        <div class="field">
-          <label for="phone">Teléfono</label>
-          <p-inputMask 
-            id="phone" 
-            [(ngModel)]="selectedStudent.phone" 
-            mask="(999) 999-9999"
-            placeholder="(555) 123-4567"
-            class="w-full" />
-        </div>
+      }
+    </div>
+  </p-dialog>
+
+  <!-- ===== MODAL: ALUMNO ===== -->
+  <p-dialog
+    header="{{ editMode ? 'Editar Alumno' : 'Nuevo Alumno' }}"
+    [(visible)]="displayDialog"
+    [modal]="true"
+    [style]="{ width: '560px' }"
+    [draggable]="false"
+    [resizable]="false">
+
+    <div class="dialog-form">
+      <div class="form-field">
+        <label class="field-label" for="username">Usuario</label>
+        <input id="username" class="field-input" pInputText
+          [(ngModel)]="selectedStudent.username"
+          placeholder="@usuario" />
+      </div>
+      <div class="form-field">
+        <label class="field-label" for="fullName">Nombre Completo</label>
+        <input id="fullName" class="field-input" pInputText
+          [(ngModel)]="selectedStudent.fullName"
+          placeholder="Nombre completo" />
+      </div>
+      <div class="form-field">
+        <label class="field-label" for="birthDate">Fecha de Nacimiento</label>
+        <p-datePicker id="birthDate"
+          [(ngModel)]="selectedStudent.birthDate"
+          dateFormat="dd/mm/yy"
+          placeholder="dd/mm/aaaa"
+          styleClass="w-full" />
+      </div>
+      <div class="form-field">
+        <label class="field-label" for="phone">Teléfono</label>
+        <p-inputMask id="phone"
+          [(ngModel)]="selectedStudent.phone"
+          mask="(999) 999-9999"
+          placeholder="(555) 123-4567"
+          styleClass="w-full" />
+      </div>
+      <div class="form-field full">
+        <label class="field-label" for="address">Dirección</label>
+        <input id="address" class="field-input" pInputText
+          [(ngModel)]="selectedStudent.address"
+          placeholder="Dirección completa" />
       </div>
     </div>
-    
+
     <ng-template pTemplate="footer">
-      <button 
-        pButton 
-        label="Cancelar" 
-        icon="pi pi-times" 
-        class="p-button-text" 
-        (click)="hideDialog()">
+      <button class="btn btn-ghost" (click)="hideDialog()">
+        <i class="pi pi-times"></i> Cancelar
       </button>
-      <button 
-        pButton 
-        label="{{ editMode ? 'Actualizar' : 'Guardar' }}" 
-        icon="pi pi-check" 
+      <button class="btn btn-primary"
         (click)="saveStudent()"
         [disabled]="!selectedStudent.username || !selectedStudent.fullName">
+        <i class="pi pi-check"></i>
+        {{ editMode ? 'Actualizar' : 'Guardar' }}
       </button>
     </ng-template>
   </p-dialog>
 
-  <!-- Modal Dialog para Agregar/Editar Grupos -->
-  <p-dialog 
-    header="{{ groupEditMode ? 'Editar Grupo' : 'Nuevo Grupo' }}" 
-    [(visible)]="displayGroupDialog" 
-    [modal]="true" 
-    [style]="{ width: '600px' }"
-    [draggable]="false" 
+  <!-- ===== MODAL: GRUPO ===== -->
+  <p-dialog
+    header="{{ groupEditMode ? 'Editar Grupo' : 'Nuevo Grupo' }}"
+    [(visible)]="displayGroupDialog"
+    [modal]="true"
+    [style]="{ width: '560px' }"
+    [draggable]="false"
     [resizable]="false">
-    
-    <div class="dialog-content">
-      <div class="form-grid">
-        <div class="field">
-          <label for="groupName">Nombre del Grupo</label>
-          <input 
-            id="groupName" 
-            pInputText 
-            [(ngModel)]="selectedGroup.name" 
-            placeholder="Nombre del grupo"
-            class="w-full" />
-        </div>
-        
-        <div class="field">
-          <label for="groupDescription">Descripción</label>
-          <input 
-            id="groupDescription" 
-            pInputText 
-            [(ngModel)]="selectedGroup.description" 
-            placeholder="Descripción del grupo"
-            class="w-full" />
-        </div>
-        
-        <div class="field">
-          <label for="groupCourse">Curso</label>
-          <input 
-            id="groupCourse" 
-            pInputText 
-            [(ngModel)]="selectedGroup.course" 
-            placeholder="Nombre del curso"
-            class="w-full" />
-        </div>
-        
-        <div class="field">
-          <label for="groupSemester">Semestre</label>
-          <input 
-            id="groupSemester" 
-            pInputText 
-            [(ngModel)]="selectedGroup.semester" 
-            placeholder="Semestre (ej: 2024-1)"
-            class="w-full" />
-        </div>
-        
-        <div class="field">
-          <label for="groupStudentCount">Cantidad de Estudiantes</label>
-          <input 
-            id="groupStudentCount" 
-            type="number"
-            pInputText 
-            [(ngModel)]="selectedGroup.studentCount" 
-            placeholder="0"
-            class="w-full" />
-        </div>
+
+    <div class="dialog-form">
+      <div class="form-field">
+        <label class="field-label" for="groupName">Nombre del Grupo</label>
+        <input id="groupName" class="field-input" pInputText
+          [(ngModel)]="selectedGroup.name"
+          placeholder="Nombre del grupo" />
+      </div>
+      <div class="form-field">
+        <label class="field-label" for="groupCourse">Curso</label>
+        <input id="groupCourse" class="field-input" pInputText
+          [(ngModel)]="selectedGroup.course"
+          placeholder="Nombre del curso" />
+      </div>
+      <div class="form-field full">
+        <label class="field-label" for="groupDescription">Descripción</label>
+        <input id="groupDescription" class="field-input" pInputText
+          [(ngModel)]="selectedGroup.description"
+          placeholder="Descripción del grupo" />
+      </div>
+      <div class="form-field">
+        <label class="field-label" for="groupSemestre">Semestre</label>
+        <input id="groupSemestre" class="field-input" pInputText
+          [(ngModel)]="selectedGroup.semester"
+          placeholder="2024-1" />
+      </div>
+      <div class="form-field">
+        <label class="field-label" for="groupStudentCount">Estudiantes</label>
+        <input id="groupStudentCount" type="number" class="field-input" pInputText
+          [(ngModel)]="selectedGroup.studentCount"
+          placeholder="0" />
       </div>
     </div>
-    
+
     <ng-template pTemplate="footer">
-      <button 
-        pButton 
-        label="Cancelar" 
-        icon="pi pi-times" 
-        class="p-button-text" 
-        (click)="hideGroupDialog()">
+      <button class="btn btn-ghost" (click)="hideGroupDialog()">
+        <i class="pi pi-times"></i> Cancelar
       </button>
-      <button 
-        pButton 
-        label="{{ groupEditMode ? 'Actualizar' : 'Guardar' }}" 
-        icon="pi pi-check" 
+      <button class="btn btn-primary"
         (click)="saveGroup()"
         [disabled]="!selectedGroup.name || !selectedGroup.course">
+        <i class="pi pi-check"></i>
+        {{ groupEditMode ? 'Actualizar' : 'Guardar' }}
       </button>
     </ng-template>
   </p-dialog>
 
-  <!-- Modal Dialog para Agregar/Editar Tickets -->
-  <p-dialog 
-    header="{{ ticketEditMode ? 'Editar Ticket' : 'Nuevo Ticket' }}" 
-    [(visible)]="displayTicketDialog" 
-    [modal]="true" 
-    [style]="{ width: '700px' }"
-    [draggable]="false" 
+  <!-- ===== MODAL: TICKET ===== -->
+  <p-dialog
+    header="{{ ticketEditMode ? 'Editar Ticket' : 'Nuevo Ticket' }}"
+    [(visible)]="displayTicketDialog"
+    [modal]="true"
+    [style]="{ width: '620px' }"
+    [draggable]="false"
     [resizable]="false">
-    
-    <div class="dialog-content">
-      <div class="form-grid">
-        <div class="field">
-          <label for="ticketTitle">Título</label>
-          <input 
-            id="ticketTitle" 
-            pInputText 
-            [(ngModel)]="selectedTicket.title" 
-            placeholder="Título del ticket"
-            class="w-full" />
-        </div>
-        
-        <div class="field">
-          <label for="ticketDescription">Descripción</label>
-          <textarea 
-            id="ticketDescription" 
-            [(ngModel)]="selectedTicket.description" 
-            placeholder="Descripción detallada"
-            rows="3"
-            class="w-full p-inputtext"></textarea>
-        </div>
-        
-        <div class="field">
-          <label for="ticketStatus">Estado</label>
-          <select 
-            id="ticketStatus"
-            [(ngModel)]="selectedTicket.status" 
-            class="w-full p-inputtext">
-            <option value="pendiente">Pendiente</option>
-            <option value="en-proceso">En Proceso</option>
-            <option value="revision">Revisión</option>
-            <option value="finalizado">Finalizado</option>
-          </select>
-        </div>
-        
-        <div class="field">
-          <label for="ticketPriority">Prioridad</label>
-          <select 
-            id="ticketPriority"
-            [(ngModel)]="selectedTicket.priority" 
-            class="w-full p-inputtext">
-            <option value="baja">Baja</option>
-            <option value="media">Media</option>
-            <option value="alta">Alta</option>
-            <option value="urgente">Urgente</option>
-          </select>
-        </div>
-        
-        <div class="field">
-          <label for="ticketAssignedTo">Asignado a</label>
-          <input 
-            id="ticketAssignedTo" 
-            pInputText 
-            [(ngModel)]="selectedTicket.assignedTo" 
-            placeholder="Persona asignada"
-            class="w-full" />
-        </div>
-        
-        <div class="field">
-          <label for="ticketDueDate">Fecha Límite</label>
-          <p-datePicker 
-            id="ticketDueDate" 
-            [(ngModel)]="selectedTicket.dueDate" 
-            dateFormat="dd/mm/yy"
-            placeholder="dd/mm/aaaa"
-            class="w-full" />
-        </div>
+
+    <div class="dialog-form">
+      <div class="form-field full">
+        <label class="field-label" for="ticketTitle">Título</label>
+        <input id="ticketTitle" class="field-input" pInputText
+          [(ngModel)]="selectedTicket.title"
+          placeholder="Título del ticket" />
+      </div>
+      <div class="form-field full">
+        <label class="field-label" for="ticketDescription">Descripción</label>
+        <textarea id="ticketDescription" class="field-input"
+          [(ngModel)]="selectedTicket.description"
+          placeholder="Descripción detallada del ticket"
+          rows="3"></textarea>
+      </div>
+      <div class="form-field">
+        <label class="field-label" for="ticketStatus">Estado</label>
+        <select id="ticketStatus" class="field-input"
+          [(ngModel)]="selectedTicket.status">
+          <option value="pendiente">Pendiente</option>
+          <option value="en-proceso">En Proceso</option>
+          <option value="revision">Revisión</option>
+          <option value="finalizado">Finalizado</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label class="field-label" for="ticketPriority">Prioridad</label>
+        <select id="ticketPriority" class="field-input"
+          [(ngModel)]="selectedTicket.priority">
+          <option value="baja">Baja</option>
+          <option value="media">Media</option>
+          <option value="alta">Alta</option>
+          <option value="urgente">Urgente</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label class="field-label" for="ticketAssignedTo">Asignado a</label>
+        <input id="ticketAssignedTo" class="field-input" pInputText
+          [(ngModel)]="selectedTicket.assignedTo"
+          placeholder="Persona asignada" />
+      </div>
+      <div class="form-field">
+        <label class="field-label" for="ticketDueDate">Fecha Límite</label>
+        <p-datePicker id="ticketDueDate"
+          [(ngModel)]="selectedTicket.dueDate"
+          dateFormat="dd/mm/yy"
+          placeholder="dd/mm/aaaa"
+          styleClass="w-full" />
       </div>
     </div>
-    
+
     <ng-template pTemplate="footer">
-      <button 
-        pButton 
-        label="Cancelar" 
-        icon="pi pi-times" 
-        class="p-button-text" 
-        (click)="hideTicketDialog()">
+      <button class="btn btn-ghost" (click)="hideTicketDialog()">
+        <i class="pi pi-times"></i> Cancelar
       </button>
-      <button 
-        pButton 
-        label="{{ ticketEditMode ? 'Actualizar' : 'Guardar' }}" 
-        icon="pi pi-check" 
+      <button class="btn btn-primary"
         (click)="saveTicket()"
         [disabled]="!selectedTicket.title || !selectedTicket.description">
+        <i class="pi pi-check"></i>
+        {{ ticketEditMode ? 'Actualizar' : 'Guardar' }}
       </button>
     </ng-template>
   </p-dialog>
+
 </div>

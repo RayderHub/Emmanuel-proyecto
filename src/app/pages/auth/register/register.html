@@ -1,113 +1,152 @@
 <app-sidebar></app-sidebar>
-<div class="auth-container">
+<div class="register-page">
   <p-toast />
-  <p-card header="Registro">
+  <div class="register-box">
+    <!-- Logo -->
+    <div class="auth-logo">
+      <div class="auth-logo-icon">
+        <i class="pi pi-bolt"></i>
+      </div>
+      <div>
+        <div class="auth-logo-name">EmmanuelApp</div>
+      </div>
+    </div>
+
+    <h1 class="auth-title">Crea tu cuenta</h1>
+    <p class="auth-subtitle">Únete a la plataforma educativa</p>
+
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div class="form-grid-2">
+        <!-- Usuario -->
+        <div class="form-group">
+          <label class="form-label" for="username">
+            Usuario <span class="req">*</span>
+          </label>
+          <input id="username" type="text" class="form-input" placeholder="@usuario" formControlName="username"
+            [class.input-error]="isFieldInvalid('username')" />
+          @if (isFieldInvalid('username')) {
+          <span class="field-error"><i class="pi pi-exclamation-circle"></i> El usuario es requerido</span>
+          }
+        </div>
 
-      <!-- Usuario -->
-      <div class="field">
-        <label for="username">Usuario <span class="required">*</span></label>
-        <input id="username" type="text" pInputText placeholder="Nombre de usuario" formControlName="username"
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('username') }" />
-        @if (isFieldInvalid('username')) {
-        <p-message severity="error" text="El usuario es requerido" />
-        }
+        <!-- Email -->
+        <div class="form-group">
+          <label class="form-label" for="email">
+            Correo electrónico <span class="req">*</span>
+          </label>
+          <input id="email" type="email" class="form-input" placeholder="tu@correo.com" formControlName="email"
+            [class.input-error]="isFieldInvalid('email')" />
+          @if (isFieldInvalid('email') && f['email'].errors?.['required']) {
+          <span class="field-error"><i class="pi pi-exclamation-circle"></i> El correo es requerido</span>
+          }
+          @if (isFieldInvalid('email') && f['email'].errors?.['email']) {
+          <span class="field-error"><i class="pi pi-exclamation-circle"></i> Ingresa un correo válido</span>
+          }
+        </div>
       </div>
 
-      <!-- Email -->
-      <div class="field">
-        <label for="email">Correo electrónico <span class="required">*</span></label>
-        <input id="email" type="email" pInputText placeholder="tu@correo.com" formControlName="email"
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('email') }" />
-        @if (isFieldInvalid('email') && f['email'].errors?.['required']) {
-        <p-message severity="error" text="El correo es requerido" />
-        }
-        @if (isFieldInvalid('email') && f['email'].errors?.['email']) {
-        <p-message severity="error" text="Ingresa un correo válido" />
-        }
+      <div class="form-grid-2">
+        <!-- Contraseña -->
+        <div class="form-group">
+          <label class="form-label" for="password">
+            Contraseña <span class="req">*</span>
+          </label>
+          <p-password inputId="password" formControlName="password" toggleMask [feedback]="true"
+            placeholder="Mín. 10 caracteres + símbolo" styleClass="w-full" inputStyleClass="form-input w-full"
+            [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('password') }" />
+          @if (isFieldInvalid('password') && f['password'].errors?.['required']) {
+          <span class="field-error"><i class="pi pi-exclamation-circle"></i> La contraseña es requerida</span>
+          }
+          @if (isFieldInvalid('password') && f['password'].errors?.['passwordStrength']) {
+          <span class="field-error"><i class="pi pi-exclamation-circle"></i> Mín. 10 chars y un símbolo especial</span>
+          }
+        </div>
+
+        <!-- Confirmar -->
+        <div class="form-group">
+          <label class="form-label" for="confirmPassword">
+            Confirmar contraseña <span class="req">*</span>
+          </label>
+          <p-password inputId="confirmPassword" formControlName="confirmPassword" toggleMask [feedback]="false"
+            placeholder="Repite tu contraseña" styleClass="w-full" inputStyleClass="form-input w-full"
+            [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('confirmPassword') || (submitted && registerForm.errors?.['passwordsMismatch']) }" />
+          @if (isFieldInvalid('confirmPassword') && f['confirmPassword'].errors?.['required']) {
+          <span class="field-error"><i class="pi pi-exclamation-circle"></i> Confirma tu contraseña</span>
+          }
+          @if (submitted && !f['confirmPassword'].errors?.['required'] && registerForm.errors?.['passwordsMismatch']) {
+          <span class="field-error"><i class="pi pi-exclamation-circle"></i> Las contraseñas no coinciden</span>
+          }
+        </div>
       </div>
 
-      <!-- Contraseña -->
-      <div class="field">
-        <label for="password">Contraseña <span class="required">*</span></label>
-        <p-password inputId="password" formControlName="password" toggleMask [feedback]="true"
-          placeholder="Mínimo 10 caracteres con símbolo especial"
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('password') }" />
-        @if (isFieldInvalid('password') && f['password'].errors?.['required']) {
-        <p-message severity="error" text="La contraseña es requerida" />
-        }
-        @if (isFieldInvalid('password') && f['password'].errors?.['passwordStrength']) {
-        <p-message severity="error" text="Mínimo 10 caracteres y al menos un símbolo especial (!@#$%^&*)" />
-        }
-      </div>
-
-      <!-- Confirmación de contraseña -->
-      <div class="field">
-        <label for="confirmPassword">Confirmar contraseña <span class="required">*</span></label>
-        <p-password inputId="confirmPassword" formControlName="confirmPassword" toggleMask [feedback]="false"
-          placeholder="Repite tu contraseña"
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('confirmPassword') || (submitted && registerForm.errors?.['passwordsMismatch']) }" />
-        @if (isFieldInvalid('confirmPassword') && f['confirmPassword'].errors?.['required']) {
-        <p-message severity="error" text="Debes confirmar tu contraseña" />
-        }
-        @if (submitted && !f['confirmPassword'].errors?.['required'] && registerForm.errors?.['passwordsMismatch']) {
-        <p-message severity="error" text="Las contraseñas no coinciden" />
-        }
-      </div>
-
-      <!-- Nombre completo -->
-      <div class="field">
-        <label for="fullName">Nombre completo <span class="required">*</span></label>
-        <input id="fullName" type="text" pInputText placeholder="Tu nombre completo" formControlName="fullName"
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('fullName') }" />
+      <!-- Nombre Completo -->
+      <div class="form-group">
+        <label class="form-label" for="fullName">
+          Nombre completo <span class="req">*</span>
+        </label>
+        <input id="fullName" type="text" class="form-input" placeholder="Tu nombre completo" formControlName="fullName"
+          [class.input-error]="isFieldInvalid('fullName')" />
         @if (isFieldInvalid('fullName')) {
-        <p-message severity="error" text="El nombre completo es requerido" />
+        <span class="field-error"><i class="pi pi-exclamation-circle"></i> El nombre es requerido</span>
         }
       </div>
 
-      <!-- Fecha de nacimiento -->
-      <div class="field">
-        <label for="birthDate">Fecha de nacimiento <span class="required">*</span></label>
-        <p-datepicker inputId="birthDate" formControlName="birthDate" dateFormat="dd/mm/yy" placeholder="DD/MM/AAAA"
-          [showIcon]="true" [maxDate]="maxBirthDate"
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('birthDate') }" />
-        @if (isFieldInvalid('birthDate') && f['birthDate'].errors?.['required']) {
-        <p-message severity="error" text="La fecha de nacimiento es requerida" />
-        }
-        @if (isFieldInvalid('birthDate') && f['birthDate'].errors?.['notAdult']) {
-        <p-message severity="error" text="Debes ser mayor de 18 años para registrarte" />
-        }
+      <div class="form-grid-2">
+        <!-- Fecha de Nacimiento -->
+        <div class="form-group">
+          <label class="form-label" for="birthDate">
+            Fecha de nacimiento <span class="req">*</span>
+          </label>
+          <p-datepicker inputId="birthDate" formControlName="birthDate" dateFormat="dd/mm/yy" placeholder="DD/MM/AAAA"
+            [showIcon]="true" [maxDate]="maxBirthDate" styleClass="w-full" inputStyleClass="form-input"
+            [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('birthDate') }" />
+          @if (isFieldInvalid('birthDate') && f['birthDate'].errors?.['required']) {
+          <span class="field-error"><i class="pi pi-exclamation-circle"></i> La fecha es requerida</span>
+          }
+          @if (isFieldInvalid('birthDate') && f['birthDate'].errors?.['notAdult']) {
+          <span class="field-error"><i class="pi pi-exclamation-circle"></i> Debes ser mayor de 18 años</span>
+          }
+        </div>
+
+        <!-- Teléfono -->
+        <div class="form-group">
+          <label class="form-label" for="phone">
+            Teléfono <span class="req">*</span>
+          </label>
+          <p-inputmask id="phone" mask="9999999999" formControlName="phone" placeholder="10 dígitos" styleClass="w-full"
+            inputStyleClass="form-input" [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('phone') }" />
+          @if (isFieldInvalid('phone') && f['phone'].errors?.['required']) {
+          <span class="field-error"><i class="pi pi-exclamation-circle"></i> El teléfono es requerido</span>
+          }
+          @if (isFieldInvalid('phone') && f['phone'].errors?.['pattern']) {
+          <span class="field-error"><i class="pi pi-exclamation-circle"></i> Solo números (10 dígitos)</span>
+          }
+        </div>
       </div>
 
       <!-- Dirección -->
-      <div class="field">
-        <label for="address">Dirección <span class="required">*</span></label>
-        <input id="address" type="text" pInputText placeholder="Tu dirección" formControlName="address"
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('address') }" />
+      <div class="form-group">
+        <label class="form-label" for="address">
+          Dirección <span class="req">*</span>
+        </label>
+        <input id="address" type="text" class="form-input" placeholder="Tu dirección completa" formControlName="address"
+          [class.input-error]="isFieldInvalid('address')" />
         @if (isFieldInvalid('address')) {
-        <p-message severity="error" text="La dirección es requerida" />
+        <span class="field-error"><i class="pi pi-exclamation-circle"></i> La dirección es requerida</span>
         }
       </div>
 
-      <!-- Teléfono -->
-      <div class="field">
-        <label for="phone">Número de teléfono <span class="required">*</span></label>
-        <p-inputmask id="phone" mask="9999999999" formControlName="phone" placeholder="10 dígitos"
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('phone') }" />
-        @if (isFieldInvalid('phone') && f['phone'].errors?.['required']) {
-        <p-message severity="error" text="El teléfono es requerido" />
-        }
-        @if (isFieldInvalid('phone') && f['phone'].errors?.['pattern']) {
-        <p-message severity="error" text="Solo se permiten números (10 dígitos)" />
-        }
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="submit" class="btn-submit">
+          <i class="pi pi-user-plus"></i>
+          Crear cuenta
+        </button>
+        <div class="auth-footer-row">
+          <span>¿Ya tienes cuenta?</span>
+          <button type="button" class="link-btn" routerLink="/auth/login">Iniciar sesión</button>
+        </div>
       </div>
-
-      <div class="actions">
-        <button pButton type="submit" label="Registrarse" severity="primary"></button>
-        <button pButton type="button" label="Ya tengo cuenta" severity="secondary" [text]="true"
-          routerLink="/auth/login"></button>
-      </div>
-
     </form>
-  </p-card>
+  </div>
 </div>

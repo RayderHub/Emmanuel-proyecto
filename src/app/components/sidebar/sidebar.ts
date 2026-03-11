@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
     selector: 'app-sidebar',
     standalone: true,
-    imports: [RouterLink, ButtonModule],
+    imports: [RouterLink, RouterLinkActive],
     templateUrl: './sidebar.html',
     styleUrl: './sidebar.css'
 })

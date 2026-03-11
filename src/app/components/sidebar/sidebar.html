@@ -1,14 +1,52 @@
-<div class="sidebar-container">
-  <div class="sidebar-header">
-    <h2>Pagina no me acuerdo el nombre</h2>
-  </div>
-  <div class="sidebar-content">
-    <button pButton label="Home" severity="help" routerLink="/" class="sidebar-button"></button>
-    <button pButton label="Usuario" severity="info" routerLink="/user" class="sidebar-button"></button>
-    <button pButton label="Grupos" severity="success" routerLink="/group" class="sidebar-button"></button>
-    <button pButton label="Iniciar Sesión" severity="danger" routerLink="/auth/login" class="sidebar-button"></button>
-    <button pButton label="Registrarse" severity="secondary" routerLink="/auth/register" class="sidebar-button"></button>
+<nav class="sidebar">
+  <!-- Logo / Brand -->
+  <div class="sidebar-brand">
+    <div class="brand-icon">
+      <i class="pi pi-bolt"></i>
+    </div>
+    <div class="brand-text">
+      <span class="brand-name">EmmanuelApp</span>
+      <span class="brand-version">v1.0</span>
+    </div>
   </div>
 
-  <h2>Varsion 1.0</h2>
-</div>
+  <!-- Navigation Links -->
+  <div class="sidebar-nav">
+    <p class="nav-section-label">Principal</p>
+
+    <a class="nav-item" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+      <span class="nav-icon"><i class="pi pi-home"></i></span>
+      <span class="nav-label">Inicio</span>
+    </a>
+
+    <a class="nav-item" routerLink="/user" routerLinkActive="active">
+      <span class="nav-icon"><i class="pi pi-user"></i></span>
+      <span class="nav-label">Perfil</span>
+    </a>
+
+    <a class="nav-item" routerLink="/group" routerLinkActive="active">
+      <span class="nav-icon"><i class="pi pi-users"></i></span>
+      <span class="nav-label">Grupos</span>
+    </a>
+
+    <p class="nav-section-label" style="margin-top:1.5rem">Cuenta</p>
+
+    <a class="nav-item" routerLink="/auth/login" routerLinkActive="active">
+      <span class="nav-icon"><i class="pi pi-sign-in"></i></span>
+      <span class="nav-label">Iniciar Sesión</span>
+    </a>
+
+    <a class="nav-item" routerLink="/auth/register" routerLinkActive="active">
+      <span class="nav-icon"><i class="pi pi-user-plus"></i></span>
+      <span class="nav-label">Registrarse</span>
+    </a>
+  </div>
+
+  <!-- Footer -->
+  <div class="sidebar-footer">
+    <div class="footer-status">
+      <span class="status-dot"></span>
+      <span class="status-text">Sistema activo</span>
+    </div>
+  </div>
+</nav>

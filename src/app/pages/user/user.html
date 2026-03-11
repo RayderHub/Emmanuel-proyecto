@@ -1,85 +1,142 @@
 <app-sidebar></app-sidebar>
-<div class="user-container">
+
+<div class="user-main">
   @if (!isDeleted) {
-  <p-card header="Perfil de Usuario" styleClass="user-card">
-    <div class="profile-header">
-  <div class="avatar">
-    <i class="pi pi-user" style="font-size: 3rem"></i>
-  </div>
-  <div class="profile-info">
-    <h2>{{ profile.fullName }}</h2>
-    <p class="username">@{{ profile.username }}</p>
-    <p class="role">{{ profile.role }}</p>
-  </div>
-</div>
-
-    <div class="profile-details">
-  <div class="detail-item">
-    <i class="pi pi-user"></i>
-    <span>{{ profile.username }}</span>
-    <small>Usuario</small>
-  </div>
-  <div class="detail-item">
-    <i class="pi pi-envelope"></i>
-    <span>{{ profile.email }}</span>
-    <small>Correo electrónico</small>
-  </div>
-  <div class="detail-item">
-    <i class="pi pi-user"></i>
-    <span>{{ profile.fullName }}</span>
-    <small>Nombre completo</small>
-  </div>
-  <div class="detail-item">
-    <i class="pi pi-calendar"></i>
-    <span>{{ profile.birthDate }} ({{ profile.age }} años)</span>
-    <small>Fecha de nacimiento</small>
-  </div>
-  <div class="detail-item">
-    <i class="pi pi-map-marker"></i>
-    <span>{{ profile.address }}</span>
-    <small>Dirección</small>
-  </div>
-  <div class="detail-item">
-    <i class="pi pi-phone"></i>
-    <span>{{ profile.phone }}</span>
-    <small>Teléfono</small>
-  </div>
-      <div class="detail-item">
-        <i class="pi pi-calendar"></i>
-        <span>Miembro desde: {{ profile.memberSince }}</span>
+    <!-- Header -->
+    <div class="user-header">
+      <div>
+        <h1 class="page-title">Mi Perfil</h1>
+        <p class="page-subtitle">Gestiona tu información personal</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-info" (click)="editProfile()">
+          <i class="pi pi-pencil"></i>
+          Editar Perfil
+        </button>
+        <button class="btn btn-danger" (click)="deleteProfile()">
+          <i class="pi pi-trash"></i>
+          Eliminar Cuenta
+        </button>
       </div>
     </div>
 
-    <div class="stats">
-      <div class="stat">
-        <h3>{{ profile.projects }}</h3>
-        <p>Proyectos</p>
-      </div>
-      <div class="stat">
-        <h3>{{ profile.followers }}</h3>
-        <p>Seguidores</p>
-      </div>
-      <div class="stat">
-        <h3>{{ profile.following }}</h3>
-        <p>Siguiendo</p>
-      </div>
-    </div>
+    <!-- Profile Layout -->
+    <div class="profile-layout">
+      <!-- Left: Avatar Card -->
+      <div class="profile-side">
+        <div class="avatar-card">
+          <div class="avatar-circle">
+            <i class="pi pi-user"></i>
+          </div>
+          <h2 class="profile-name">{{ profile.fullName }}</h2>
+          <p class="profile-handle">{{ profile.username }}</p>
+          <span class="profile-role-badge">{{ profile.role }}</span>
 
-    <div class="user-actions">
-      <button pButton label="Editar Perfil" icon="pi pi-user-edit" severity="info" class="user-action-btn" (click)="editProfile()"></button>
-      <button pButton label="Eliminar Cuenta" icon="pi pi-trash" severity="danger" class="user-action-btn" (click)="deleteProfile()"></button>
-    </div>
-  </p-card>
-  } @else {
-    <div class="deleted-message">
-      <p-card>
-        <div class="text-center p-4">
-          <i class="pi pi-info-circle" style="font-size: 3rem; color: #e74c3c; margin-bottom: 1rem; display: block;"></i>
-          <h2 style="color: #ffffff; margin-bottom: 1rem;">Perfil Eliminado Visualmente</h2>
-          <p style="color: #a0a0a0; margin-bottom: 2rem;">Los cambios son temporales ya que no hay backend.</p>
-          <button pButton label="Restaurar Perfil" icon="pi pi-refresh" (click)="restoreProfile()"></button>
+          <div class="profile-divider"></div>
+
+          <!-- Stats -->
+          <div class="profile-stats">
+            <div class="ps">
+              <span class="ps-val">{{ profile.projects }}</span>
+              <span class="ps-label">Proyectos</span>
+            </div>
+            <div class="ps">
+              <span class="ps-val">{{ profile.followers }}</span>
+              <span class="ps-label">Seguidores</span>
+            </div>
+            <div class="ps">
+              <span class="ps-val">{{ profile.following }}</span>
+              <span class="ps-label">Siguiendo</span>
+            </div>
+          </div>
         </div>
-      </p-card>
+      </div>
+
+      <!-- Right: Details -->
+      <div class="profile-details-card">
+        <h3 class="details-heading">Información Personal</h3>
+        <div class="details-grid">
+          <div class="detail-row">
+            <div class="detail-icon">
+              <i class="pi pi-user"></i>
+            </div>
+            <div>
+              <span class="detail-label">Usuario</span>
+              <span class="detail-value">{{ profile.username }}</span>
+            </div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-icon">
+              <i class="pi pi-envelope"></i>
+            </div>
+            <div>
+              <span class="detail-label">Correo Electrónico</span>
+              <span class="detail-value">{{ profile.email }}</span>
+            </div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-icon">
+              <i class="pi pi-id-card"></i>
+            </div>
+            <div>
+              <span class="detail-label">Nombre Completo</span>
+              <span class="detail-value">{{ profile.fullName }}</span>
+            </div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-icon">
+              <i class="pi pi-calendar"></i>
+            </div>
+            <div>
+              <span class="detail-label">Fecha de Nacimiento</span>
+              <span class="detail-value">{{ profile.birthDate }} <span class="age-tag">{{ profile.age }} años</span></span>
+            </div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-icon">
+              <i class="pi pi-map-marker"></i>
+            </div>
+            <div>
+              <span class="detail-label">Dirección</span>
+              <span class="detail-value">{{ profile.address }}</span>
+            </div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-icon">
+              <i class="pi pi-phone"></i>
+            </div>
+            <div>
+              <span class="detail-label">Teléfono</span>
+              <span class="detail-value">{{ profile.phone }}</span>
+            </div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-icon" style="background:rgba(16,185,129,0.12);color:#34d399">
+              <i class="pi pi-star"></i>
+            </div>
+            <div>
+              <span class="detail-label">Miembro desde</span>
+              <span class="detail-value">{{ profile.memberSince }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  } @else {
+    <!-- Deleted State -->
+    <div class="deleted-state">
+      <div class="deleted-card">
+        <div class="deleted-icon">
+          <i class="pi pi-exclamation-triangle"></i>
+        </div>
+        <h2>Perfil Eliminado</h2>
+        <p>Los cambios son temporales ya que no hay backend conectado.</p>
+        <button class="btn btn-primary" (click)="restoreProfile()">
+          <i class="pi pi-refresh"></i>
+          Restaurar Perfil
+        </button>
+      </div>
     </div>
   }
 </div>
