@@ -168,7 +168,7 @@
 
     <div class="tickets-modal-body">
       <!-- Toggle View -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem">
+      <div style="display:flex;align-items:center;justify-content:flex-start;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem">
         <div class="view-toggle">
           <button
             class="toggle-btn"
@@ -183,9 +183,6 @@
             <i class="pi pi-th-large"></i> Kanban
           </button>
         </div>
-        <button class="btn btn-success btn-sm" (click)="addTicket()">
-          <i class="pi pi-plus"></i> Nuevo Ticket
-        </button>
       </div>
 
       <!-- List View -->
@@ -201,7 +198,6 @@
                 <th>Asignado a</th>
                 <th>Creación</th>
                 <th>Fecha Límite</th>
-                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -218,16 +214,6 @@
                   <td class="td-muted">{{ ticket.assignedTo }}</td>
                   <td class="td-muted">{{ ticket.createdAt }}</td>
                   <td class="td-muted">{{ ticket.dueDate }}</td>
-                  <td>
-                    <div class="action-group">
-                      <button class="btn btn-sm btn-info" (click)="editTicket(ticket)">
-                        <i class="pi pi-pencil"></i>
-                      </button>
-                      <button class="btn btn-sm btn-danger" (click)="deleteTicket(ticket.id)">
-                        <i class="pi pi-trash"></i>
-                      </button>
-                    </div>
-                  </td>
                 </tr>
               }
             </tbody>
@@ -250,8 +236,7 @@
             @for (ticket of getTicketsByStatus('pendiente'); track ticket.id) {
               <div class="kanban-card status-pendiente"
                 draggable="true"
-                (dragstart)="onDragStart($event, ticket)"
-                (click)="editTicket(ticket)">
+                (dragstart)="onDragStart($event, ticket)">
                 <div class="card-header-row">
                   <span class="card-title">{{ ticket.title }}</span>
                   <span class="priority-dot priority-{{ ticket.priority }}"></span>
@@ -280,8 +265,7 @@
             @for (ticket of getTicketsByStatus('en-proceso'); track ticket.id) {
               <div class="kanban-card status-en-proceso"
                 draggable="true"
-                (dragstart)="onDragStart($event, ticket)"
-                (click)="editTicket(ticket)">
+                (dragstart)="onDragStart($event, ticket)">
                 <div class="card-header-row">
                   <span class="card-title">{{ ticket.title }}</span>
                   <span class="priority-dot priority-{{ ticket.priority }}"></span>
@@ -310,8 +294,7 @@
             @for (ticket of getTicketsByStatus('revision'); track ticket.id) {
               <div class="kanban-card status-revision"
                 draggable="true"
-                (dragstart)="onDragStart($event, ticket)"
-                (click)="editTicket(ticket)">
+                (dragstart)="onDragStart($event, ticket)">
                 <div class="card-header-row">
                   <span class="card-title">{{ ticket.title }}</span>
                   <span class="priority-dot priority-{{ ticket.priority }}"></span>
@@ -340,8 +323,7 @@
             @for (ticket of getTicketsByStatus('finalizado'); track ticket.id) {
               <div class="kanban-card status-finalizado"
                 draggable="true"
-                (dragstart)="onDragStart($event, ticket)"
-                (click)="editTicket(ticket)">
+                (dragstart)="onDragStart($event, ticket)">
                 <div class="card-header-row">
                   <span class="card-title">{{ ticket.title }}</span>
                   <span class="priority-dot priority-{{ ticket.priority }}"></span>

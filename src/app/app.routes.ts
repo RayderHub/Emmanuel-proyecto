@@ -5,6 +5,7 @@ import { Login } from './pages/auth/login/login';
 import { Register } from './pages/auth/register/register';
 import { User } from './pages/user/user';
 import { Group } from './pages/group/group';
+import { Tickets } from './pages/tickets/tickets';
 
 export const routes: Routes = [
   {
@@ -27,5 +28,9 @@ export const routes: Routes = [
   {
     path: 'group',
     component: Group
+  },
+  {
+    path: 'tickets',
+    component: Tickets
   }
 ];

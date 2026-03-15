@@ -1,0 +1,245 @@
+<app-sidebar></app-sidebar>
+<div class="tickets-main">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Gestión de Tickets</h1>
+      <p class="page-subtitle">Administra todos los tickets del sistema</p>
+    </div>
+    <button class="btn btn-success" (click)="addTicket()">
+      <i class="pi pi-plus"></i>
+      Nuevo Ticket
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-icon indigo">
+        <i class="pi pi-ticket"></i>
+      </div>
+      <div>
+        <span class="stat-label">Total Tickets</span>
+        <div class="stat-value">{{ totalCount }}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon yellow">
+        <i class="pi pi-clock"></i>
+      </div>
+      <div>
+        <span class="stat-label">Pendientes</span>
+        <div class="stat-value">{{ pendienteCount }}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon blue">
+        <i class="pi pi-spin pi-spinner"></i>
+      </div>
+      <div>
+        <span class="stat-label">En Proceso</span>
+        <div class="stat-value">{{ enProcesoCount }}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green">
+        <i class="pi pi-check-circle"></i>
+      </div>
+      <div>
+        <span class="stat-label">Finalizados</span>
+        <div class="stat-value">{{ finalizadoCount }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-bar">
+    <div class="filter-group">
+      <i class="pi pi-search filter-icon"></i>
+      <input
+        class="filter-input"
+        type="text"
+        [(ngModel)]="searchText"
+        placeholder="Buscar por título o asignado..."
+      />
+    </div>
+    <div class="filter-group">
+      <select class="filter-select" [(ngModel)]="filterStatus">
+        <option value="">Todos los estados</option>
+        <option value="pendiente">Pendiente</option>
+        <option value="en-proceso">En Proceso</option>
+        <option value="revision">Revisión</option>
+        <option value="finalizado">Finalizado</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <select class="filter-select" [(ngModel)]="filterPriority">
+        <option value="">Todas las prioridades</option>
+        <option value="baja">Baja</option>
+        <option value="media">Media</option>
+        <option value="alta">Alta</option>
+        <option value="urgente">Urgente</option>
+      </select>
+    </div>
+    @if (filterStatus || filterPriority || searchText) {
+      <button class="btn btn-ghost btn-sm" (click)="clearFilters()">
+        <i class="pi pi-times"></i> Limpiar
+      </button>
+    }
+  </div>
+
+  <!-- Table -->
+  <div class="section">
+    <div class="table-wrap">
+      <table class="app-table">
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Descripción</th>
+            <th>Estado</th>
+            <th>Prioridad</th>
+            <th>Asignado a</th>
+            <th>Creación</th>
+            <th>Fecha Límite</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (ticket of getFilteredTickets(); track ticket.id) {
+            <tr>
+              <td style="font-weight:600">{{ ticket.title }}</td>
+              <td class="td-muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ ticket.description }}</td>
+              <td>
+                <span class="status-badge status-{{ ticket.status }}">{{ ticket.status }}</span>
+              </td>
+              <td>
+                <span class="priority-badge priority-{{ ticket.priority }}">{{ ticket.priority }}</span>
+              </td>
+              <td class="td-muted">{{ ticket.assignedTo }}</td>
+              <td class="td-muted">{{ ticket.createdAt }}</td>
+              <td class="td-muted">{{ ticket.dueDate }}</td>
+              <td>
+                <div class="action-group">
+                  <button class="btn btn-sm btn-info" (click)="editTicket(ticket)" title="Editar">
+                    <i class="pi pi-pencil"></i>
+                    Editar
+                  </button>
+                  <button class="btn btn-sm btn-danger" (click)="confirmDeleteTicket(ticket.id)" title="Eliminar">
+                    <i class="pi pi-trash"></i>
+                    Borrar
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+          @if (getFilteredTickets().length === 0) {
+            <tr>
+              <td colspan="8" class="empty-row">
+                <i class="pi pi-inbox"></i>
+                <span>No se encontraron tickets</span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MODAL: Nuevo / Editar Ticket -->
+  <p-dialog
+    header="{{ ticketEditMode ? 'Editar Ticket' : 'Nuevo Ticket' }}"
+    [(visible)]="displayTicketDialog"
+    [modal]="true"
+    [style]="{ width: '640px' }"
+    [draggable]="false"
+    [resizable]="false">
+
+    <div class="dialog-form">
+      <div class="form-field full">
+        <label class="field-label" for="ticketTitle">Título</label>
+        <input id="ticketTitle" class="field-input" pInputText
+          [(ngModel)]="selectedTicket.title"
+          placeholder="Título del ticket" />
+      </div>
+      <div class="form-field full">
+        <label class="field-label" for="ticketDescription">Descripción</label>
+        <textarea id="ticketDescription" class="field-input"
+          [(ngModel)]="selectedTicket.description"
+          placeholder="Descripción detallada del ticket"
+          rows="3"></textarea>
+      </div>
+      <div class="form-field">
+        <label class="field-label" for="ticketStatus">Estado</label>
+        <select id="ticketStatus" class="field-input"
+          [(ngModel)]="selectedTicket.status">
+          <option value="pendiente">Pendiente</option>
+          <option value="en-proceso">En Proceso</option>
+          <option value="revision">Revisión</option>
+          <option value="finalizado">Finalizado</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label class="field-label" for="ticketPriority">Prioridad</label>
+        <select id="ticketPriority" class="field-input"
+          [(ngModel)]="selectedTicket.priority">
+          <option value="baja">Baja</option>
+          <option value="media">Media</option>
+          <option value="alta">Alta</option>
+          <option value="urgente">Urgente</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label class="field-label" for="ticketAssignedTo">Asignado a</label>
+        <input id="ticketAssignedTo" class="field-input" pInputText
+          [(ngModel)]="selectedTicket.assignedTo"
+          placeholder="Persona asignada" />
+      </div>
+      <div class="form-field">
+        <label class="field-label" for="ticketDueDate">Fecha Límite</label>
+        <p-datePicker id="ticketDueDate"
+          [(ngModel)]="selectedTicket.dueDate"
+          dateFormat="dd/mm/yy"
+          placeholder="dd/mm/aaaa"
+          styleClass="w-full" />
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button class="btn btn-ghost" (click)="hideTicketDialog()">
+        <i class="pi pi-times"></i> Cancelar
+      </button>
+      <button class="btn btn-primary"
+        (click)="saveTicket()"
+        [disabled]="!selectedTicket.title || !selectedTicket.description">
+        <i class="pi pi-check"></i>
+        {{ ticketEditMode ? 'Actualizar' : 'Guardar' }}
+      </button>
+    </ng-template>
+  </p-dialog>
+
+  <!-- MODAL: Confirmación de Eliminación -->
+  <p-dialog
+    header="Confirmar Eliminación"
+    [(visible)]="displayDeleteConfirm"
+    [modal]="true"
+    [style]="{ width: '420px' }"
+    [draggable]="false"
+    [resizable]="false">
+
+    <div class="delete-confirm-body">
+      <i class="pi pi-exclamation-triangle warn-icon"></i>
+      <p>¿Estás seguro de que deseas eliminar este ticket? Esta acción no se puede deshacer.</p>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button class="btn btn-ghost" (click)="cancelDelete()">
+        <i class="pi pi-times"></i> Cancelar
+      </button>
+      <button class="btn btn-danger" (click)="deleteTicket()">
+        <i class="pi pi-trash"></i> Eliminar
+      </button>
+    </ng-template>
+  </p-dialog>
+
+</div>
