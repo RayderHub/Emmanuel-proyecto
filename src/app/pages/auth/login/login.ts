@@ -40,7 +40,7 @@ export class Login {
     private router: Router,
     private authService: AuthService,
     private messageService: MessageService
-  ) {}
+  ) { }
 
   onLogin(): void {
     if (!this.username || !this.password) return;
@@ -48,7 +48,6 @@ export class Login {
     this.loading = true;
     this.loginError = false;
 
-    // Pequeño delay para dar sensación de proceso
     setTimeout(() => {
       const ok = this.authService.login(this.username.trim(), this.password);
 
