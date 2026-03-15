@@ -10,30 +10,40 @@
     </div>
   </div>
 
-  <!-- Navigation Links -->
   <div class="sidebar-nav">
     <p class="nav-section-label">Principal</p>
 
+    @if (!authService.isLoggedIn() || can('nav.home')) {
     <a class="nav-item" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
       <span class="nav-icon"><i class="pi pi-home"></i></span>
       <span class="nav-label">Inicio</span>
     </a>
+    }
 
+    @if (authService.isLoggedIn() && can('nav.profile')) {
     <a class="nav-item" routerLink="/user" routerLinkActive="active">
       <span class="nav-icon"><i class="pi pi-user"></i></span>
       <span class="nav-label">Perfil</span>
     </a>
+    }
 
+
+    @if (can('nav.groups')) {
     <a class="nav-item" routerLink="/group" routerLinkActive="active">
       <span class="nav-icon"><i class="pi pi-users"></i></span>
       <span class="nav-label">Grupos</span>
     </a>
+    }
 
+
+    @if (can('nav.tickets')) {
     <a class="nav-item" routerLink="/tickets" routerLinkActive="active">
       <span class="nav-icon"><i class="pi pi-ticket"></i></span>
       <span class="nav-label">Tickets</span>
     </a>
+    }
 
+    @if (!authService.isLoggedIn()) {
     <p class="nav-section-label" style="margin-top:1.5rem">Cuenta</p>
 
     <a class="nav-item" routerLink="/auth/login" routerLinkActive="active">
@@ -45,13 +55,34 @@
       <span class="nav-icon"><i class="pi pi-user-plus"></i></span>
       <span class="nav-label">Registrarse</span>
     </a>
+    } @else {
+    <p class="nav-section-label" style="margin-top:1.5rem">Cuenta</p>
+
+    <a class="nav-item" (click)="logout()" style="cursor: pointer; color: #f87171;">
+      <span class="nav-icon"><i class="pi pi-sign-out" style="color: #f87171;"></i></span>
+      <span class="nav-label">Cerrar Sesión</span>
+    </a>
+    }
   </div>
 
-  <!-- Footer -->
+  @if (authService.isLoggedIn()) {
+  <!-- Footer: usuario + logout -->
   <div class="sidebar-footer">
-    <div class="footer-status">
-      <span class="status-dot"></span>
-      <span class="status-text">Sistema activo</span>
+    <div class="footer-user">
+      <div class="footer-avatar">
+        <i class="pi pi-user"></i>
+      </div>
+      <div class="footer-user-info">
+        <span class="footer-username">{{ displayName }}</span>
+        <span class="footer-status">
+          <span class="status-dot"></span>
+          En línea
+        </span>
+      </div>
     </div>
+    <button class="footer-logout-btn" (click)="logout()" title="Cerrar sesión">
+      <i class="pi pi-sign-out"></i>
+    </button>
   </div>
+  }
 </nav>

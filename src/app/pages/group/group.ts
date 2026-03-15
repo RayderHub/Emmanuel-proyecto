@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DialogModule } from 'primeng/dialog';
@@ -49,7 +48,7 @@ interface Ticket {
 @Component({
     selector: 'app-group',
     standalone: true,
-    imports: [RouterLink, ButtonModule, CardModule, DialogModule, InputTextModule, InputMaskModule, DatePicker, FormsModule, Sidebar, CommonModule, PermissionDirective],
+    imports: [ButtonModule, CardModule, DialogModule, InputTextModule, InputMaskModule, DatePicker, FormsModule, Sidebar, CommonModule, PermissionDirective],
     templateUrl: './group.html',
     styleUrl: './group.css'
 })
@@ -76,12 +75,7 @@ export class Group implements OnInit {
   constructor(private permissionService: PermissionService) {}
 
   ngOnInit(): void {
-    // Configurar permisos por defecto - puedes cambiar estos según necesites
-    this.permissionService.setPermissions([
-      'group.create',
-      'group.edit', 
-      'group.delete'
-    ]);
+    // Los permisos son gestionados por AuthService al iniciar sesión
   }
 
   createEmptyStudent(): Student {

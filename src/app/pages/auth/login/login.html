@@ -16,15 +16,16 @@
     <p class="auth-subtitle">Ingresa tus credenciales para continuar</p>
 
     <div class="form-group">
-      <label class="form-label" for="email">Usuario</label>
-      <input id="email" type="text" class="form-input" placeholder="Ingresa tu usuario" [(ngModel)]="email" name="email"
-        [class.input-error]="loginError" />
+      <label class="form-label" for="username">Usuario</label>
+      <input id="username" type="text" class="form-input" placeholder="Ingresa tu usuario" [(ngModel)]="username"
+        name="username" [class.input-error]="loginError" (keyup.enter)="onLogin()" />
     </div>
 
     <div class="form-group">
       <label class="form-label" for="password">Contraseña</label>
       <p-password inputId="password" [(ngModel)]="password" toggleMask [feedback]="false" styleClass="w-full"
-        inputStyleClass="form-input w-full" [ngClass]="{ 'ng-invalid ng-dirty': loginError }" />
+        inputStyleClass="form-input w-full" [ngClass]="{ 'ng-invalid ng-dirty': loginError }"
+        (keyup.enter)="onLogin()" />
     </div>
 
     @if (loginError) {
@@ -34,18 +35,27 @@
     </div>
     }
 
-    <button class="btn-submit" [disabled]="!email || !password" (click)="onLogin()">
+    <button class="btn-submit" [disabled]="!username || !password || loading" (click)="onLogin()">
+      @if (loading) {
+      <i class="pi pi-spin pi-spinner"></i>
+      Verificando...
+      } @else {
       <i class="pi pi-sign-in"></i>
       Iniciar Sesión
+      }
     </button>
 
-    <div class="auth-divider">
-      <span>o</span>
-    </div>
-
-    <div class="auth-footer-row">
-      <span>¿No tienes cuenta?</span>
-      <button class="link-btn" routerLink="/auth/register">Crear cuenta gratis</button>
+    <!-- Credenciales de prueba -->
+    <div class="credentials-hint">
+      <p class="hint-title"><i class="pi pi-info-circle"></i> Usuarios</p>
+      <div class="hint-user">
+        <span class="hint-label">Usuario:</span>
+        <code>usuario</code> / <code>user123</code>
+      </div>
+      <div class="hint-user">
+        <span class="hint-label">Superusuario:</span>
+        <code>superusuario</code> / <code>super123</code>
+      </div>
     </div>
   </div>
 </div>

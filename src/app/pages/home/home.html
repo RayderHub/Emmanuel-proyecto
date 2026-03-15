@@ -18,6 +18,7 @@
         Una plataforma moderna para la educación del futuro.
       </p>
       <div class="hero-actions">
+        @if (authService.isLoggedIn()) {
         <a class="btn btn-primary" routerLink="/group">
           <i class="pi pi-users"></i>
           Ver Grupos
@@ -26,6 +27,16 @@
           <i class="pi pi-user"></i>
           Mi Perfil
         </a>
+        } @else {
+        <a class="btn btn-primary" routerLink="/auth/login">
+          <i class="pi pi-sign-in"></i>
+          Iniciar Sesión
+        </a>
+        <a class="btn btn-secondary" routerLink="/auth/register">
+          <i class="pi pi-user-plus"></i>
+          Crear cuenta
+        </a>
+        }
       </div>
     </div>
   </section>
