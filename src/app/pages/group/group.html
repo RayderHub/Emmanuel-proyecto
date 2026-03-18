@@ -33,7 +33,7 @@
   <div class="section">
     <div class="section-head">
       <h2 class="section-title">Alumnos</h2>
-      <button *appPermission="'group.create'" class="btn btn-success" (click)="addStudent()">
+      <button *appPermission="'user:add'" class="btn btn-success" (click)="addStudent()">
         <i class="pi pi-plus"></i>
         Nuevo Alumno
       </button>
@@ -65,13 +65,13 @@
               <td class="td-muted">{{ student.phone }}</td>
               <td>
                 <div class="action-group">
-                  <button *appPermission="'group.edit'"
+                  <button *appPermission="'user:edit'"
                     class="btn btn-sm btn-info"
                     (click)="editStudent(student)">
                     <i class="pi pi-pencil"></i>
                     Editar
                   </button>
-                  <button *appPermission="'group.delete'"
+                  <button *appPermission="'user:delete'"
                     class="btn btn-sm btn-danger"
                     (click)="deleteStudent(student.id)">
                     <i class="pi pi-trash"></i>
@@ -99,7 +99,7 @@
   <div class="section">
     <div class="section-head">
       <h2 class="section-title">Grupos Académicos</h2>
-      <button *appPermission="'group.create'" class="btn btn-success" (click)="addGroup()">
+      <button *appPermission="'group:add'" class="btn btn-success" (click)="addGroup()">
         <i class="pi pi-plus"></i>
         Nuevo Grupo
       </button>
@@ -131,17 +131,17 @@
               </td>
               <td>
                 <div class="action-group">
-                  <button class="btn btn-sm btn-purple" (click)="viewGroupTickets(group)">
+                  <button *appPermission="'ticket:view'" class="btn btn-sm btn-purple" (click)="viewGroupTickets(group)">
                     <i class="pi pi-ticket"></i>
                     Tickets
                   </button>
-                  <button *appPermission="'group.edit'"
+                  <button *appPermission="'group:edit'"
                     class="btn btn-sm btn-info"
                     (click)="editGroup(group)">
                     <i class="pi pi-pencil"></i>
                     Editar
                   </button>
-                  <button *appPermission="'group.delete'"
+                  <button *appPermission="'group:delete'"
                     class="btn btn-sm btn-danger"
                     (click)="deleteGroup(group.id)">
                     <i class="pi pi-trash"></i>
@@ -183,7 +183,7 @@
             <i class="pi pi-th-large"></i> Kanban
           </button>
         </div>
-        <button class="btn btn-success" (click)="addTicket()">
+        <button *appPermission="'ticket:add'" class="btn btn-success" (click)="addTicket()">
           <i class="pi pi-plus"></i>
           Nuevo Ticket
         </button>
@@ -221,11 +221,11 @@
                   <td class="td-muted">{{ ticket.dueDate }}</td>
                   <td>
                     <div class="action-group">
-                      <button class="btn btn-sm btn-info" (click)="editTicket(ticket)">
+                      <button *appPermission="'ticket:edit'" class="btn btn-sm btn-info" (click)="editTicket(ticket)">
                         <i class="pi pi-pencil"></i>
                         Editar
                       </button>
-                      <button class="btn btn-sm btn-danger" (click)="deleteTicket(ticket.id)">
+                      <button *appPermission="'ticket:delete'" class="btn btn-sm btn-danger" (click)="deleteTicket(ticket.id)">
                         <i class="pi pi-trash"></i>
                         Borrar
                       </button>

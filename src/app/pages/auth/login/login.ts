@@ -31,7 +31,7 @@ import { Sidebar } from '../../../components/sidebar/sidebar';
   styleUrl: './login.css'
 })
 export class Login {
-  username: string = '';
+  email: string = '';
   password: string = '';
   loginError: boolean = false;
   loading: boolean = false;
@@ -43,14 +43,12 @@ export class Login {
   ) { }
 
   onLogin(): void {
-    if (!this.username || !this.password) return;
+    if (!this.email || !this.password) return;
 
     this.loading = true;
     this.loginError = false;
 
-    setTimeout(() => {
-      const ok = this.authService.login(this.username.trim(), this.password);
-
+    this.authService.login(this.email.trim(), this.password).subscribe(ok => {
       if (ok) {
         this.messageService.add({
           severity: 'success',
@@ -67,6 +65,6 @@ export class Login {
           detail: 'El usuario o la contraseña son incorrectos'
         });
       }
-    }, 400);
+    });
   }
 }

@@ -1,40 +1,27 @@
 import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
 import { PermissionService } from './permission.service';
 
-const USERS: {
-  username: string;
-  password: string;
-  displayName: string;
-  permissions: string[];
-}[] = [
-    {
-      username: 'usuario',
-      password: 'user123',
-      displayName: 'Usuario',
-      permissions: [
-        'nav.home',
-        'nav.profile'
-      ]
-    },
-    {
-      username: 'superusuario',
-      password: 'super123',
-      displayName: 'Super Usuario',
-      permissions: [
-        'nav.hom+e',
-        'nav.profile',
-        'nav.groups',
-        'nav.tickets',
-        'group.create',
-        'group.edit',
-        'group.delete'
-      ]
-    }
-  ];
-
 const STORAGE_KEY = 'app_current_user';
+const API_URL = 'https://spatial-delcine-devemma-edfc3f92.koyeb.app';
+
+function parseJwt(token: string) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return null;
+  }
+}
 
 @Injectable({
   providedIn: 'root'
@@ -44,6 +31,7 @@ export class AuthService {
 
   constructor(
     private router: Router,
+    private http: HttpClient,
     private permissionService: PermissionService,
     @Inject(PLATFORM_ID) platformId: object
   ) {
@@ -51,25 +39,35 @@ export class AuthService {
     this.restoreSession();
   }
 
-  login(username: string, password: string): boolean {
-    const found = USERS.find(
-      u => u.username === username && u.password === password
+  login(email: string, password: string): Observable<boolean> {
+    return this.http.post<any>(`${API_URL}/login`, { email, password }).pipe(
+      map(response => {
+        if (response.statusCode === 200 && response.data && response.data.length > 0) {
+          const token = response.data[0].token;
+          const decoded = parseJwt(token);
+          if (decoded) {
+            const user = {
+              username: email,
+              displayName: email.split('@')[0],
+              permissions: decoded.permissions || [],
+              token: token
+            };
+
+            if (this.isBrowser) {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+            }
+
+            this.permissionService.setPermissions(user.permissions);
+            return true;
+          }
+        }
+        return false;
+      }),
+      catchError(err => {
+        console.error('Login error', err);
+        return of(false);
+      })
     );
-
-    if (!found) return false;
-
-    // Guardar sesión en localStorage (solo disponible en browser)
-    if (this.isBrowser) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        username: found.username,
-        displayName: found.displayName,
-        permissions: found.permissions
-      }));
-    }
-
-    // Cargar permisos en el servicio
-    this.permissionService.setPermissions(found.permissions);
-    return true;
   }
 
   logout(): void {
@@ -85,7 +83,7 @@ export class AuthService {
     return !!localStorage.getItem(STORAGE_KEY);
   }
 
-  getCurrentUser(): { username: string; displayName: string; permissions: string[] } | null {
+  getCurrentUser(): { username: string; displayName: string; permissions: string[]; token?: string } | null {
     if (!this.isBrowser) return null;
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;

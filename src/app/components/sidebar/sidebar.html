@@ -13,14 +13,12 @@
   <div class="sidebar-nav">
     <p class="nav-section-label">Principal</p>
 
-    @if (!authService.isLoggedIn() || can('nav.home')) {
     <a class="nav-item" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
       <span class="nav-icon"><i class="pi pi-home"></i></span>
       <span class="nav-label">Inicio</span>
     </a>
-    }
 
-    @if (authService.isLoggedIn() && can('nav.profile')) {
+    @if (authService.isLoggedIn() && can('user:edit:profile')) {
     <a class="nav-item" routerLink="/user" routerLinkActive="active">
       <span class="nav-icon"><i class="pi pi-user"></i></span>
       <span class="nav-label">Perfil</span>
@@ -28,7 +26,7 @@
     }
 
 
-    @if (can('nav.groups')) {
+    @if (can('group:view')) {
     <a class="nav-item" routerLink="/group" routerLinkActive="active">
       <span class="nav-icon"><i class="pi pi-users"></i></span>
       <span class="nav-label">Grupos</span>

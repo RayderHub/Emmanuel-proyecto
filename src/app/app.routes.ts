@@ -35,11 +35,11 @@ export const routes: Routes = [
   {
     path: 'group',
     component: Group,
-    canActivate: [permissionGuard('nav.groups')]
+    canActivate: [permissionGuard('group:view')]
   },
   {
     path: 'tickets',
     component: Tickets,
-    canActivate: [permissionGuard('nav.tickets')]
+    canActivate: [permissionGuard('ticket:view')]
   }
 ];

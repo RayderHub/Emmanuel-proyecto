@@ -16,9 +16,9 @@
     <p class="auth-subtitle">Ingresa tus credenciales para continuar</p>
 
     <div class="form-group">
-      <label class="form-label" for="username">Usuario</label>
-      <input id="username" type="text" class="form-input" placeholder="Ingresa tu usuario" [(ngModel)]="username"
-        name="username" [class.input-error]="loginError" (keyup.enter)="onLogin()" />
+      <label class="form-label" for="email">Correo Electrónico</label>
+      <input id="email" type="email" class="form-input" placeholder="ejemplo@marher.com" [(ngModel)]="email"
+        name="email" [class.input-error]="loginError" (keyup.enter)="onLogin()" />
     </div>
 
     <div class="form-group">
@@ -31,11 +31,11 @@
     @if (loginError) {
     <div class="error-alert">
       <i class="pi pi-exclamation-circle"></i>
-      <span>Usuario o contraseña incorrectos</span>
+      <span>Correo o contraseña incorrectos</span>
     </div>
     }
 
-    <button class="btn-submit" [disabled]="!username || !password || loading" (click)="onLogin()">
+    <button class="btn-submit" [disabled]="!email || !password || loading" (click)="onLogin()">
       @if (loading) {
       <i class="pi pi-spin pi-spinner"></i>
       Verificando...
@@ -47,14 +47,22 @@
 
     <!-- Credenciales de prueba -->
     <div class="credentials-hint">
-      <p class="hint-title"><i class="pi pi-info-circle"></i> Usuarios</p>
+      <p class="hint-title"><i class="pi pi-info-circle"></i> Usuarios de prueba</p>
       <div class="hint-user">
-        <span class="hint-label">Usuario:</span>
-        <code>usuario</code> / <code>user123</code>
+        <span class="hint-label">Admin:</span>
+        <code>admin@marher.com</code> / <code>$p4$ww0rD1234</code>
       </div>
       <div class="hint-user">
-        <span class="hint-label">Superusuario:</span>
-        <code>superusuario</code> / <code>super123</code>
+        <span class="hint-label">PM:</span>
+        <code>pm@marher.com</code> / <code>$p4$ww0rD1234</code>
+      </div>
+      <div class="hint-user">
+        <span class="hint-label">Dev:</span>
+        <code>dev@marher.com</code> / <code>$p4$ww0rD1234</code>
+      </div>
+      <div class="hint-user">
+        <span class="hint-label">Support:</span>
+        <code>support@marher.com</code> / <code>$p4$ww0rD1234</code>
       </div>
     </div>
   </div>
