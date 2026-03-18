@@ -23,7 +23,7 @@ const USERS: {
       password: 'super123',
       displayName: 'Super Usuario',
       permissions: [
-        'nav.home',
+        'nav.hom+e',
         'nav.profile',
         'nav.groups',
         'nav.tickets',
@@ -48,11 +48,9 @@ export class AuthService {
     @Inject(PLATFORM_ID) platformId: object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
-    // Al arrancar la app, restauramos la sesión desde localStorage (solo en browser)
     this.restoreSession();
   }
 
-  /** Intenta autenticar. Devuelve true si OK, false si credenciales inválidas. */
   login(username: string, password: string): boolean {
     const found = USERS.find(
       u => u.username === username && u.password === password

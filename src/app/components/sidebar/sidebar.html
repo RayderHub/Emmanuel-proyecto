@@ -36,13 +36,6 @@
     }
 
 
-    @if (can('nav.tickets')) {
-    <a class="nav-item" routerLink="/tickets" routerLinkActive="active">
-      <span class="nav-icon"><i class="pi pi-ticket"></i></span>
-      <span class="nav-label">Tickets</span>
-    </a>
-    }
-
     @if (!authService.isLoggedIn()) {
     <p class="nav-section-label" style="margin-top:1.5rem">Cuenta</p>
 
