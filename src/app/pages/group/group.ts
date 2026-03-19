@@ -266,6 +266,22 @@ export class Group implements OnInit {
     this.selectedStudent = this.createEmptyStudent();
   }
 
+  manageUser(student: Student): void {
+    console.log('Gestionar usuario integralmente:', student);
+  }
+
+  manageGroup(group: GroupData): void {
+    console.log('Gestionar configuraciones del grupo:', group);
+  }
+
+  manageTicket(ticket: Ticket): void {
+    console.log('Gestionar opciones de admin en el ticket:', ticket);
+  }
+
+  commentTicket(ticket: Ticket): void {
+    console.log('Comentar en el ticket:', ticket);
+  }
+
   // Group CRUD methods
   addGroup(): void {
     this.selectedGroup = this.createEmptyGroup();

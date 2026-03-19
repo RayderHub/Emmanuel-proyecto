@@ -71,6 +71,10 @@
                     <i class="pi pi-pencil"></i>
                     Editar
                   </button>
+                  <button *appPermission="'user:manage'" class="btn btn-sm btn-purple" (click)="manageUser(student)">
+                    <i class="pi pi-cog"></i>
+                    Gestionar
+                  </button>
                   <button *appPermission="'user:delete'"
                     class="btn btn-sm btn-danger"
                     (click)="deleteStudent(student.id)">
@@ -140,6 +144,12 @@
                     (click)="editGroup(group)">
                     <i class="pi pi-pencil"></i>
                     Editar
+                  </button>
+                  <button *appPermission="'group:manage'"
+                    class="btn btn-sm btn-success"
+                    (click)="manageGroup(group)">
+                    <i class="pi pi-cog"></i>
+                    Gestionar
                   </button>
                   <button *appPermission="'group:delete'"
                     class="btn btn-sm btn-danger"
@@ -221,9 +231,17 @@
                   <td class="td-muted">{{ ticket.dueDate }}</td>
                   <td>
                     <div class="action-group">
+                      <button *appPermission="'ticket:edit:comment'" class="btn btn-sm btn-secondary" (click)="commentTicket(ticket)">
+                        <i class="pi pi-comments"></i>
+                        Comentar
+                      </button>
                       <button *appPermission="'ticket:edit'" class="btn btn-sm btn-info" (click)="editTicket(ticket)">
                         <i class="pi pi-pencil"></i>
                         Editar
+                      </button>
+                      <button *appPermission="'ticket:manage'" class="btn btn-sm btn-warning" (click)="manageTicket(ticket)">
+                        <i class="pi pi-cog"></i>
+                        Gestionar
                       </button>
                       <button *appPermission="'ticket:delete'" class="btn btn-sm btn-danger" (click)="deleteTicket(ticket.id)">
                         <i class="pi pi-trash"></i>
@@ -498,7 +516,7 @@
           placeholder="Descripción detallada del ticket"
           rows="3"></textarea>
       </div>
-      <div class="form-field">
+      <div class="form-field" *appPermission="'ticket:edit:state'">
         <label class="field-label" for="ticketStatus">Estado</label>
         <select id="ticketStatus" class="field-input"
           [(ngModel)]="selectedTicket.status">
