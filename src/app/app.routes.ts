@@ -6,6 +6,7 @@ import { Register } from './pages/auth/register/register';
 import { User } from './pages/user/user';
 import { Group } from './pages/group/group';
 import { Tickets } from './pages/tickets/tickets';
+import { UserManagement } from './pages/user-management/user-management';
 import { authGuard, permissionGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -41,5 +42,12 @@ export const routes: Routes = [
     path: 'tickets',
     component: Tickets,
     canActivate: [permissionGuard('ticket:view')]
+  },
+
+  // Ruta exclusiva superAdmin - Gestión de Usuarios
+  {
+    path: 'admin/users',
+    component: UserManagement,
+    canActivate: [permissionGuard('user:management')]
   }
 ];

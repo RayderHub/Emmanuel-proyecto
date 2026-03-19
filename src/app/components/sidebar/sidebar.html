@@ -33,6 +33,13 @@
     </a>
     }
 
+    @if (can('user:management')) {
+    <a class="nav-item" routerLink="/admin/users" routerLinkActive="active">
+      <span class="nav-icon"><i class="pi pi-shield"></i></span>
+      <span class="nav-label">Gestión Usuarios</span>
+    </a>
+    }
+
 
     @if (!authService.isLoggedIn()) {
     <p class="nav-section-label" style="margin-top:1.5rem">Cuenta</p>

@@ -1,0 +1,254 @@
+<app-sidebar></app-sidebar>
+
+<div class="um-main">
+
+  <!-- Page Header -->
+  <div class="um-header">
+    <div>
+      <h1 class="um-title">
+        <span class="um-title-icon"><i class="pi pi-shield"></i></span>
+        Gestión de Usuarios
+      </h1>
+      <p class="um-subtitle">Administra usuarios y sus permisos en el sistema</p>
+    </div>
+    <button class="btn btn-success" id="btn-add-user" (click)="openAddUser()">
+      <i class="pi pi-user-plus"></i>
+      Nuevo Usuario
+    </button>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="um-stats">
+    <div class="um-stat-card">
+      <div class="um-stat-icon violet"><i class="pi pi-users"></i></div>
+      <div>
+        <span class="um-stat-label">Total Usuarios</span>
+        <span class="um-stat-value">{{ users.length }}</span>
+      </div>
+    </div>
+    <div class="um-stat-card">
+      <div class="um-stat-icon gold"><i class="pi pi-key"></i></div>
+      <div>
+        <span class="um-stat-label">Permisos Disponibles</span>
+        <span class="um-stat-value">{{ allPermissions.length }}</span>
+      </div>
+    </div>
+    <div class="um-stat-card">
+      <div class="um-stat-icon red"><i class="pi pi-bolt"></i></div>
+      <div>
+        <span class="um-stat-label">Super Admins</span>
+        <span class="um-stat-value">{{ superAdminCount() }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users Table -->
+  <div class="um-section">
+    <div class="um-section-head">
+      <h2 class="um-section-title">Usuarios del Sistema</h2>
+    </div>
+
+    <div class="table-wrap">
+      <table class="app-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Usuario</th>
+            <th>Email</th>
+            <th>Nombre</th>
+            <th>Rol</th>
+            <th>Permisos</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users; track user.id) {
+            <tr>
+              <td class="td-muted">{{ user.id }}</td>
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar"><i class="pi pi-user"></i></div>
+                  <span class="user-handle">{{ user.username }}</span>
+                </div>
+              </td>
+              <td class="td-muted">{{ user.email }}</td>
+              <td>{{ user.fullName }}</td>
+              <td>
+                <span class="role-badge {{ roleClass(user.role) }}">{{ user.role }}</span>
+              </td>
+              <td>
+                <span class="perm-count-badge">
+                  <i class="pi pi-key"></i> {{ permCount(user) }} / {{ allPermissions.length }}
+                </span>
+              </td>
+              <td>
+                <div class="action-group">
+                  <button class="btn btn-sm btn-purple"
+                    id="btn-perms-{{ user.id }}"
+                    (click)="openPermissions(user)"
+                    title="Gestionar permisos">
+                    <i class="pi pi-shield"></i>
+                    Permisos
+                  </button>
+                  <button class="btn btn-sm btn-info"
+                    id="btn-edit-{{ user.id }}"
+                    (click)="openEditUser(user)"
+                    title="Editar usuario">
+                    <i class="pi pi-pencil"></i>
+                    Editar
+                  </button>
+                  <button class="btn btn-sm btn-danger"
+                    id="btn-delete-{{ user.id }}"
+                    (click)="askDelete(user)"
+                    title="Eliminar usuario">
+                    <i class="pi pi-trash"></i>
+                    Borrar
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: CREAR / EDITAR USUARIO ===== -->
+<p-dialog
+  [header]="editMode ? 'Editar Usuario' : 'Nuevo Usuario'"
+  [(visible)]="showUserDialog"
+  [modal]="true"
+  [style]="{ width: '520px' }"
+  [draggable]="false"
+  [resizable]="false">
+
+  <div class="dialog-form">
+    <div class="form-field">
+      <label class="field-label" for="um-username">Nombre de Usuario</label>
+      <input id="um-username" class="field-input" pInputText
+        [(ngModel)]="selectedUser.username"
+        placeholder="@usuario" />
+    </div>
+    <div class="form-field">
+      <label class="field-label" for="um-email">Correo Electrónico</label>
+      <input id="um-email" class="field-input" pInputText
+        [(ngModel)]="selectedUser.email"
+        placeholder="correo@ejemplo.com" />
+    </div>
+    <div class="form-field">
+      <label class="field-label" for="um-fullname">Nombre Completo</label>
+      <input id="um-fullname" class="field-input" pInputText
+        [(ngModel)]="selectedUser.fullName"
+        placeholder="Nombre Completo" />
+    </div>
+    <div class="form-field">
+      <label class="field-label" for="um-role">Rol</label>
+      <select id="um-role" class="field-input" [(ngModel)]="selectedUser.role">
+        <option value="superAdmin">superAdmin</option>
+        <option value="Admin">Admin</option>
+        <option value="PM">PM</option>
+        <option value="Dev">Dev</option>
+        <option value="Support">Support</option>
+      </select>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button class="btn btn-ghost" (click)="showUserDialog = false">
+      <i class="pi pi-times"></i> Cancelar
+    </button>
+    <button class="btn btn-primary"
+      (click)="saveUser()"
+      [disabled]="!selectedUser.username || !selectedUser.email">
+      <i class="pi pi-check"></i>
+      {{ editMode ? 'Actualizar' : 'Guardar' }}
+    </button>
+  </ng-template>
+</p-dialog>
+
+<!-- ===== MODAL: GESTIÓN DE PERMISOS ===== -->
+<p-dialog
+  header="Permisos — {{ permUser?.username }}"
+  [(visible)]="showPermDialog"
+  [modal]="true"
+  [style]="{ width: '680px', maxWidth: '95vw' }"
+  [draggable]="false"
+  [resizable]="false">
+
+  <div class="perm-modal-body">
+
+    <!-- Acciones rápidas -->
+    <div class="perm-quick-actions">
+      <button class="btn btn-sm btn-success" (click)="grantAll()">
+        <i class="pi pi-check-square"></i> Otorgar todos
+      </button>
+      <button class="btn btn-sm btn-danger" (click)="revokeAll()">
+        <i class="pi pi-times-circle"></i> Revocar todos
+      </button>
+      <span class="perm-counter">
+        {{ permEditing.size }} / {{ allPermissions.length }} activos
+      </span>
+    </div>
+
+    <!-- Grupos de permisos -->
+    @for (group of permGroups(); track group) {
+      <div class="perm-group">
+        <div class="perm-group-header">
+          <i class="pi {{ group === 'Usuario' ? 'pi-user' : group === 'Grupo' ? 'pi-users' : 'pi-ticket' }}"></i>
+          {{ group }}
+        </div>
+        <div class="perm-chips">
+          @for (perm of permsByGroup(group); track perm.key) {
+            <div
+              class="perm-chip"
+              [class.active]="hasPerm(perm.key)"
+              (click)="togglePerm(perm.key)"
+              [id]="'perm-chip-' + perm.key.replace(':', '-')">
+              <i class="pi {{ hasPerm(perm.key) ? 'pi-check-circle' : 'pi-circle' }}"></i>
+              {{ perm.label }}
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button class="btn btn-ghost" (click)="showPermDialog = false">
+      <i class="pi pi-times"></i> Cancelar
+    </button>
+    <button class="btn btn-primary" (click)="savePermissions()">
+      <i class="pi pi-save"></i> Guardar Permisos
+    </button>
+  </ng-template>
+</p-dialog>
+
+<!-- ===== MODAL: CONFIRMAR ELIMINAR ===== -->
+<p-dialog
+  header="Confirmar Eliminación"
+  [(visible)]="showDeleteDialog"
+  [modal]="true"
+  [style]="{ width: '420px' }"
+  [draggable]="false"
+  [resizable]="false">
+
+  <div class="delete-confirm-body">
+    <div class="delete-icon-wrap">
+      <i class="pi pi-exclamation-triangle"></i>
+    </div>
+    <p>¿Estás seguro de que deseas eliminar al usuario
+      <strong>{{ deleteTarget?.username }}</strong>?
+      Esta acción no se puede deshacer.
+    </p>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button class="btn btn-ghost" (click)="showDeleteDialog = false">
+      <i class="pi pi-times"></i> Cancelar
+    </button>
+    <button class="btn btn-danger" (click)="confirmDelete()">
+      <i class="pi pi-trash"></i> Eliminar
+    </button>
+  </ng-template>
+</p-dialog>

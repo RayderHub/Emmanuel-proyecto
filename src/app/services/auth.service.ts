@@ -13,8 +13,8 @@ function parseJwt(token: string) {
   try {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
 
     return JSON.parse(jsonPayload);
@@ -39,6 +39,9 @@ export class AuthService {
     this.restoreSession();
   }
 
+  // Usuarios con permisos especiales de frontend (superAdmin)
+  private readonly SUPER_ADMIN_EMAILS = ['admin@marher.com'];
+
   login(email: string, password: string): Observable<boolean> {
     return this.http.post<any>(`${API_URL}/login`, { email, password }).pipe(
       map(response => {
@@ -46,10 +49,19 @@ export class AuthService {
           const token = response.data[0].token;
           const decoded = parseJwt(token);
           if (decoded) {
+            const permissions: string[] = decoded.permissions || [];
+
+            // Si el email es superAdmin, se le añade el permiso de gestión de usuarios
+            if (this.SUPER_ADMIN_EMAILS.includes(email.toLowerCase())) {
+              if (!permissions.includes('user:management')) {
+                permissions.push('user:management');
+              }
+            }
+
             const user = {
               username: email,
               displayName: email.split('@')[0],
-              permissions: decoded.permissions || [],
+              permissions,
               token: token
             };
 
@@ -94,7 +106,6 @@ export class AuthService {
     }
   }
 
-  /** Restaura la sesión al recargar la página */
   private restoreSession(): void {
     const user = this.getCurrentUser();
     if (user) {
