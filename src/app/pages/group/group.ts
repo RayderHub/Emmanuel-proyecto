@@ -12,6 +12,7 @@ import { Sidebar } from '../../components/sidebar/sidebar';
 import { CommonModule } from '@angular/common';
 import { PermissionService } from '../../services/permission.service';
 import { PermissionDirective } from '../../directives/permission.directive';
+import { SupabaseService } from '../../services/supabase.service';
 
 interface Student {
   id: number;
@@ -72,159 +73,42 @@ export class Group implements OnInit {
   selectedGroupForTickets: GroupData | null = null; // Grupo seleccionado para ver tickets
   draggedTicket: Ticket | null = null; // Para Drag And Drop
 
-  constructor(private permissionService: PermissionService) {}
+  constructor(private permissionService: PermissionService, private supabase: SupabaseService) {}
 
-  ngOnInit(): void {
-    // Los permisos son gestionados por AuthService al iniciar sesión
+  async ngOnInit() {
+    await this.loadAllData();
+  }
+
+  async loadAllData() {
+    try {
+      this.students = await this.supabase.getStudents() || [];
+      this.groups = await this.supabase.getGroups() || [];
+      this.tickets = await this.supabase.getTickets() || [];
+      this.memberCount = this.students.length;
+    } catch(e) {
+      console.error(e);
+    }
   }
 
   createEmptyStudent(): Student {
-    return {
-      id: 0,
-      username: '',
-      email: '',
-      fullName: '',
-      birthDate: '',
-      address: '',
-      phone: ''
-    };
+    return { id: 0, username: '', email: '', fullName: '', birthDate: '', address: '', phone: '' };
   }
 
   createEmptyGroup(): GroupData {
-    return {
-      id: 0,
-      name: '',
-      description: '',
-      course: '',
-      semester: '',
-      createdAt: new Date().toLocaleDateString(),
-      studentCount: 0
-    };
+    return { id: 0, name: '', description: '', course: '', semester: '', createdAt: new Date().toLocaleDateString(), studentCount: 0 };
   }
 
   createEmptyTicket(): Ticket {
-    return {
-      id: 0,
-      title: '',
-      description: '',
-      status: 'pendiente',
-      priority: 'media',
-      assignedTo: '',
-      createdAt: new Date().toLocaleDateString(),
-      dueDate: ''
-    };
+    return { id: 0, title: '', description: '', status: 'pendiente', priority: 'media', assignedTo: '', createdAt: new Date().toLocaleDateString(), dueDate: '' };
   }
   
-  students: Student[] = [
-    {
-      id: 1,
-      username: '@emmanuelh',
-      email: 'emmanuel.hernandez@email.com',
-      fullName: 'Emmanuel Hernandez Rodriguez',
-      birthDate: '15/03/1995',
-      address: 'Av. Insurgentes Sur 123, Col. Roma Norte, CDMX',
-      phone: '5512345678'
-    },
-    {
-      id: 2,
-      username: '@juanp',
-      email: 'juan.perez@email.com',
-      fullName: 'Juan Perez Lopez',
-      birthDate: '10/05/1998',
-      address: 'Calle Falsa 123, Col. Centro, CDMX',
-      phone: '5587654321'
-    },
-    {
-      id: 3,
-      username: '@mariag',
-      email: 'maria.garcia@email.com',
-      fullName: 'Maria Garcia Martinez',
-      birthDate: '22/11/2000',
-      address: 'Paseo de la Reforma 456, Col. Juarez, CDMX',
-      phone: '5544332211'
-    }
-  ];
+  students: Student[] = [];
+  groups: GroupData[] = [];
+  tickets: Ticket[] = [];
 
-  groups: GroupData[] = [
-    {
-      id: 1,
-      name: 'Grupo A',
-      description: 'Grupo de programación avanzada',
-      course: 'Programación',
-      semester: '2024-1',
-      createdAt: '15/01/2024',
-      studentCount: 25
-    },
-    {
-      id: 2,
-      name: 'Grupo B', 
-      description: 'Grupo de bases de datos',
-      course: 'Bases de Datos',
-      semester: '2024-1',
-      createdAt: '20/01/2024',
-      studentCount: 18
-    },
-    {
-      id: 3,
-      name: 'Grupo C',
-      description: 'Grupo de desarrollo web',
-      course: 'Desarrollo Web',
-      semester: '2024-2',
-      createdAt: '05/02/2024',
-      studentCount: 22
-    }
-  ];
-
-  tickets: Ticket[] = [
-    {
-      id: 1,
-      title: 'Implementar CRUD de estudiantes',
-      description: 'Crear funcionalidad completa para gestionar estudiantes',
-      status: 'finalizado',
-      priority: 'alta',
-      assignedTo: 'Desarrollador Frontend',
-      createdAt: '01/03/2024',
-      dueDate: '05/03/2024',
-      groupId: 1 // Grupo A
-    },
-    {
-      id: 2,
-      title: 'Diseñar interfaz de grupos',
-      description: 'Crear diseño para la gestión de grupos académicos',
-      status: 'en-proceso',
-      priority: 'media',
-      assignedTo: 'Diseñador UI/UX',
-      createdAt: '02/03/2024',
-      dueDate: '08/03/2024',
-      groupId: 1 // Grupo A
-    },
-    {
-      id: 3,
-      title: 'Revisar código de autenticación',
-      description: 'Revisar y optimizar el módulo de autenticación',
-      status: 'pendiente',
-      priority: 'alta',
-      assignedTo: 'Desarrollador Backend',
-      createdAt: '03/03/2024',
-      dueDate: '10/03/2024',
-      groupId: 2 // Grupo B
-    },
-    {
-      id: 4,
-      title: 'Testear funcionalidad de tickets',
-      description: 'Realizar pruebas exhaustivas del sistema de tickets',
-      status: 'revision',
-      priority: 'media',
-      assignedTo: 'QA Tester',
-      createdAt: '04/03/2024',
-      dueDate: '12/03/2024',
-      groupId: 3 // Grupo C
-    }
-  ];
-
-  deleteStudent(id: number): void {
-    this.students = this.students.filter(s => s.id !== id);
-    this.memberCount = this.students.length;
+  async deleteStudent(id: number) {
+    await this.supabase.deleteStudent(id);
+    await this.loadAllData();
   }
 
   editStudent(student: Student): void {
@@ -239,23 +123,15 @@ export class Group implements OnInit {
     this.displayDialog = true;
   }
 
-  saveStudent(): void {
+  async saveStudent() {
     if (this.editMode) {
-      // Actualizar estudiante existente
-      const index = this.students.findIndex(s => s.id === this.selectedStudent.id);
-      if (index !== -1) {
-        this.students[index] = { ...this.selectedStudent };
-      }
+      await this.supabase.updateStudent(this.selectedStudent.id, this.selectedStudent);
     } else {
-      // Agregar nuevo estudiante
-      const newStudent: Student = {
-        ...this.selectedStudent,
-        id: Date.now(),
-        email: this.selectedStudent.username.substring(1) + '@email.com'
-      };
-      this.students.push(newStudent);
-      this.memberCount = this.students.length;
+      const newStudent: any = { ...this.selectedStudent, email: this.selectedStudent.username.substring(1) + '@email.com' };
+      delete newStudent.id;
+      await this.supabase.createStudent(newStudent);
     }
+    await this.loadAllData();
     
     this.displayDialog = false;
     this.selectedStudent = this.createEmptyStudent();
@@ -295,25 +171,20 @@ export class Group implements OnInit {
     this.displayGroupDialog = true;
   }
 
-  deleteGroup(id: number): void {
-    this.groups = this.groups.filter(g => g.id !== id);
+  async deleteGroup(id: number) {
+    await this.supabase.deleteGroup(id);
+    await this.loadAllData();
   }
 
-  saveGroup(): void {
+  async saveGroup() {
     if (this.groupEditMode) {
-      // Actualizar grupo existente
-      const index = this.groups.findIndex(g => g.id === this.selectedGroup.id);
-      if (index !== -1) {
-        this.groups[index] = { ...this.selectedGroup };
-      }
+      await this.supabase.updateGroup(this.selectedGroup.id, this.selectedGroup);
     } else {
-      // Agregar nuevo grupo
-      const newGroup: GroupData = {
-        ...this.selectedGroup,
-        id: Date.now()
-      };
-      this.groups.push(newGroup);
+      const newGroup: any = { ...this.selectedGroup };
+      delete newGroup.id;
+      await this.supabase.createGroup(newGroup);
     }
+    await this.loadAllData();
     
     this.displayGroupDialog = false;
     this.selectedGroup = this.createEmptyGroup();
@@ -354,25 +225,20 @@ export class Group implements OnInit {
     this.displayTicketDialog = true;
   }
 
-  deleteTicket(id: number): void {
-    this.tickets = this.tickets.filter(t => t.id !== id);
+  async deleteTicket(id: number) {
+    await this.supabase.deleteTicket(id);
+    await this.loadAllData();
   }
 
-  saveTicket(): void {
+  async saveTicket() {
     if (this.ticketEditMode) {
-      // Actualizar ticket existente
-      const index = this.tickets.findIndex(t => t.id === this.selectedTicket.id);
-      if (index !== -1) {
-        this.tickets[index] = { ...this.selectedTicket };
-      }
+      await this.supabase.updateTicket(this.selectedTicket.id, this.selectedTicket);
     } else {
-      // Agregar nuevo ticket
-      const newTicket: Ticket = {
-        ...this.selectedTicket,
-        id: Date.now()
-      };
-      this.tickets.push(newTicket);
+      const newTicket: any = { ...this.selectedTicket };
+      delete newTicket.id;
+      await this.supabase.createTicket(newTicket);
     }
+    await this.loadAllData();
     
     this.displayTicketDialog = false;
     this.selectedTicket = this.createEmptyTicket();

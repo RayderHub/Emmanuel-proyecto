@@ -6,6 +6,7 @@ import { DatePicker } from 'primeng/datepicker';
 import { FormsModule } from '@angular/forms';
 import { Sidebar } from '../../components/sidebar/sidebar';
 import { CommonModule } from '@angular/common';
+import { SupabaseService } from '../../services/supabase.service';
 
 export interface Ticket {
   id: number;
@@ -50,54 +51,21 @@ export class Tickets implements OnInit {
   displayDeleteConfirm: boolean = false;
   ticketToDeleteId: number | null = null;
 
-  tickets: Ticket[] = [
-    {
-      id: 1,
-      title: 'Implementar CRUD de estudiantes',
-      description: 'Crear funcionalidad completa para gestionar estudiantes',
-      status: 'finalizado',
-      priority: 'alta',
-      assignedTo: 'Desarrollador Frontend',
-      createdAt: '01/03/2024',
-      dueDate: '05/03/2024',
-      groupId: 1
-    },
-    {
-      id: 2,
-      title: 'Diseñar interfaz de grupos',
-      description: 'Crear diseño para la gestión de grupos académicos',
-      status: 'en-proceso',
-      priority: 'media',
-      assignedTo: 'Diseñador UI/UX',
-      createdAt: '02/03/2024',
-      dueDate: '08/03/2024',
-      groupId: 1
-    },
-    {
-      id: 3,
-      title: 'Revisar código de autenticación',
-      description: 'Revisar y optimizar el módulo de autenticación',
-      status: 'pendiente',
-      priority: 'alta',
-      assignedTo: 'Desarrollador Backend',
-      createdAt: '03/03/2024',
-      dueDate: '10/03/2024',
-      groupId: 2
-    },
-    {
-      id: 4,
-      title: 'Testear funcionalidad de tickets',
-      description: 'Realizar pruebas exhaustivas del sistema de tickets',
-      status: 'revision',
-      priority: 'media',
-      assignedTo: 'QA Tester',
-      createdAt: '04/03/2024',
-      dueDate: '12/03/2024',
-      groupId: 3
-    }
-  ];
+  tickets: Ticket[] = [];
 
-  ngOnInit(): void {}
+  constructor(private supabase: SupabaseService) {}
+
+  async ngOnInit() {
+    await this.loadTickets();
+  }
+
+  async loadTickets() {
+    try {
+      this.tickets = await this.supabase.getTickets() || [];
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
   createEmptyTicket(): Ticket {
     return {
@@ -146,9 +114,14 @@ export class Tickets implements OnInit {
     this.displayDeleteConfirm = true;
   }
 
-  deleteTicket(): void {
+  async deleteTicket() {
     if (this.ticketToDeleteId !== null) {
-      this.tickets = this.tickets.filter(t => t.id !== this.ticketToDeleteId);
+      try {
+        await this.supabase.deleteTicket(this.ticketToDeleteId);
+        await this.loadTickets();
+      } catch(e) {
+        console.error(e);
+      }
       this.ticketToDeleteId = null;
     }
     this.displayDeleteConfirm = false;
@@ -159,19 +132,18 @@ export class Tickets implements OnInit {
     this.displayDeleteConfirm = false;
   }
 
-  saveTicket(): void {
-    if (this.ticketEditMode) {
-      const index = this.tickets.findIndex(t => t.id === this.selectedTicket.id);
-      if (index !== -1) {
-        this.tickets[index] = { ...this.selectedTicket };
+  async saveTicket() {
+    try {
+      if (this.ticketEditMode) {
+        await this.supabase.updateTicket(this.selectedTicket.id, this.selectedTicket);
+      } else {
+        const newTicket = { ...this.selectedTicket };
+        delete (newTicket as any).id; // Let DB generate ID
+        await this.supabase.createTicket(newTicket);
       }
-    } else {
-      const newTicket: Ticket = {
-        ...this.selectedTicket,
-        id: Date.now(),
-        createdAt: new Date().toLocaleDateString('es-MX')
-      };
-      this.tickets.push(newTicket);
+      await this.loadTickets();
+    } catch (e) {
+      console.error(e);
     }
     this.displayTicketDialog = false;
     this.selectedTicket = this.createEmptyTicket();

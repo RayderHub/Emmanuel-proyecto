@@ -5,6 +5,7 @@ import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { Sidebar } from '../../components/sidebar/sidebar';
+import { SupabaseService } from '../../services/supabase.service';
 
 export interface AppUser {
   id: number;
@@ -54,37 +55,10 @@ export class UserManagement implements OnInit {
 
   allPermissions = ALL_PERMISSIONS;
 
-  // Usuarios de ejemplo (mock)
-  users: AppUser[] = [
-    {
-      id: 1, username: 'superadmin', email: 'superadmin@app.com',
-      fullName: 'Super Administrador', role: 'superAdmin',
-      permissions: [...SUPER_ADMIN_PERMISSIONS]
-    },
-    {
-      id: 2, username: 'admin01', email: 'admin@app.com',
-      fullName: 'Administrador Principal', role: 'Admin',
-      permissions: ['group:view','group:add','group:edit','group:manage','group:delete',
-                    'user:add','user:edit','user:manage','user:delete',
-                    'ticket:view','ticket:add','ticket:edit','ticket:manage','ticket:delete']
-    },
-    {
-      id: 3, username: 'pm_ana', email: 'ana@app.com',
-      fullName: 'Ana López', role: 'PM',
-      permissions: ['group:view','ticket:view','ticket:add','ticket:edit',
-                    'ticket:edit:comment','ticket:edit:state','ticket:manage','user:edit:profile']
-    },
-    {
-      id: 4, username: 'dev_carlos', email: 'carlos@app.com',
-      fullName: 'Carlos Ramírez', role: 'Dev',
-      permissions: ['group:view','ticket:view','ticket:edit:comment','ticket:edit:state','user:edit:profile']
-    },
-    {
-      id: 5, username: 'soporte01', email: 'soporte@app.com',
-      fullName: 'Laura Méndez', role: 'Support',
-      permissions: ['ticket:view','ticket:edit:comment','user:edit:profile']
-    }
-  ];
+  // Usuarios (desde Supabase)
+  users: AppUser[] = [];
+
+  constructor(private supabase: SupabaseService) {}
 
   // ---- CRUD dialog ----
   showUserDialog = false;
@@ -111,7 +85,15 @@ export class UserManagement implements OnInit {
     return this.allPermissions.filter(p => p.group === group);
   }
 
-  ngOnInit(): void {}
+  async ngOnInit() {
+    await this.loadUsers();
+  }
+
+  async loadUsers() {
+    try {
+      this.users = await this.supabase.getUsers() || [];
+    } catch(e) { console.error(e); }
+  }
 
   // ---- CRUD ----
 
@@ -127,23 +109,23 @@ export class UserManagement implements OnInit {
     this.showUserDialog = true;
   }
 
-  saveUser(): void {
+  async saveUser() {
     if (!this.selectedUser.username || !this.selectedUser.email) return;
-    if (this.editMode) {
-      const idx = this.users.findIndex(u => u.id === this.selectedUser.id);
-      if (idx !== -1) {
-        this.users[idx] = { ...this.users[idx], ...this.selectedUser } as AppUser;
+    try {
+      if (this.editMode) {
+        await this.supabase.updateUser(this.selectedUser.id!, this.selectedUser);
+      } else {
+        const newUser: any = {
+          username: this.selectedUser.username,
+          email: this.selectedUser.email,
+          fullName: this.selectedUser.fullName || '',
+          role: this.selectedUser.role || 'Dev',
+          permissions: [] // default permissions
+        };
+        await this.supabase.createUser(newUser);
       }
-    } else {
-      this.users.push({
-        id: this.nextId++,
-        username: this.selectedUser.username!,
-        email: this.selectedUser.email!,
-        fullName: this.selectedUser.fullName || '',
-        role: this.selectedUser.role || 'Dev',
-        permissions: []
-      });
-    }
+      await this.loadUsers();
+    } catch(e) { console.error(e); }
     this.showUserDialog = false;
   }
 
@@ -152,9 +134,12 @@ export class UserManagement implements OnInit {
     this.showDeleteDialog = true;
   }
 
-  confirmDelete(): void {
+  async confirmDelete() {
     if (!this.deleteTarget) return;
-    this.users = this.users.filter(u => u.id !== this.deleteTarget!.id);
+    try {
+      await this.supabase.deleteUser(this.deleteTarget.id);
+      await this.loadUsers();
+    } catch(e) { console.error(e); }
     this.showDeleteDialog = false;
     this.deleteTarget = null;
   }
@@ -187,12 +172,13 @@ export class UserManagement implements OnInit {
     this.permEditing.clear();
   }
 
-  savePermissions(): void {
+  async savePermissions() {
     if (!this.permUser) return;
-    const idx = this.users.findIndex(u => u.id === this.permUser!.id);
-    if (idx !== -1) {
-      this.users[idx].permissions = Array.from(this.permEditing);
-    }
+    try {
+      const permsArray = Array.from(this.permEditing);
+      await this.supabase.updateUser(this.permUser.id, { permissions: permsArray });
+      await this.loadUsers();
+    } catch(e) { console.error(e); }
     this.showPermDialog = false;
   }
 
