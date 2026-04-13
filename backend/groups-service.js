@@ -1,53 +1,70 @@
 const fastify = require('fastify')({ logger: true });
 const supabase = require('./db');
 
-// --- RUTAS DE GRUPOS ---
+// --- CRUD DE GRUPOS ---
 
-// Listar todos los grupos (Admin)
+// Listar todos (Admin)
 fastify.get('/groups', async (request, reply) => {
   const { data, error } = await supabase.from('groups').select('*');
   if (error) return reply.status(500).send(error);
   return reply.send({ statusCode: 200, data });
 });
 
-// Listar miembros de un grupo (FIX para el botón Miembros y Permisos)
-fastify.get('/groups/:groupId/users', async (request, reply) => {
-  const { groupId } = request.params;
-  // Buscamos usuarios que tengan algún permiso en este grupo
-  const { data: perms } = await supabase.from('group_permissions').select('user_id').eq('group_id', groupId);
-  if (!perms || perms.length === 0) return reply.send({ statusCode: 200, data: [] });
-
-  const userIds = [...new Set(perms.map(p => p.user_id))];
-  const { data: users, error } = await supabase.from('users').select('*').in('id', userIds);
+// Crear grupo
+fastify.post('/groups', async (request, reply) => {
+  const { data, error } = await supabase.from('groups').insert([request.body]).select().single();
   if (error) return reply.status(500).send(error);
-  return reply.send({ statusCode: 200, data: users });
+  return reply.send({ statusCode: 200, data: [data] });
 });
 
-// Listar grupos de un usuario (Dashboard/Login)
+// Editar grupo (EL QUE TE DABA 404)
+fastify.patch('/groups/:id', async (request, reply) => {
+  const { id } = request.params;
+  const { data, error } = await supabase.from('groups').update(request.body).eq('id', id).select().single();
+  if (error) return reply.status(500).send(error);
+  return reply.send({ statusCode: 200, data: [data] });
+});
+
+// Borrar grupo
+fastify.delete('/groups/:id', async (request, reply) => {
+  const { id } = request.params;
+  const { error } = await supabase.from('groups').delete().eq('id', id);
+  if (error) return reply.status(500).send(error);
+  return reply.send({ statusCode: 200, message: 'Group deleted' });
+});
+
+// Miembros de un grupo
+fastify.get('/groups/:groupId/users', async (request, reply) => {
+  const { groupId } = request.params;
+  const { data: perms } = await supabase.from('group_permissions').select('user_id').eq('group_id', groupId);
+  if (!perms || perms.length === 0) return reply.send({ statusCode: 200, data: [] });
+  const userIds = [...new Set(perms.map(p => p.user_id))];
+  const { data: users } = await supabase.from('users').select('*').in('id', userIds);
+  return reply.send({ statusCode: 200, data: users || [] });
+});
+
+// Grupos del usuario (Login/Dashboard)
 fastify.get('/users/:userId/groups', async (request, reply) => {
   const { userId } = request.params;
   const { data: user } = await supabase.from('users').select('role').eq('id', userId).single();
-  
   if (user && user.role === 'admin') {
     const { data: allGroups } = await supabase.from('groups').select('*');
     return reply.send({ statusCode: 200, data: allGroups });
   }
-
   const { data: perms } = await supabase.from('group_permissions').select('group_id').eq('user_id', userId);
   if (!perms || perms.length === 0) return reply.send({ statusCode: 200, data: [] });
-
   const { data: groups } = await supabase.from('groups').select('*').in('id', perms.map(p => p.group_id));
   return reply.send({ statusCode: 200, data: groups });
 });
 
-// --- RUTAS DE ESTUDIANTES ---
+// --- ESTUDIANTES ---
 fastify.get('/students', async (request, reply) => {
   const { data, error } = await supabase.from('students').select('*');
   if (error) return reply.status(500).send(error);
   return reply.send({ statusCode: 200, data });
 });
 
-// --- RUTAS DE USUARIOS Y PERMISOS ---
+// --- USUARIOS Y PERMISOS ---
 fastify.get('/users', async (request, reply) => {
   const { data, error } = await supabase.from('users').select('id, username, full_name, role, permissions');
   if (error) return reply.status(500).send(error);
@@ -72,5 +89,5 @@ fastify.patch('/groups/:groupId/users/:userId/permissions', async (request, repl
 
 fastify.listen({ port: 3003, host: '0.0.0.0' }, (err, address) => {
   if (err) { fastify.log.error(err); process.exit(1); }
-  console.log(`Groups Service listening at ${address}`);
+  console.log(`Groups/Students Service listening at ${address}`);
 });
