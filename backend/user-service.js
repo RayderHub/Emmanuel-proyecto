@@ -7,28 +7,42 @@ const JWT_SECRET = 'super-secret-key-for-school-project';
 fastify.post('/auth/login', async (request, reply) => {
   const { email, password } = request.body;
   
-  // En tu esquema, el login se basa en la tabla users vinculada a Auth
-  // Buscamos por username (que suele ser el email)
+  // 1. Intentamos iniciar sesión con el sistema de Auth de Supabase
+  const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+    email: email,
+    password: password,
+  });
+
+  if (authError || !authData.user) {
+    return reply.status(403).send({ 
+      statusCode: 403, 
+      intOpCode: 'SxUS403', 
+      data: null, 
+      message: "Credenciales inválidas en Supabase Auth" 
+    });
+  }
+
+  const userId = authData.user.id;
+
+  // 2. Buscamos los datos adicionales (role, full_name) en tu tabla 'users'
   const { data: user, error: userError } = await supabase
     .from('users')
     .select('*')
-    .eq('username', email)
+    .eq('id', userId)
     .single();
 
   if (userError || !user) {
-    return reply.status(403).send({ statusCode: 403, intOpCode: 'SxUS403', data: null, message: "Usuario no encontrado" });
+    // Si no existe en la tabla users, devolvemos datos básicos del perfil de Auth
+    fastify.log.warn(`Usuario ${userId} no encontrado en tabla personalizada 'users'`);
   }
 
-  // Nota: En un sistema real usarías Supabase Auth directamente, 
-  // pero siguiendo tu lógica de microservicios:
-  
-  // Buscamos sus permisos globales y por grupo
-  const { data: groupPerms, error: permError } = await supabase
+  // 3. Buscamos sus permisos por grupo en 'group_permissions'
+  const { data: groupPerms } = await supabase
     .from('group_permissions')
     .select('group_id, permission')
-    .eq('user_id', user.id);
+    .eq('user_id', userId);
 
-  let permissions = user.permissions || []; // Permisos globales de la tabla users
+  let permissions = (user && user.permissions) || []; 
   const groupPermissions = {};
 
   if (groupPerms) {
@@ -42,9 +56,9 @@ fastify.post('/auth/login', async (request, reply) => {
   permissions = [...new Set(permissions)];
 
   const token = jwt.sign({ 
-    userId: user.id, 
-    email: user.username,
-    role: user.role,
+    userId: userId, 
+    email: email,
+    role: user?.role || 'user',
     permissions, 
     groupPermissions 
   }, JWT_SECRET, { expiresIn: '24h' });
@@ -52,7 +66,14 @@ fastify.post('/auth/login', async (request, reply) => {
   return reply.send({ 
     statusCode: 200, 
     intOpCode: 'SxUS200', 
-    data: [{ token, user: { id: user.id, username: user.username, name: user.full_name } }] 
+    data: [{ 
+      token, 
+      user: { 
+        id: userId, 
+        username: email, 
+        name: user?.full_name || email.split('@')[0] 
+      } 
+    }] 
   });
 });
 
