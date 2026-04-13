@@ -5,7 +5,7 @@ import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { Sidebar } from '../../components/sidebar/sidebar';
-import { SupabaseService } from '../../services/supabase.service';
+import { ApiService } from '../../services/api.service';
 
 export interface AppUser {
   id: number;
@@ -59,7 +59,7 @@ export class UserManagement implements OnInit {
   // Usuarios (desde Supabase)
   users: AppUser[] = [];
 
-  constructor(private supabase: SupabaseService) {}
+  constructor(private supabase: ApiService) {}
 
   // ---- CRUD dialog ----
   showUserDialog = false;

@@ -8,7 +8,7 @@ import { TagModule } from 'primeng/tag';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { Sidebar } from '../../components/sidebar/sidebar';
 import { AuthService } from '../../services/auth.service';
-import { SupabaseService } from '../../services/supabase.service';
+import { ApiService } from '../../services/api.service';
 import { PermissionService } from '../../services/permission.service';
 
 interface GroupData {
@@ -59,7 +59,7 @@ export class Dashboard implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private supabase: SupabaseService,
+    private supabase: ApiService,
     private permissionService: PermissionService,
     private router: Router
   ) {}

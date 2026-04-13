@@ -9,7 +9,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { Sidebar } from '../../components/sidebar/sidebar';
-import { SupabaseService } from '../../services/supabase.service';
+import { ApiService } from '../../services/api.service';
 
 interface GroupData {
   id: number;
@@ -84,7 +84,7 @@ export class AdminGroup implements OnInit {
   loading = false;
 
   constructor(
-    private supabase: SupabaseService,
+    private supabase: ApiService,
     private messageService: MessageService
   ) {}
 

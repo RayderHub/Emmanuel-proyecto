@@ -11,7 +11,7 @@ import { Sidebar } from '../../components/sidebar/sidebar';
 import { CommonModule } from '@angular/common';
 import { PermissionService } from '../../services/permission.service';
 import { PermissionDirective } from '../../directives/permission.directive';
-import { SupabaseService } from '../../services/supabase.service';
+import { ApiService } from '../../services/api.service';
 
 interface Student {
   id: number;
@@ -74,7 +74,7 @@ export class Group implements OnInit {
   draggedTicket: Ticket | null = null; // Para Drag And Drop
   users: any[] = []; // Para el dropdown de tickets
 
-  constructor(private permissionService: PermissionService, private supabase: SupabaseService) {}
+  constructor(private permissionService: PermissionService, private supabase: ApiService) {}
 
   can(permission: string): boolean {
     return this.permissionService.hasPermission(permission);

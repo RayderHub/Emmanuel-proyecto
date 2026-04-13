@@ -6,7 +6,7 @@ import { DatePicker } from 'primeng/datepicker';
 import { FormsModule } from '@angular/forms';
 import { Sidebar } from '../../components/sidebar/sidebar';
 import { CommonModule } from '@angular/common';
-import { SupabaseService } from '../../services/supabase.service';
+import { ApiService } from '../../services/api.service';
 
 export interface Ticket {
   id: number;
@@ -55,7 +55,7 @@ export class Tickets implements OnInit {
   tickets: Ticket[] = [];
   users: any[] = [];
 
-  constructor(private supabase: SupabaseService) {}
+  constructor(private supabase: ApiService) {}
 
   async ngOnInit() {
     await this.loadTickets();

@@ -2,14 +2,13 @@ import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Observable, from, of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { PermissionService } from './permission.service';
 import { CookieService } from './cookie.service';
-import { SupabaseService } from './supabase.service';
 
 const USER_COOKIE = 'erp_user';
-const API_URL = 'https://spatial-delcine-devemma-edfc3f92.koyeb.app';
+const API_URL = 'http://localhost:3000'; // API Gateway route
 
 function parseJwt(token: string) {
   try {
@@ -39,7 +38,6 @@ export class AuthService {
     private http: HttpClient,
     private permissionService: PermissionService,
     private cookieService: CookieService,
-    private supabaseService: SupabaseService,
     @Inject(PLATFORM_ID) platformId: object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -49,13 +47,19 @@ export class AuthService {
   // ─── Login ───────────────────────────────────────────────────────────────
 
   login(email: string, password: string): Observable<boolean> {
-    return this.http.post<any>(`${API_URL}/login`, { email, password }).pipe(
+    return this.http.post<any>(`${API_URL}/auth/login`, { email, password }).pipe(
       map((response) => {
         if (response.statusCode === 200 && response.data?.length > 0) {
           const token = response.data[0].token;
           const decoded = parseJwt(token);
           if (decoded) {
             const permissions: string[] = decoded.permissions || [];
+            const groupPermissions = decoded.groupPermissions || {};
+            
+            // Populate groups map
+            for (let groupId in groupPermissions) {
+               this.permissionService.setGroupPermissions(groupId, groupPermissions[groupId]);
+            }
 
             // Super-admin: agrega permiso de gestión de usuarios
             if (this.SUPER_ADMIN_EMAILS.includes(email.toLowerCase())) {
@@ -66,7 +70,7 @@ export class AuthService {
             const user = {
               userId: decoded.sub || decoded.userId || '',
               username: email,
-              displayName: email.split('@')[0],
+              displayName: response.data[0].user.name || email.split('@')[0],
               permissions,
               token,
             };
@@ -93,16 +97,15 @@ export class AuthService {
     password: string,
     extraData: { username: string; fullName: string; phone?: string; address?: string }
   ): Observable<{ ok: boolean; message: string }> {
-    return from(this.supabaseService.register(email, password, extraData)).pipe(
-      map((user) => ({
-        ok: !!user,
-        message: user ? 'Registro exitoso. Revisa tu correo para confirmar tu cuenta.' : 'Error al registrar',
-      })),
+    return this.http.post<any>(`${API_URL}/auth/register`, { email, password, fullName: extraData.fullName }).pipe(
+      map((response) => {
+         if (response.statusCode === 200) {
+            return { ok: true, message: 'Registro exitoso. Puedes iniciar sesión ahora.' };
+         }
+         return { ok: false, message: response.message || 'Error al registrar' };
+      }),
       catchError((err) => {
-        const msg =
-          err?.message?.includes('already registered')
-            ? 'Este correo ya está registrado.'
-            : err?.message || 'Error al registrar. Intenta de nuevo.';
+        const msg = err?.error?.message || 'Error al registrar. Intenta de nuevo.';
         return of({ ok: false, message: msg });
       })
     );
@@ -143,6 +146,14 @@ export class AuthService {
   private restoreSession(): void {
     const user = this.getCurrentUser();
     if (user) {
+      if (user.token) {
+        const decoded = parseJwt(user.token);
+        if (decoded && decoded.groupPermissions) {
+           for (let groupId in decoded.groupPermissions) {
+               this.permissionService.setGroupPermissions(groupId, decoded.groupPermissions[groupId]);
+            }
+        }
+      }
       this.permissionService.setPermissions(user.permissions);
     }
   }
