@@ -1,50 +1,49 @@
 const fastify = require('fastify')({ logger: true });
 const supabase = require('./db');
 
-// RUTA CORREGIDA: Listar grupos del usuario (usada en el login y dashboard)
-fastify.get('/users/:userId/groups', async (request, reply) => {
-  const { userId } = request.params;
-  
-  // 1. Obtener el rol del usuario para saber si es admin
-  const { data: user } = await supabase.from('users').select('role').eq('id', userId).single();
-  
-  // 2. Si es ADMIN, le devolvemos TODOS los grupos del sistema
-  if (user && user.role === 'admin') {
-    const { data: allGroups, error } = await supabase.from('groups').select('*');
-    if (error) return reply.status(500).send(error);
-    return reply.send({ statusCode: 200, data: allGroups });
-  }
-
-  // 3. Si no es admin, solo los suyos
-  const { data: perms } = await supabase.from('group_permissions').select('group_id').eq('user_id', userId);
-  if (!perms || perms.length === 0) return reply.send({ statusCode: 200, data: [] });
-
-  const groupIds = perms.map(p => p.group_id);
-  const { data: groups, error } = await supabase.from('groups').select('*').in('id', groupIds);
-  if (error) return reply.status(500).send(error);
-  return reply.send({ statusCode: 200, data: groups });
-});
-
-// Listar todos los usuarios con sus permisos (para el admin)
-fastify.get('/users', async (request, reply) => {
-  const { data, error } = await supabase.from('users').select('id, username, full_name, role, permissions');
+// 1. RUTA PARA ADMIN: Listar TODOS los grupos
+fastify.get('/groups', async (request, reply) => {
+  const { data, error } = await supabase.from('groups').select('*');
   if (error) return reply.status(500).send(error);
   return reply.send({ statusCode: 200, data });
 });
 
-// Listar todos los alumnos del sistema (para la sección que mencionas)
+// 2. RUTA PARA USUARIO: Sus grupos específicos
+fastify.get('/users/:userId/groups', async (request, reply) => {
+  const { userId } = request.params;
+  const { data: user } = await supabase.from('users').select('role').eq('id', userId).single();
+  
+  if (user && user.role === 'admin') {
+    const { data: allGroups } = await supabase.from('groups').select('*');
+    return reply.send({ statusCode: 200, data: allGroups });
+  }
+
+  const { data: perms } = await supabase.from('group_permissions').select('group_id').eq('user_id', userId);
+  if (!perms || perms.length === 0) return reply.send({ statusCode: 200, data: [] });
+
+  const { data: groups } = await supabase.from('groups').select('*').in('id', perms.map(p => p.group_id));
+  return reply.send({ statusCode: 200, data: groups });
+});
+
+// 3. RUTA PARA ESTUDIANTES (El módulo que te faltaba)
 fastify.get('/students', async (request, reply) => {
   const { data, error } = await supabase.from('students').select('*');
   if (error) return reply.status(500).send(error);
   return reply.send({ statusCode: 200, data });
 });
 
-// Rutas de permisos
+// 4. Listar usuarios con permisos
+fastify.get('/users', async (request, reply) => {
+  const { data, error } = await supabase.from('users').select('id, username, full_name, role, permissions');
+  if (error) return reply.status(500).send(error);
+  return reply.send({ statusCode: 200, data });
+});
+
+// 5. Gestión de Permisos
 fastify.get('/groups/:groupId/users/:userId/permissions', async (request, reply) => {
   const { groupId, userId } = request.params;
-  const { data, error } = await supabase.from('group_permissions').select('permission').eq('group_id', groupId).eq('user_id', userId);
-  if (error) return reply.status(500).send(error);
-  return reply.send({ statusCode: 200, data: data.map(p => p.permission) });
+  const { data } = await supabase.from('group_permissions').select('permission').eq('group_id', groupId).eq('user_id', userId);
+  return reply.send({ statusCode: 200, data: data?.map(p => p.permission) || [] });
 });
 
 fastify.patch('/groups/:groupId/users/:userId/permissions', async (request, reply) => {
@@ -59,5 +58,5 @@ fastify.patch('/groups/:groupId/users/:userId/permissions', async (request, repl
 
 fastify.listen({ port: 3003, host: '0.0.0.0' }, (err, address) => {
   if (err) { fastify.log.error(err); process.exit(1); }
-  console.log(`Groups Service listening at ${address}`);
+  console.log(`Groups/Students Service listening at ${address}`);
 });
