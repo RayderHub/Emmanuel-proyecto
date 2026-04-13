@@ -8,18 +8,6 @@ fastify.get('/groups', async (request, reply) => {
   return reply.send({ statusCode: 200, data: data || [] });
 });
 
-fastify.post('/groups', async (request, reply) => {
-  const { data, error } = await supabase.from('groups').insert([request.body]).select().single();
-  if (error) return reply.status(500).send(error);
-  return reply.send({ statusCode: 200, data: [data] });
-});
-
-fastify.patch('/groups/:id', async (request, reply) => {
-  const { data, error } = await supabase.from('groups').update(request.body).eq('id', request.params.id).select().single();
-  if (error) return reply.status(500).send(error);
-  return reply.send({ statusCode: 200, data: [data] });
-});
-
 fastify.get('/groups/:groupId/users', async (request, reply) => {
   const { groupId } = request.params;
   const { data: perms } = await supabase.from('group_permissions').select('user_id').eq('group_id', groupId);
@@ -29,22 +17,27 @@ fastify.get('/groups/:groupId/users', async (request, reply) => {
   return reply.send({ statusCode: 200, data: mapped });
 });
 
-fastify.post('/groups/:groupId/users', async (request, reply) => {
-  const { groupId } = request.params;
-  const { userId } = request.body;
-  await supabase.from('group_permissions').insert([{ group_id: groupId, user_id: userId, permission: 'ticket:view' }]);
-  return reply.send({ statusCode: 200, message: 'User added' });
-});
-
-// --- ESTUDIANTES ---
+// --- ALUMNOS REALES (Ahora vienen de la tabla Users con rol 'user') ---
 fastify.get('/students', async (request, reply) => {
-  const { data, error } = await supabase.from('students').select('*');
+  // Buscamos a todos los usuarios cuyo rol sea 'user'
+  const { data, error } = await supabase.from('users')
+    .select('*')
+    .eq('role', 'user');
+
   if (error) return reply.status(500).send(error);
-  const mapped = data.map(s => ({ ...s, fullName: s.full_name }));
+  
+  // Mapeamos los datos para que Angular los entienda (fullName, email, etc)
+  const mapped = (data || []).map(u => ({
+    ...u,
+    fullName: u.full_name,
+    email: u.username, // En tu caso el username es el email
+    phone: 'Sin teléfono' // Campo opcional
+  }));
+
   return reply.send({ statusCode: 200, intOpCode: 'SxST200', data: mapped });
 });
 
 fastify.listen({ port: 3003, host: '0.0.0.0' }, (err) => {
   if (err) process.exit(1);
-  console.log(`Groups/Students service running at 3003`);
+  console.log(`Groups/Students service operational`);
 });
