@@ -537,3 +537,17 @@
   .kanban-board { grid-template-columns: 1fr; }
   .dialog-form { grid-template-columns: 1fr; }
 }
+
+/* Hint de solo lectura */
+.section-hint {
+  font-size: 0.78rem;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.section-hint a {
+  text-decoration: none;
+  font-weight: 600;
+}
+.section-hint a:hover { text-decoration: underline; }

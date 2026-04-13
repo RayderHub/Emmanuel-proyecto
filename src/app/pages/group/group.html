@@ -29,14 +29,11 @@
     </div>
   </div>
 
-  <!-- ===== STUDENTS SECTION ===== -->
+  <!-- ===== STUDENTS SECTION (solo visualización) ===== -->
   <div class="section">
     <div class="section-head">
       <h2 class="section-title">Alumnos</h2>
-      <button *appPermission="'user:add'" class="btn btn-success" (click)="addStudent()">
-        <i class="pi pi-plus"></i>
-        Nuevo Alumno
-      </button>
+      <span class="section-hint"><i class="pi pi-info-circle"></i> Para gestionar usuarios ve a <a routerLink="/admin/users" style="color:#F54927">Admin Usuarios</a></span>
     </div>
 
     <div class="table-wrap">
@@ -49,7 +46,6 @@
             <th>Fecha Nac.</th>
             <th>Dirección</th>
             <th>Teléfono</th>
-            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -63,26 +59,6 @@
               <td class="td-muted">{{ student.birthDate }}</td>
               <td class="td-muted" style="max-width:200px;overflow:hidden;text-overflow:ellipsis">{{ student.address }}</td>
               <td class="td-muted">{{ student.phone }}</td>
-              <td>
-                <div class="action-group">
-                  <button *appPermission="'user:edit'"
-                    class="btn btn-sm btn-info"
-                    (click)="editStudent(student)">
-                    <i class="pi pi-pencil"></i>
-                    Editar
-                  </button>
-                  <button *appPermission="'user:manage'" class="btn btn-sm btn-purple" (click)="manageUser(student)">
-                    <i class="pi pi-cog"></i>
-                    Gestionar
-                  </button>
-                  <button *appPermission="'user:delete'"
-                    class="btn btn-sm btn-danger"
-                    (click)="deleteStudent(student.id)">
-                    <i class="pi pi-trash"></i>
-                    Borrar
-                  </button>
-                </div>
-              </td>
             </tr>
           }
         </tbody>
@@ -103,10 +79,6 @@
   <div class="section">
     <div class="section-head">
       <h2 class="section-title">Grupos Académicos</h2>
-      <button *appPermission="'group:add'" class="btn btn-success" (click)="addGroup()">
-        <i class="pi pi-plus"></i>
-        Nuevo Grupo
-      </button>
     </div>
 
     <div class="table-wrap">
@@ -144,18 +116,6 @@
                     (click)="editGroup(group)">
                     <i class="pi pi-pencil"></i>
                     Editar
-                  </button>
-                  <button *appPermission="'group:manage'"
-                    class="btn btn-sm btn-success"
-                    (click)="manageGroup(group)">
-                    <i class="pi pi-cog"></i>
-                    Gestionar
-                  </button>
-                  <button *appPermission="'group:delete'"
-                    class="btn btn-sm btn-danger"
-                    (click)="deleteGroup(group.id)">
-                    <i class="pi pi-trash"></i>
-                    Borrar
                   </button>
                 </div>
               </td>

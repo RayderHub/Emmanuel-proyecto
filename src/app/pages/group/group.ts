@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-// InputTextareaModule no disponible en esta versión - usando InputTextModule en su lugar
 import { InputMaskModule } from 'primeng/inputmask';
 import { DatePicker } from 'primeng/datepicker';
-// DropdownModule no disponible en esta versión - usando alternativas nativas
 import { FormsModule } from '@angular/forms';
 import { Sidebar } from '../../components/sidebar/sidebar';
 import { CommonModule } from '@angular/common';
@@ -50,7 +49,7 @@ interface Ticket {
 @Component({
     selector: 'app-group',
     standalone: true,
-    imports: [ButtonModule, CardModule, DialogModule, InputTextModule, InputMaskModule, DatePicker, FormsModule, Sidebar, CommonModule, PermissionDirective],
+    imports: [RouterLink, ButtonModule, CardModule, DialogModule, InputTextModule, InputMaskModule, DatePicker, FormsModule, Sidebar, CommonModule, PermissionDirective],
     templateUrl: './group.html',
     styleUrl: './group.css'
 })
