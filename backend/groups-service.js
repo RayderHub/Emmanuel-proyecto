@@ -1,65 +1,63 @@
 const fastify = require('fastify')({ logger: true });
 const supabase = require('./db');
 
+// Listar grupos del usuario
 fastify.get('/groups', async (request, reply) => {
   const userId = request.headers['x-user-id']; 
-  
-  // En tu esquema, buscamos los grupos donde el usuario tiene permisos
-  const { data: perms, error: permError } = await supabase
-    .from('group_permissions')
-    .select('group_id')
-    .eq('user_id', userId);
-
-  if (permError || !perms) {
-    return reply.status(200).send({ statusCode: 200, data: [] });
-  }
+  const { data: perms } = await supabase.from('group_permissions').select('group_id').eq('user_id', userId);
+  if (!perms || perms.length === 0) return reply.send({ statusCode: 200, data: [] });
 
   const groupIds = perms.map(p => p.group_id);
-
-  const { data: groups, error: groupError } = await supabase
-    .from('groups')
-    .select('*')
-    .in('id', groupIds);
-
-  if (groupError) {
-    return reply.status(500).send({ statusCode: 500, intOpCode: 'SxGP500', data: null, message: groupError.message });
-  }
-  return reply.send({ statusCode: 200, intOpCode: 'SxGP200', data: groups });
+  const { data: groups, error } = await supabase.from('groups').select('*').in('id', groupIds);
+  if (error) return reply.status(500).send(error);
+  return reply.send({ statusCode: 200, data: groups });
 });
 
-fastify.get('/users', async (request, reply) => {
-  const { data, error } = await supabase
-    .from('users')
-    .select('id, username, full_name, role');
-
-  if (error) {
-    return reply.status(500).send({ statusCode: 500, intOpCode: 'SxGP500', data: null, message: error.message });
-  }
-  return reply.send({ statusCode: 200, intOpCode: 'SxGP200', data: data });
-});
-
-fastify.post('/groups/:groupId/users', async (request, reply) => {
-  const { groupId } = request.params;
-  const { userId, permissions } = request.body; // array de strings
+// Crear grupo
+fastify.post('/groups', async (request, reply) => {
+  const { name, description, course, semester } = request.body;
+  const userId = request.headers['x-user-id']; 
   
-  // Borramos permisos anteriores e insertamos los nuevos
-  await supabase.from('group_permissions').delete().eq('group_id', parseInt(groupId)).eq('user_id', userId);
+  const { data: group, error } = await supabase.from('groups').insert([{ name, description, course, semester }]).select().single();
+  if (error) return reply.status(500).send(error);
 
-  const inserts = permissions.map(p => ({
-    group_id: parseInt(groupId),
-    user_id: userId,
-    permission: p
-  }));
+  // Asignar permisos de admin al creador
+  await supabase.from('group_permissions').insert([
+    { group_id: group.id, user_id: userId, permission: 'groups:manage' },
+    { group_id: group.id, user_id: userId, permission: 'users:manage' },
+    { group_id: group.id, user_id: userId, permission: 'tickets:add' },
+    { group_id: group.id, user_id: userId, permission: 'tickets:move' }
+  ]);
 
-  const { data, error } = await supabase
-    .from('group_permissions')
-    .insert(inserts)
-    .select();
+  return reply.send({ statusCode: 200, data: [group] });
+});
 
-  if (error) {
-    return reply.status(500).send({ statusCode: 500, intOpCode: 'SxGP500', data: null, message: error.message });
-  }
-  return reply.send({ statusCode: 200, intOpCode: 'SxGP200', data: data });
+// Listar todos los usuarios
+fastify.get('/users', async (request, reply) => {
+  const { data, error } = await supabase.from('users').select('id, username, full_name, role');
+  if (error) return reply.status(500).send(error);
+  return reply.send({ statusCode: 200, data });
+});
+
+// Obtener permisos de un usuario en un grupo (IMPORTANTE para el frontend)
+fastify.get('/groups/:groupId/users/:userId/permissions', async (request, reply) => {
+  const { groupId, userId } = request.params;
+  const { data, error } = await supabase.from('group_permissions').select('permission').eq('group_id', groupId).eq('user_id', userId);
+  if (error) return reply.status(500).send(error);
+  return reply.send({ statusCode: 200, data: data.map(p => p.permission) });
+});
+
+// Guardar permisos
+fastify.patch('/groups/:groupId/users/:userId/permissions', async (request, reply) => {
+  const { groupId, userId } = request.params;
+  const { permissions } = request.body; // array de strings
+  
+  await supabase.from('group_permissions').delete().eq('group_id', groupId).eq('user_id', userId);
+  const inserts = permissions.map(p => ({ group_id: groupId, user_id: userId, permission: p }));
+  const { data, error } = await supabase.from('group_permissions').insert(inserts).select();
+  
+  if (error) return reply.status(500).send(error);
+  return reply.send({ statusCode: 200, data });
 });
 
 fastify.listen({ port: 3003, host: '0.0.0.0' }, (err, address) => {

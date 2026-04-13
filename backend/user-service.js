@@ -4,10 +4,57 @@ const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = 'super-secret-key-for-school-project'; 
 
+// ─── REGISTRO ──────────────────────────────────────────────────────────────
+fastify.post('/auth/register', async (request, reply) => {
+  const { email, password, fullName } = request.body;
+  
+  if (!email || !password) {
+    return reply.status(400).send({ statusCode: 400, message: "Faltan datos" });
+  }
+
+  // 1. Registrar en Supabase Auth
+  const { data: authData, error: authError } = await supabase.auth.signUp({
+    email: email,
+    password: password,
+  });
+
+  if (authError || !authData.user) {
+    return reply.status(400).send({ 
+      statusCode: 400, 
+      message: `Error en Auth: ${authError.message}` 
+    });
+  }
+
+  const userId = authData.user.id;
+
+  // 2. Crear el perfil en tu tabla personalizada 'users'
+  const { error: userError } = await supabase
+    .from('users')
+    .insert([{ 
+      id: userId, 
+      username: email, 
+      full_name: fullName || email.split('@')[0],
+      role: 'user',
+      permissions: ['tickets:add'] // Permiso básico por defecto
+    }]);
+
+  if (userError) {
+    fastify.log.error(userError);
+    // Aunque falle aquí, el usuario ya se creó en Auth.
+  }
+
+  return reply.send({ 
+    statusCode: 200, 
+    intOpCode: 'SxUS200', 
+    data: [{ id: userId, email }] 
+  });
+});
+
+// ─── LOGIN ─────────────────────────────────────────────────────────────────
 fastify.post('/auth/login', async (request, reply) => {
   const { email, password } = request.body;
   
-  // 1. Intentamos iniciar sesión con el sistema de Auth de Supabase
+  // 1. Validar con Supabase Auth
   const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
     email: email,
     password: password,
@@ -15,28 +62,20 @@ fastify.post('/auth/login', async (request, reply) => {
 
   if (authError || !authData.user) {
     return reply.status(403).send({ 
-      statusCode: 403, 
-      intOpCode: 'SxUS403', 
-      data: null, 
-      message: "Credenciales inválidas en Supabase Auth" 
+       statusCode: 403, 
+       message: "Usuario o contraseña incorrectos en Supabase" 
     });
   }
 
   const userId = authData.user.id;
 
-  // 2. Buscamos los datos adicionales (role, full_name) en tu tabla 'users'
-  const { data: user, error: userError } = await supabase
+  // 2. Obtener datos y permisos
+  const { data: user } = await supabase
     .from('users')
     .select('*')
     .eq('id', userId)
     .single();
 
-  if (userError || !user) {
-    // Si no existe en la tabla users, devolvemos datos básicos del perfil de Auth
-    fastify.log.warn(`Usuario ${userId} no encontrado en tabla personalizada 'users'`);
-  }
-
-  // 3. Buscamos sus permisos por grupo en 'group_permissions'
   const { data: groupPerms } = await supabase
     .from('group_permissions')
     .select('group_id, permission')
