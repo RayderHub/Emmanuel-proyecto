@@ -28,15 +28,9 @@ fastify.post('/auth/login', async (request, reply) => {
     });
   }
 
-  // FORCE ADMIN PERMISSIONS (Both singular and plural to fix the UI)
+  // FORCE ADMIN PERMISSIONS
   if (user && user.role === 'admin') {
-    const adminCore = [
-      'ticket:view', 'tickets:view', 
-      'group:view', 'groups:view',
-      'groups:manage', 'users:manage', 
-      'tickets:add', 'tickets:move', 'tickets:delete',
-      'admin:all'
-    ];
+    const adminCore = ['ticket:view', 'tickets:view', 'group:view', 'groups:manage', 'users:manage', 'tickets:add', 'tickets:move', 'tickets:delete', 'admin:all'];
     permissions = [...new Set([...permissions, ...adminCore])];
   }
 
@@ -48,28 +42,28 @@ fastify.post('/auth/login', async (request, reply) => {
     statusCode: 200, 
     data: [{ 
       token, 
-      user: { id: userId, username: email, name: user?.full_name || email.split('@')[0], role: user?.role } 
+      user: { 
+        id: userId, 
+        username: email, 
+        name: user?.full_name || email.split('@')[0], // Mapeo para el header
+        role: user?.role 
+      } 
     }] 
   });
 });
 
-fastify.post('/auth/register', async (request, reply) => {
-  const { email, password, fullName } = request.body;
-  const { data: authData, error: authError } = await supabase.auth.signUp({ email, password });
-
-  if (authError || !authData.user) {
-    return reply.status(400).send({ statusCode: 400, message: authError.message });
-  }
-
-  await supabase.from('users').insert([{ 
-    id: authData.user.id, 
-    username: email, 
-    full_name: fullName || email.split('@')[0],
-    role: 'user',
-    permissions: ['ticket:view', 'group:view'] 
-  }]);
-
-  return reply.send({ statusCode: 200, data: [{ id: authData.user.id, email }] });
+// LISTA DE USUARIOS (Mapeo de fullName para el frontend)
+fastify.get('/users', async (request, reply) => {
+  const { data, error } = await supabase.from('users').select('id, username, full_name, role, permissions');
+  if (error) return reply.status(500).send(error);
+  
+  // MAPEO CRÍTICO: full_name -> fullName
+  const mapped = data.map(u => ({
+    ...u,
+    fullName: u.full_name // <--- Esto hace que aparezcan los nombres en la tabla y buscador
+  }));
+  
+  return reply.send({ statusCode: 200, data: mapped });
 });
 
 fastify.listen({ port: 3001, host: '0.0.0.0' }, (err, address) => {
