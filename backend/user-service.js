@@ -9,38 +9,44 @@ fastify.post('/auth/register', async (request, reply) => {
   const { email, password, fullName } = request.body;
   
   if (!email || !password) {
-    return reply.status(400).send({ statusCode: 400, message: "Faltan datos" });
+    return reply.status(400).send({ statusCode: 400, message: "Faltan datos (email o password)" });
   }
 
   // 1. Registrar en Supabase Auth
   const { data: authData, error: authError } = await supabase.auth.signUp({
-    email: email,
-    password: password,
+    email,
+    password,
   });
 
   if (authError || !authData.user) {
     return reply.status(400).send({ 
-      statusCode: 400, 
-      message: `Error en Auth: ${authError.message}` 
+       statusCode: 400, 
+       message: `Error en Supabase Auth: ${authError.message}` 
     });
   }
 
   const userId = authData.user.id;
 
-  // 2. Crear el perfil en tu tabla personalizada 'users'
+  // 2. Crear el perfil en la tabla 'users'
+  // Comprobamos que las columnas coincidan con tu esquema: id (uuid), username, full_name, role, permissions
   const { error: userError } = await supabase
     .from('users')
-    .insert([{ 
-      id: userId, 
-      username: email, 
-      full_name: fullName || email.split('@')[0],
-      role: 'user',
-      permissions: ['tickets:add'] // Permiso básico por defecto
-    }]);
+    .insert([
+      { 
+        id: userId, 
+        username: email, 
+        full_name: fullName || email.split('@')[0],
+        role: 'user', 
+        permissions: ['tickets:add'] // enviamos array simple
+      }
+    ]);
 
   if (userError) {
-    fastify.log.error(userError);
-    // Aunque falle aquí, el usuario ya se creó en Auth.
+    fastify.log.error('Error insertando en tabla users:', userError);
+    return reply.status(400).send({ 
+       statusCode: 400, 
+       message: `Error al guardar perfil: ${userError.message}. Verifica RLS y nombres de columnas.` 
+    });
   }
 
   return reply.send({ 
@@ -54,23 +60,21 @@ fastify.post('/auth/register', async (request, reply) => {
 fastify.post('/auth/login', async (request, reply) => {
   const { email, password } = request.body;
   
-  // 1. Validar con Supabase Auth
   const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-    email: email,
-    password: password,
+    email,
+    password,
   });
 
   if (authError || !authData.user) {
     return reply.status(403).send({ 
        statusCode: 403, 
-       message: "Usuario o contraseña incorrectos en Supabase" 
+       message: `Error de Auth: ${authError.message}` 
     });
   }
 
   const userId = authData.user.id;
 
-  // 2. Obtener datos y permisos
-  const { data: user } = await supabase
+  const { data: user, error: userQueryError } = await supabase
     .from('users')
     .select('*')
     .eq('id', userId)
@@ -107,11 +111,7 @@ fastify.post('/auth/login', async (request, reply) => {
     intOpCode: 'SxUS200', 
     data: [{ 
       token, 
-      user: { 
-        id: userId, 
-        username: email, 
-        name: user?.full_name || email.split('@')[0] 
-      } 
+      user: { id: userId, username: email, name: user?.full_name || email.split('@')[0] } 
     }] 
   });
 });
