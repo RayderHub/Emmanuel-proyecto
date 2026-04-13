@@ -1,78 +1,68 @@
 const fastify = require('fastify')({ logger: true });
-const db = require('./db');
-const crypto = require('crypto');
+const supabase = require('./db');
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = 'super-secret-key-for-school-project'; // In real life, use an env var
-
-fastify.post('/auth/register', async (request, reply) => {
-  const { email, password, fullName } = request.body;
-  if (!email || !password) {
-    return reply.status(400).send({ statusCode: 400, intOpCode: 'SxUS400', data: null, message: "Missing email or password" });
-  }
-
-  const id = crypto.randomUUID();
-  
-  return new Promise((resolve) => {
-    db.run(`INSERT INTO users (id, email, password, full_name) VALUES (?, ?, ?, ?)`, 
-      [id, email, password, fullName || ''], 
-      function(err) {
-        if (err) {
-          fastify.log.error(err);
-          resolve(reply.status(400).send({ statusCode: 400, intOpCode: 'SxUS400', data: null, message: "Email already exists" }));
-        } else {
-          resolve(reply.send({ statusCode: 200, intOpCode: 'SxUS200', data: [{ id, email }] }));
-        }
-    });
-  });
-});
+const JWT_SECRET = 'super-secret-key-for-school-project'; 
 
 fastify.post('/auth/login', async (request, reply) => {
   const { email, password } = request.body;
   
-  return new Promise((resolve) => {
-    db.get(`SELECT * FROM users WHERE email = ? AND password = ?`, [email, password], (err, user) => {
-      if (err || !user) {
-        resolve(reply.status(403).send({ statusCode: 403, intOpCode: 'SxUS403', data: null, message: "Invalid credentials" }));
-        return;
-      }
+  // En tu esquema, el login se basa en la tabla users vinculada a Auth
+  // Buscamos por username (que suele ser el email)
+  const { data: user, error: userError } = await supabase
+    .from('users')
+    .select('*')
+    .eq('username', email)
+    .single();
 
-      // Fetch all group permissions for the user
-      db.all(`SELECT group_id, permissions FROM group_users WHERE user_id = ?`, [user.id], (err, rows) => {
-        let permissions = []; // Simplified flat permissions for all groups to adapt to the pdf initially, but ideally we should group them by groupId.
-        // The PDF says "Lista de permisos por grupo (o un identificador que permita recuperarlos rápidamente)." 
-        // We will include groupPermissions inside the token.
-        const groupPermissions = {};
-        if (rows) {
-          rows.forEach(row => {
-            try {
-              groupPermissions[row.group_id] = JSON.parse(row.permissions);
-              permissions = permissions.concat(JSON.parse(row.permissions));
-            } catch(e){}
-          });
-        }
-        
-        // Remove duplicates
-        permissions = [...new Set(permissions)];
+  if (userError || !user) {
+    return reply.status(403).send({ statusCode: 403, intOpCode: 'SxUS403', data: null, message: "Usuario no encontrado" });
+  }
 
-        const token = jwt.sign({ 
-          userId: user.id, 
-          email: user.email,
-          permissions, // All permissions extracted
-          groupPermissions 
-        }, JWT_SECRET, { expiresIn: '24h' });
+  // Nota: En un sistema real usarías Supabase Auth directamente, 
+  // pero siguiendo tu lógica de microservicios:
+  
+  // Buscamos sus permisos globales y por grupo
+  const { data: groupPerms, error: permError } = await supabase
+    .from('group_permissions')
+    .select('group_id, permission')
+    .eq('user_id', user.id);
 
-        resolve(reply.send({ 
-          statusCode: 200, 
-          intOpCode: 'SxUS200', 
-          data: [{ token, user: { id: user.id, email: user.email, name: user.full_name } }] 
-        }));
-      });
+  let permissions = user.permissions || []; // Permisos globales de la tabla users
+  const groupPermissions = {};
+
+  if (groupPerms) {
+    groupPerms.forEach(row => {
+      if (!groupPermissions[row.group_id]) groupPermissions[row.group_id] = [];
+      groupPermissions[row.group_id].push(row.permission);
+      permissions.push(row.permission);
     });
+  }
+  
+  permissions = [...new Set(permissions)];
+
+  const token = jwt.sign({ 
+    userId: user.id, 
+    email: user.username,
+    role: user.role,
+    permissions, 
+    groupPermissions 
+  }, JWT_SECRET, { expiresIn: '24h' });
+
+  return reply.send({ 
+    statusCode: 200, 
+    intOpCode: 'SxUS200', 
+    data: [{ token, user: { id: user.id, username: user.username, name: user.full_name } }] 
   });
 });
 
-fastify.listen({ port: 3001 }, (err, address) => {
+fastify.get('/users', async (request, reply) => {
+  const { data, error } = await supabase.from('users').select('*');
+  if (error) return reply.status(500).send(error);
+  return reply.send({ statusCode: 200, data });
+});
+
+fastify.listen({ port: 3001, host: '0.0.0.0' }, (err, address) => {
   if (err) { fastify.log.error(err); process.exit(1); }
   console.log(`User Service listening at ${address}`);
 });

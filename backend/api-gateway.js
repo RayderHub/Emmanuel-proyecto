@@ -3,7 +3,7 @@ const cors = require('@fastify/cors');
 const fastifyJwt = require('@fastify/jwt');
 const rateLimit = require('@fastify/rate-limit');
 const proxy = require('@fastify/http-proxy');
-const db = require('./db');
+const supabase = require('./db');
 
 const JWT_SECRET = 'super-secret-key-for-school-project';
 
@@ -37,51 +37,47 @@ async function build() {
     const ip = request.ip;
     
     // Insert into metrics logs
-    db.run(`INSERT INTO metrics (endpoint, method, response_time_ms) VALUES (?, ?, ?)`, 
-      [request.routerPath || request.url, request.method, responseTime]);
+    supabase.from('metrics').insert([{ 
+      endpoint: request.routerPath || request.url, 
+      method: request.method, 
+      response_time_ms: responseTime 
+    }]).then();
     
     // Insert into logs
-    db.run(`INSERT INTO logs (endpoint, method, user_id, ip, status_http) VALUES (?, ?, ?, ?, ?)`, 
-      [request.routerPath || request.url, request.method, userId, ip, reply.statusCode]);
+    supabase.from('logs').insert([{ 
+      endpoint: request.routerPath || request.url, 
+      method: request.method, 
+      user_id: userId, 
+      ip: ip, 
+      status_http: reply.statusCode 
+    }]).then();
   });
   
   fastify.addHook('onError', async (request, reply, error) => {
-      db.run(`INSERT INTO logs (endpoint, method, error_msg) VALUES (?, ?, ?)`, 
-        [request.raw.url, request.method, error.message]);
+      supabase.from('logs').insert([{ 
+        endpoint: request.raw.url, 
+        method: request.method, 
+        error_msg: error.message 
+      }]).then();
   });
 
   // Auth Decorator to verify token
   fastify.decorate("authenticate", async function(request, reply) {
     try {
-      if (request.url.startsWith('/auth')) return; // skip for login/register
+      if (request.url.startsWith('/auth')) return; 
       await request.jwtVerify()
     } catch (err) {
       reply.status(401).send({ statusCode: 401, intOpCode: 'SxGW401', data: null, message: "Unauthorized" });
     }
   });
 
-  // Permission Check Hook Builder
-  const requirePermission = (permission) => {
-    return async (request, reply) => {
-      const perms = request.user.permissions || [];
-      // Note: fine-grained checking for specific group logic is left out of this global hook for simplicity,
-      // it verifies if the user has the permission in ANY group (as parsed in user-service).
-      if (!perms.includes(permission)) {
-        return reply.status(403).send({ statusCode: 403, intOpCode: 'SxGW403', data: null, message: "Forbidden: Missing " + permission });
-      }
-    };
-  };
-
-  // We proxy with some hook checks
-  // Auth routes (No auth required)
+  // Proxy routes
   fastify.register(proxy, {
     upstream: 'http://localhost:3001',
     prefix: '/auth',
     rewritePrefix: '/auth'
   });
 
-  // Tickets routes
-  // Add onRequest to append Headers
   fastify.register(proxy, {
     upstream: 'http://localhost:3002',
     prefix: '/tickets',
@@ -94,7 +90,6 @@ async function build() {
     }
   });
 
-  // Groups and Users routes
   fastify.register(proxy, {
     upstream: 'http://localhost:3003',
     prefix: '/groups',

@@ -1,61 +1,60 @@
 const fastify = require('fastify')({ logger: true });
-const db = require('./db');
-const crypto = require('crypto');
+const supabase = require('./db');
 
 fastify.get('/tickets', async (request, reply) => {
   const { groupId } = request.query;
   
-  return new Promise((resolve) => {
-    let query = `SELECT * FROM tickets`;
-    let params = [];
-    if (groupId) {
-      query += ` WHERE group_id = ?`;
-      params.push(groupId);
-    }
-    db.all(query, params, (err, rows) => {
-      if (err) {
-         resolve(reply.status(500).send({ statusCode: 500, intOpCode: 'SxTK500', data: null, message: err.message }));
-      } else {
-         resolve(reply.send({ statusCode: 200, intOpCode: 'SxTK200', data: rows }));
-      }
-    });
-  });
+  let query = supabase.from('tickets').select('*');
+  if (groupId) {
+    query = query.eq('group_id', parseInt(groupId));
+  }
+  
+  const { data, error } = await query;
+
+  if (error) {
+    return reply.status(500).send({ statusCode: 500, intOpCode: 'SxTK500', data: null, message: error.message });
+  }
+  return reply.send({ statusCode: 200, intOpCode: 'SxTK200', data: data });
 });
 
 fastify.post('/tickets', async (request, reply) => {
-  const { title, description, status, priority, assignee_id, group_id } = request.body;
-  const id = crypto.randomUUID();
+  const { title, description, status, priority, assigned_to, group_id } = request.body;
   
-  return new Promise((resolve) => {
-    db.run(`INSERT INTO tickets (id, title, description, status, priority, assignee_id, group_id) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [id, title, description, status || 'To-Do', priority || 'Low', assignee_id, group_id],
-      function(err) {
-        if (err) {
-          resolve(reply.status(500).send({ statusCode: 500, intOpCode: 'SxTK500', data: null, message: err.message }));
-        } else {
-          resolve(reply.send({ statusCode: 200, intOpCode: 'SxTK200', data: [{ id, title, status }] }));
-        }
-      }
-    )
-  });
+  const { data, error } = await supabase
+    .from('tickets')
+    .insert([{ 
+      title, 
+      description, 
+      status: status || 'To-Do', 
+      priority: priority || 'Low', 
+      assigned_to, 
+      group_id: parseInt(group_id)
+    }])
+    .select();
+
+  if (error) {
+    return reply.status(500).send({ statusCode: 500, intOpCode: 'SxTK500', data: null, message: error.message });
+  }
+  return reply.send({ statusCode: 200, intOpCode: 'SxTK200', data: data });
 });
 
 fastify.patch('/tickets/:id/status', async (request, reply) => {
   const { status } = request.body;
   const { id } = request.params;
   
-  return new Promise((resolve) => {
-    db.run(`UPDATE tickets SET status = ? WHERE id = ?`, [status, id], function(err) {
-      if (err) {
-         resolve(reply.status(500).send({ statusCode: 500, intOpCode: 'SxTK500', data: null }));
-      } else {
-         resolve(reply.send({ statusCode: 200, intOpCode: 'SxTK200', data: [{ id, status }] }));
-      }
-    });
-  });
+  const { data, error } = await supabase
+    .from('tickets')
+    .update({ status })
+    .eq('id', parseInt(id))
+    .select();
+
+  if (error) {
+    return reply.status(500).send({ statusCode: 500, intOpCode: 'SxTK500', data: null, message: error.message });
+  }
+  return reply.send({ statusCode: 200, intOpCode: 'SxTK200', data: data });
 });
 
-fastify.listen({ port: 3002 }, (err, address) => {
+fastify.listen({ port: 3002, host: '0.0.0.0' }, (err, address) => {
   if (err) { fastify.log.error(err); process.exit(1); }
   console.log(`Tickets Service listening at ${address}`);
 });

@@ -1,73 +1,68 @@
 const fastify = require('fastify')({ logger: true });
-const db = require('./db');
-const crypto = require('crypto');
+const supabase = require('./db');
 
 fastify.get('/groups', async (request, reply) => {
-  const userId = request.headers['x-user-id']; // Passed by API Gateway
-  return new Promise((resolve) => {
-    db.all(`SELECT g.* FROM groups g JOIN group_users gu ON g.id = gu.group_id WHERE gu.user_id = ?`, [userId], (err, rows) => {
-      if (err) {
-        resolve(reply.status(500).send({ statusCode: 500, intOpCode: 'SxGP500', data: null }));
-      } else {
-        resolve(reply.send({ statusCode: 200, intOpCode: 'SxGP200', data: rows }));
-      }
-    });
-  });
-});
-
-fastify.post('/groups', async (request, reply) => {
-  const { name } = request.body;
-  const id = crypto.randomUUID();
-  const userId = request.headers['x-user-id']; // Author of the group
+  const userId = request.headers['x-user-id']; 
   
-  return new Promise((resolve) => {
-    db.serialize(() => {
-      db.run(`INSERT INTO groups (id, name) VALUES (?, ?)`, [id, name]);
-      // Give the creator manage permissions
-      db.run(`INSERT INTO group_users (group_id, user_id, permissions) VALUES (?, ?, ?)`, 
-        [id, userId, JSON.stringify(['tickets:add', 'tickets:move', 'groups:manage', 'users:manage'])], 
-        function(err) {
-          if (err) {
-            resolve(reply.status(500).send({ statusCode: 500, intOpCode: 'SxGP500', data: null }));
-          } else {
-            resolve(reply.send({ statusCode: 200, intOpCode: 'SxGP200', data: [{ id, name }] }));
-          }
-        });
-    });
-  });
+  // En tu esquema, buscamos los grupos donde el usuario tiene permisos
+  const { data: perms, error: permError } = await supabase
+    .from('group_permissions')
+    .select('group_id')
+    .eq('user_id', userId);
+
+  if (permError || !perms) {
+    return reply.status(200).send({ statusCode: 200, data: [] });
+  }
+
+  const groupIds = perms.map(p => p.group_id);
+
+  const { data: groups, error: groupError } = await supabase
+    .from('groups')
+    .select('*')
+    .in('id', groupIds);
+
+  if (groupError) {
+    return reply.status(500).send({ statusCode: 500, intOpCode: 'SxGP500', data: null, message: groupError.message });
+  }
+  return reply.send({ statusCode: 200, intOpCode: 'SxGP200', data: groups });
 });
 
 fastify.get('/users', async (request, reply) => {
-  return new Promise((resolve) => {
-    db.all(`SELECT id, email, full_name, created_at FROM users`, [], (err, rows) => {
-      if (err) {
-        resolve(reply.status(500).send({ statusCode: 500, intOpCode: 'SxGP500', data: null }));
-      } else {
-        resolve(reply.send({ statusCode: 200, intOpCode: 'SxGP200', data: rows }));
-      }
-    });
-  });
+  const { data, error } = await supabase
+    .from('users')
+    .select('id, username, full_name, role');
+
+  if (error) {
+    return reply.status(500).send({ statusCode: 500, intOpCode: 'SxGP500', data: null, message: error.message });
+  }
+  return reply.send({ statusCode: 200, intOpCode: 'SxGP200', data: data });
 });
 
 fastify.post('/groups/:groupId/users', async (request, reply) => {
   const { groupId } = request.params;
-  const { userId, permissions } = request.body;
+  const { userId, permissions } = request.body; // array de strings
   
-  return new Promise((resolve) => {
-    db.run(`INSERT OR REPLACE INTO group_users (group_id, user_id, permissions) VALUES (?, ?, ?)`,
-      [groupId, userId, JSON.stringify(permissions || [])],
-      function(err) {
-        if (err) {
-          resolve(reply.status(500).send({ statusCode: 500, intOpCode: 'SxGP500', data: null }));
-        } else {
-          resolve(reply.send({ statusCode: 200, intOpCode: 'SxGP200', data: [{ groupId, userId, permissions }] }));
-        }
-      }
-    );
-  });
+  // Borramos permisos anteriores e insertamos los nuevos
+  await supabase.from('group_permissions').delete().eq('group_id', parseInt(groupId)).eq('user_id', userId);
+
+  const inserts = permissions.map(p => ({
+    group_id: parseInt(groupId),
+    user_id: userId,
+    permission: p
+  }));
+
+  const { data, error } = await supabase
+    .from('group_permissions')
+    .insert(inserts)
+    .select();
+
+  if (error) {
+    return reply.status(500).send({ statusCode: 500, intOpCode: 'SxGP500', data: null, message: error.message });
+  }
+  return reply.send({ statusCode: 200, intOpCode: 'SxGP200', data: data });
 });
 
-fastify.listen({ port: 3003 }, (err, address) => {
+fastify.listen({ port: 3003, host: '0.0.0.0' }, (err, address) => {
   if (err) { fastify.log.error(err); process.exit(1); }
   console.log(`Groups Service listening at ${address}`);
 });
