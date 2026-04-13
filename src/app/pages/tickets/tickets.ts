@@ -14,7 +14,8 @@ export interface Ticket {
   description: string;
   status: 'pendiente' | 'en-proceso' | 'revision' | 'finalizado';
   priority: 'baja' | 'media' | 'alta' | 'urgente';
-  assignedTo: string;
+  assignedTo?: string;
+  assignedToId?: string;
   createdAt: string;
   dueDate: string;
   groupId?: number;
@@ -52,6 +53,7 @@ export class Tickets implements OnInit {
   ticketToDeleteId: number | null = null;
 
   tickets: Ticket[] = [];
+  users: any[] = [];
 
   constructor(private supabase: SupabaseService) {}
 
@@ -62,6 +64,7 @@ export class Tickets implements OnInit {
   async loadTickets() {
     try {
       this.tickets = await this.supabase.getTickets() || [];
+      this.users = await this.supabase.getUsers() || [];
     } catch (e) {
       console.error(e);
     }
@@ -86,7 +89,7 @@ export class Tickets implements OnInit {
       const matchPriority = this.filterPriority ? t.priority === this.filterPriority : true;
       const matchSearch = this.searchText
         ? t.title.toLowerCase().includes(this.searchText.toLowerCase()) ||
-          t.assignedTo.toLowerCase().includes(this.searchText.toLowerCase())
+          (t.assignedTo || '').toLowerCase().includes(this.searchText.toLowerCase())
         : true;
       return matchStatus && matchPriority && matchSearch;
     });

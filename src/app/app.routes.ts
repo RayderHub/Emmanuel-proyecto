@@ -7,6 +7,8 @@ import { User } from './pages/user/user';
 import { Group } from './pages/group/group';
 import { Tickets } from './pages/tickets/tickets';
 import { UserManagement } from './pages/user-management/user-management';
+import { Dashboard } from './pages/dashboard/dashboard';
+import { AdminGroup } from './pages/admin-group/admin-group';
 import { authGuard, permissionGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -17,37 +19,54 @@ export const routes: Routes = [
     children: [
       { path: 'login', component: Login },
       { path: 'register', component: Register },
-      { path: '', redirectTo: 'login', pathMatch: 'full' }
-    ]
+      { path: '', redirectTo: 'login', pathMatch: 'full' },
+    ],
   },
 
-  // Rutas protegidas - accesibles para todos los usuarios logueados
+  // Landing page pública
+  { path: '', component: Home },
+
+  // ── Rutas protegidas (requieren estar autenticado) ──
+
+  // Dashboard principal (post-login)
   {
-    path: '',
-    component: Home
+    path: 'dashboard',
+    component: Dashboard,
+    canActivate: [authGuard],
   },
+
+  // Perfil del usuario
   {
     path: 'user',
     component: User,
-    canActivate: [authGuard]
+    canActivate: [authGuard],
   },
 
-  // Rutas protegidas - solo superusuario (permiso nav.groups / nav.tickets)
+  // Grupos / WorkSpaces → Kanban+Lista de tickets
   {
     path: 'group',
     component: Group,
-    canActivate: [permissionGuard('group:view')]
+    canActivate: [permissionGuard('group:view')],
   },
+
+  // Vista de tickets standalone
   {
     path: 'tickets',
     component: Tickets,
-    canActivate: [permissionGuard('ticket:view')]
+    canActivate: [permissionGuard('ticket:view')],
   },
 
-  // Ruta exclusiva superAdmin - Gestión de Usuarios
+  // Admin: gestión de grupos y permisos por grupo
+  {
+    path: 'admin/groups',
+    component: AdminGroup,
+    canActivate: [permissionGuard('groups:manage')],
+  },
+
+  // Admin: gestión de usuarios
   {
     path: 'admin/users',
     component: UserManagement,
-    canActivate: [permissionGuard('user:management')]
-  }
+    canActivate: [permissionGuard('users:manage')],
+  },
 ];

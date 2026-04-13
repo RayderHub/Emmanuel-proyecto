@@ -1,0 +1,194 @@
+<app-sidebar></app-sidebar>
+
+<div class="dashboard-page">
+
+  <!-- ── Hero Header ───────────────────────────────────────── -->
+  <div class="dash-hero">
+    <div class="dash-hero-content">
+      <div class="dash-welcome">
+        <span class="dash-greeting">Bienvenido de vuelta,</span>
+        <h1 class="dash-username">{{ displayName }}</h1>
+        <p class="dash-tagline">Aquí tienes un resumen de tu actividad en ERPJir</p>
+      </div>
+      <div class="dash-hero-actions">
+        @if (can('tickets:add')) {
+        <a class="hero-btn-primary" routerLink="/group">
+          <i class="pi pi-plus"></i> Nuevo Ticket
+        </a>
+        }
+        @if (can('groups:manage')) {
+        <a class="hero-btn-outline" routerLink="/admin/groups">
+          <i class="pi pi-cog"></i> Admin Grupos
+        </a>
+        }
+        @if (can('users:manage')) {
+        <a class="hero-btn-outline" routerLink="/admin/users">
+          <i class="pi pi-shield"></i> Admin Usuarios
+        </a>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Loading ───────────────────────────────────────────── -->
+  @if (loading) {
+  <div class="dash-loading">
+    <i class="pi pi-spin pi-spinner" style="font-size:2rem;color:#F54927"></i>
+    <p>Cargando estadísticas...</p>
+  </div>
+  } @else {
+
+  <!-- ── Stats Cards ────────────────────────────────────────── -->
+  <section class="dash-stats">
+    <div class="stat-card total">
+      <div class="stat-icon-wrap">
+        <i class="pi pi-ticket"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-label">Total Tickets</span>
+        <span class="stat-value">{{ totalTickets }}</span>
+      </div>
+    </div>
+    <div class="stat-card pendiente">
+      <div class="stat-icon-wrap">
+        <i class="pi pi-clock"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-label">Pendientes</span>
+        <span class="stat-value">{{ pendienteCount }}</span>
+      </div>
+    </div>
+    <div class="stat-card proceso">
+      <div class="stat-icon-wrap">
+        <i class="pi pi-spin pi-cog"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-label">En Proceso</span>
+        <span class="stat-value">{{ enProcesoCount }}</span>
+      </div>
+    </div>
+    <div class="stat-card revision">
+      <div class="stat-icon-wrap">
+        <i class="pi pi-eye"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-label">En Revisión</span>
+        <span class="stat-value">{{ revisionCount }}</span>
+      </div>
+    </div>
+    <div class="stat-card finalizado">
+      <div class="stat-icon-wrap">
+        <i class="pi pi-check-circle"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-label">Finalizados</span>
+        <span class="stat-value">{{ finalizadoCount }}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Main Grid ─────────────────────────────────────────── -->
+  <div class="dash-grid">
+
+    <!-- Gráfico: Por Estado -->
+    <div class="dash-card chart-card">
+      <div class="card-header">
+        <i class="pi pi-chart-pie"></i>
+        <h2>Tickets por Estado</h2>
+      </div>
+      @if (statusChartData) {
+      <div class="chart-wrapper">
+        <p-chart type="doughnut" [data]="statusChartData" [options]="chartOptions" height="220" />
+      </div>
+      }
+    </div>
+
+    <!-- Gráfico: Por Prioridad -->
+    <div class="dash-card chart-card">
+      <div class="card-header">
+        <i class="pi pi-chart-bar"></i>
+        <h2>Tickets por Prioridad</h2>
+      </div>
+      @if (priorityChartData) {
+      <div class="chart-wrapper">
+        <p-chart type="bar" [data]="priorityChartData" [options]="chartOptions" height="220" />
+      </div>
+      }
+    </div>
+
+    <!-- Progreso por Estado -->
+    <div class="dash-card progress-card">
+      <div class="card-header">
+        <i class="pi pi-list-check"></i>
+        <h2>Progreso por Estado</h2>
+      </div>
+      <div class="progress-list">
+        <div class="progress-item">
+          <div class="progress-label">
+            <span>Pendiente</span>
+            <span class="progress-count">{{ pendienteCount }}</span>
+          </div>
+          <p-progressbar [value]="getStatusProgress(pendienteCount)" styleClass="prog-red" />
+        </div>
+        <div class="progress-item">
+          <div class="progress-label">
+            <span>En Proceso</span>
+            <span class="progress-count">{{ enProcesoCount }}</span>
+          </div>
+          <p-progressbar [value]="getStatusProgress(enProcesoCount)" styleClass="prog-blue" />
+        </div>
+        <div class="progress-item">
+          <div class="progress-label">
+            <span>Revisión</span>
+            <span class="progress-count">{{ revisionCount }}</span>
+          </div>
+          <p-progressbar [value]="getStatusProgress(revisionCount)" styleClass="prog-amber" />
+        </div>
+        <div class="progress-item">
+          <div class="progress-label">
+            <span>Finalizado</span>
+            <span class="progress-count">{{ finalizadoCount }}</span>
+          </div>
+          <p-progressbar [value]="getStatusProgress(finalizadoCount)" styleClass="prog-green" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Selector de Grupos / Workspaces -->
+    <div class="dash-card groups-card">
+      <div class="card-header">
+        <i class="pi pi-objects-column"></i>
+        <h2>Mis Grupos / Workspaces</h2>
+      </div>
+      <p class="groups-hint">Selecciona un grupo para cargar sus tickets y permisos:</p>
+      @if (groups.length === 0) {
+      <div class="empty-groups">
+        <i class="pi pi-inbox"></i>
+        <p>No estás en ningún grupo aún</p>
+      </div>
+      }
+      <div class="groups-list">
+        @for (group of groups; track group.id) {
+        <div
+          class="group-item"
+          [class.selected]="selectedGroupId === group.id"
+          (click)="selectGroup(group)"
+          title="Clic para ver tickets de '{{ group.name }}'"
+        >
+          <div class="group-icon">
+            <i class="pi pi-folder"></i>
+          </div>
+          <div class="group-info">
+            <span class="group-name">{{ group.name }}</span>
+            <span class="group-meta">{{ group.course }} · {{ group.semester }}</span>
+          </div>
+          <i class="pi pi-arrow-right group-arrow"></i>
+        </div>
+        }
+      </div>
+    </div>
+
+  </div>
+  } <!-- end !loading -->
+
+</div>

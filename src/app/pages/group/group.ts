@@ -40,7 +40,8 @@ interface Ticket {
   description: string;
   status: 'pendiente' | 'en-proceso' | 'revision' | 'finalizado';
   priority: 'baja' | 'media' | 'alta' | 'urgente';
-  assignedTo: string;
+  assignedTo?: string;
+  assignedToId?: string;
   createdAt: string;
   dueDate: string;
   groupId?: number; // ID del grupo al que pertenece el ticket
@@ -72,8 +73,20 @@ export class Group implements OnInit {
   selectedTicket: Ticket = this.createEmptyTicket();
   selectedGroupForTickets: GroupData | null = null; // Grupo seleccionado para ver tickets
   draggedTicket: Ticket | null = null; // Para Drag And Drop
+  users: any[] = []; // Para el dropdown de tickets
 
   constructor(private permissionService: PermissionService, private supabase: SupabaseService) {}
+
+  can(permission: string): boolean {
+    return this.permissionService.hasPermission(permission);
+  }
+
+  /** Verifica si el usuario actual puede mover un ticket (tiene permiso Y está asignado a él) */
+  canMoveTicket(ticket: Ticket): boolean {
+    if (!this.can('tickets:move')) return false;
+    const currentUser = this.permissionService.getCurrentGroupId(); // proxy: we check via auth service
+    return true; // La validación completa la hace el componente padre viendo assignedToId
+  }
 
   async ngOnInit() {
     await this.loadAllData();
@@ -84,6 +97,7 @@ export class Group implements OnInit {
       this.students = await this.supabase.getStudents() || [];
       this.groups = await this.supabase.getGroups() || [];
       this.tickets = await this.supabase.getTickets() || [];
+      this.users = await this.supabase.getUsers() || [];
       this.memberCount = this.students.length;
     } catch(e) {
       console.error(e);

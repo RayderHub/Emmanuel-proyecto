@@ -16,30 +16,31 @@ export interface AppUser {
   permissions: string[];
 }
 
-// Todos los permisos existentes en la app
+// Todos los permisos del sistema (incluye los del PDF + los operativos)
 export const ALL_PERMISSIONS: { key: string; label: string; group: string }[] = [
-  // Admin (exclusivo superAdmin)
-  { key: 'user:management',        label: 'Gestión de usuarios',    group: 'Admin' },
-  // Usuario
-  { key: 'user:edit:profile', label: 'Editar propio perfil',  group: 'Usuario' },
-  { key: 'user:add',          label: 'Agregar usuario',        group: 'Usuario' },
-  { key: 'user:edit',         label: 'Editar usuario',         group: 'Usuario' },
-  { key: 'user:manage',       label: 'Gestionar usuario',      group: 'Usuario' },
-  { key: 'user:delete',       label: 'Eliminar usuario',       group: 'Usuario' },
-  // Grupo
-  { key: 'group:view',        label: 'Ver grupos',             group: 'Grupo' },
-  { key: 'group:add',         label: 'Agregar grupo',          group: 'Grupo' },
-  { key: 'group:edit',        label: 'Editar grupo',           group: 'Grupo' },
-  { key: 'group:manage',      label: 'Gestionar grupo',        group: 'Grupo' },
-  { key: 'group:delete',      label: 'Eliminar grupo',         group: 'Grupo' },
-  // Ticket
-  { key: 'ticket:view',            label: 'Ver tickets',            group: 'Ticket' },
-  { key: 'ticket:add',             label: 'Agregar ticket',         group: 'Ticket' },
-  { key: 'ticket:edit',            label: 'Editar ticket',          group: 'Ticket' },
-  { key: 'ticket:edit:comment',    label: 'Comentar ticket',        group: 'Ticket' },
-  { key: 'ticket:edit:state',      label: 'Cambiar estado ticket',  group: 'Ticket' },
-  { key: 'ticket:manage',          label: 'Gestionar ticket',       group: 'Ticket' },
-  { key: 'ticket:delete',          label: 'Eliminar ticket',        group: 'Ticket' },
+  // ── Permisos definidos en el PDF ──────────────────────────────────────────
+  { key: 'tickets:add',   label: 'Agregar tickets (PDF)',      group: 'PDF' },
+  { key: 'tickets:move',  label: 'Mover estado ticket (PDF)',  group: 'PDF' },
+  { key: 'groups:manage', label: 'Gestionar grupos (PDF)',     group: 'PDF' },
+  { key: 'users:manage',  label: 'Gestionar usuarios (PDF)',   group: 'PDF' },
+  // ── Permisos operativos del frontend ─────────────────────────────────────
+  { key: 'user:edit:profile', label: 'Editar propio perfil',   group: 'Usuario' },
+  { key: 'user:add',          label: 'Agregar usuario',         group: 'Usuario' },
+  { key: 'user:edit',         label: 'Editar usuario',          group: 'Usuario' },
+  { key: 'user:manage',       label: 'Gestionar usuario',       group: 'Usuario' },
+  { key: 'user:delete',       label: 'Eliminar usuario',        group: 'Usuario' },
+  { key: 'group:view',        label: 'Ver grupos',              group: 'Grupo' },
+  { key: 'group:add',         label: 'Agregar grupo',           group: 'Grupo' },
+  { key: 'group:edit',        label: 'Editar grupo',            group: 'Grupo' },
+  { key: 'group:manage',      label: 'Gestionar grupo',         group: 'Grupo' },
+  { key: 'group:delete',      label: 'Eliminar grupo',          group: 'Grupo' },
+  { key: 'ticket:view',       label: 'Ver tickets',             group: 'Ticket' },
+  { key: 'ticket:add',        label: 'Agregar ticket',          group: 'Ticket' },
+  { key: 'ticket:edit',       label: 'Editar ticket',           group: 'Ticket' },
+  { key: 'ticket:edit:comment', label: 'Comentar ticket',       group: 'Ticket' },
+  { key: 'ticket:edit:state',   label: 'Cambiar estado ticket', group: 'Ticket' },
+  { key: 'ticket:manage',     label: 'Gestionar ticket',        group: 'Ticket' },
+  { key: 'ticket:delete',     label: 'Eliminar ticket',         group: 'Ticket' },
 ];
 
 const SUPER_ADMIN_PERMISSIONS = ALL_PERMISSIONS.map(p => p.key);

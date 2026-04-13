@@ -193,7 +193,7 @@
             <i class="pi pi-th-large"></i> Kanban
           </button>
         </div>
-        <button *appPermission="'ticket:add'" class="btn btn-success" (click)="addTicket()">
+        <button *appPermission="'tickets:add'" class="btn btn-success" (click)="addTicket()">
           <i class="pi pi-plus"></i>
           Nuevo Ticket
         </button>
@@ -407,6 +407,7 @@
           [(ngModel)]="selectedStudent.birthDate"
           dateFormat="dd/mm/yy"
           placeholder="dd/mm/aaaa"
+          appendTo="body"
           styleClass="w-full" />
       </div>
       <div class="form-field">
@@ -538,9 +539,12 @@
       </div>
       <div class="form-field">
         <label class="field-label" for="ticketAssignedTo">Asignado a</label>
-        <input id="ticketAssignedTo" class="field-input" pInputText
-          [(ngModel)]="selectedTicket.assignedTo"
-          placeholder="Persona asignada" />
+        <select id="ticketAssignedTo" class="field-input" [(ngModel)]="selectedTicket.assignedToId">
+          <option [value]="undefined">Sin asignar</option>
+          @for (u of users; track u.id) {
+            <option [value]="u.id">{{ u.fullName || u.username }}</option>
+          }
+        </select>
       </div>
       <div class="form-field">
         <label class="field-label" for="ticketDueDate">Fecha Límite</label>
@@ -548,6 +552,7 @@
           [(ngModel)]="selectedTicket.dueDate"
           dateFormat="dd/mm/yy"
           placeholder="dd/mm/aaaa"
+          appendTo="body"
           styleClass="w-full" />
       </div>
     </div>

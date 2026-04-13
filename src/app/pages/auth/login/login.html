@@ -2,13 +2,13 @@
 <div class="login-page">
   <p-toast />
   <div class="auth-box">
-    <!-- Logo -->
-    <div class="auth-logo">
+    <!-- Logo (easter egg: 5 clicks → 'catch u') -->
+    <div class="auth-logo" (click)="onLogoClick()" style="cursor:pointer;user-select:none">
       <div class="auth-logo-icon">
         <i class="pi pi-bolt"></i>
       </div>
       <div>
-        <div class="auth-logo-name">EmmanuelApp</div>
+        <div class="auth-logo-name">ERPJir</div>
       </div>
     </div>
 

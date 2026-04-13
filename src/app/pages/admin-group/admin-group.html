@@ -1,0 +1,205 @@
+<app-sidebar></app-sidebar>
+<p-toast />
+
+<div class="admin-group-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-info">
+      <h1><i class="pi pi-objects-column"></i> Admin de Grupos</h1>
+      <p>Crea, edita y configura los grupos / workspaces y sus permisos por usuario.</p>
+    </div>
+    <button class="btn-primary" (click)="openAddGroup()">
+      <i class="pi pi-plus"></i> Nuevo Grupo
+    </button>
+  </div>
+
+  <!-- Loading -->
+  @if (loading) {
+  <div class="loading-state">
+    <i class="pi pi-spin pi-spinner"></i>
+    <p>Cargando grupos...</p>
+  </div>
+  } @else {
+
+  <!-- Groups Grid -->
+  @if (groups.length === 0) {
+  <div class="empty-state">
+    <i class="pi pi-inbox"></i>
+    <p>No hay grupos creados aún.</p>
+    <button class="btn-primary" (click)="openAddGroup()">Crear primer grupo</button>
+  </div>
+  } @else {
+  <div class="groups-grid">
+    @for (group of groups; track group.id) {
+    <div class="group-card">
+      <div class="group-card-header">
+        <div class="group-icon-wrap">
+          <i class="pi pi-folder-open"></i>
+        </div>
+        <div class="group-card-info">
+          <span class="group-card-name">{{ group.name }}</span>
+          <span class="group-card-meta">{{ group.course }} · {{ group.semester }}</span>
+        </div>
+      </div>
+      @if (group.description) {
+      <p class="group-card-desc">{{ group.description }}</p>
+      }
+      <div class="group-card-actions">
+        <button class="btn-sm btn-members" (click)="openMembers(group)">
+          <i class="pi pi-users"></i> Miembros & Permisos
+        </button>
+        <button class="btn-sm btn-edit" (click)="openEditGroup(group)" title="Editar grupo">
+          <i class="pi pi-pencil"></i>
+        </button>
+        <button class="btn-sm btn-delete" (click)="askDelete(group)" title="Eliminar grupo">
+          <i class="pi pi-trash"></i>
+        </button>
+      </div>
+    </div>
+    }
+  </div>
+  }
+  }
+
+</div>
+
+<!-- ── Dialog: Crear / Editar Grupo ────────────────────────────────── -->
+<p-dialog
+  [header]="groupEditMode ? 'Editar Grupo' : 'Nuevo Grupo'"
+  [(visible)]="showGroupDialog"
+  [modal]="true"
+  [style]="{ width: '480px' }"
+  [draggable]="false"
+>
+  <div class="dialog-form">
+    <div class="form-field">
+      <label>Nombre *</label>
+      <input type="text" pInputText [(ngModel)]="selectedGroup.name" placeholder="Ej: Workspace Frontend" />
+    </div>
+    <div class="form-field">
+      <label>Descripción</label>
+      <input type="text" pInputText [(ngModel)]="selectedGroup.description" placeholder="Descripción del grupo" />
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Curso</label>
+        <input type="text" pInputText [(ngModel)]="selectedGroup.course" placeholder="Ej: Desarrollo Web" />
+      </div>
+      <div class="form-field">
+        <label>Semestre</label>
+        <input type="text" pInputText [(ngModel)]="selectedGroup.semester" placeholder="Ej: 2025-1" />
+      </div>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button class="btn-outline-sm" (click)="showGroupDialog = false">Cancelar</button>
+    <button class="btn-primary-sm" (click)="saveGroup()">
+      <i class="pi pi-check"></i> {{ groupEditMode ? 'Actualizar' : 'Crear' }}
+    </button>
+  </ng-template>
+</p-dialog>
+
+<!-- ── Dialog: Miembros & Permisos ─────────────────────────────────── -->
+<p-dialog
+  [header]="'Miembros de: ' + (currentGroup?.name || '')"
+  [(visible)]="showMembersDialog"
+  [modal]="true"
+  [style]="{ width: '760px', maxWidth: '95vw' }"
+  [draggable]="false"
+>
+  <div class="members-dialog-content">
+    <div class="members-actions-row">
+      <button class="btn-primary-sm" (click)="openAddMember()">
+        <i class="pi pi-user-plus"></i> Agregar Miembro
+      </button>
+      <button class="btn-save-perms" (click)="saveAllPerms()">
+        <i class="pi pi-save"></i> Guardar Permisos
+      </button>
+    </div>
+
+    @if (groupMembers.length === 0) {
+    <div class="empty-members">
+      <i class="pi pi-users"></i>
+      <p>No hay miembros en este grupo todavía.</p>
+    </div>
+    } @else {
+    <div class="members-list">
+      @for (member of groupMembers; track member.user_id) {
+      <div class="member-row">
+        <div class="member-info">
+          <div class="member-avatar">
+            <i class="pi pi-user"></i>
+          </div>
+          <div>
+            <span class="member-name">{{ getUserName(member.user_id) }}</span>
+            <span class="member-id">{{ member.user_id }}</span>
+          </div>
+          <button class="btn-remove-member" (click)="removeFromGroup(member.user_id)" title="Quitar del grupo">
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+        <div class="member-perms">
+          @for (perm of allPermissions; track perm.key) {
+          <label class="perm-toggle" [class.active]="hasPerm(member.user_id, perm.key)">
+            <input
+              type="checkbox"
+              [checked]="hasPerm(member.user_id, perm.key)"
+              (change)="togglePerm(member.user_id, perm.key)"
+            />
+            <span>{{ perm.label }}</span>
+          </label>
+          }
+        </div>
+      </div>
+      }
+    </div>
+    }
+  </div>
+</p-dialog>
+
+<!-- ── Dialog: Añadir Miembro ──────────────────────────────────────── -->
+<p-dialog
+  header="Añadir Miembro al Grupo"
+  [(visible)]="showAddMemberDialog"
+  [modal]="true"
+  [style]="{ width: '400px' }"
+  [draggable]="false"
+>
+  <div class="dialog-form">
+    <div class="form-field">
+      <label>Selecciona un usuario</label>
+      <select class="form-select" [(ngModel)]="selectedUserId">
+        <option value="">-- Elige un usuario --</option>
+        @for (user of nonMemberUsers; track user.id) {
+        <option [value]="user.id">{{ user.fullName || user.username }} ({{ user.email }})</option>
+        }
+      </select>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button class="btn-outline-sm" (click)="showAddMemberDialog = false">Cancelar</button>
+    <button class="btn-primary-sm" [disabled]="!selectedUserId" (click)="addMember()">
+      <i class="pi pi-user-plus"></i> Añadir
+    </button>
+  </ng-template>
+</p-dialog>
+
+<!-- ── Dialog: Confirmar Eliminación ──────────────────────────────── -->
+<p-dialog
+  header="Confirmar eliminación"
+  [(visible)]="showDeleteDialog"
+  [modal]="true"
+  [style]="{ width: '380px' }"
+  [draggable]="false"
+>
+  <p class="delete-confirm-msg">
+    ¿Estás seguro de eliminar el grupo <strong>{{ deleteTarget?.name }}</strong>? Esta acción no se puede deshacer.
+  </p>
+  <ng-template pTemplate="footer">
+    <button class="btn-outline-sm" (click)="showDeleteDialog = false">Cancelar</button>
+    <button class="btn-danger-sm" (click)="confirmDelete()">
+      <i class="pi pi-trash"></i> Eliminar
+    </button>
+  </ng-template>
+</p-dialog>

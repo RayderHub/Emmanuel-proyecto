@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
-import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
@@ -12,8 +12,9 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { CommonModule } from '@angular/common';
 import { InputMaskModule } from 'primeng/inputmask';
 import { Sidebar } from '../../../components/sidebar/sidebar';
+import { AuthService } from '../../../services/auth.service';
 
-// Validador: al menos 10 caracteres, letras mayúsculas, letras minúsculas, números y al menos un símbolo especial (!@#$%^&*)
+// Validador: al menos 10 caracteres y al menos un símbolo especial
 function passwordStrengthValidator(control: AbstractControl): ValidationErrors | null {
   const value: string = control.value || '';
   const hasMinLength = value.length >= 10;
@@ -59,18 +60,24 @@ function adultValidator(control: AbstractControl): ValidationErrors | null {
     DatePickerModule,
     CommonModule,
     InputMaskModule,
-    Sidebar
+    Sidebar,
   ],
   providers: [MessageService],
   templateUrl: './register.html',
-  styleUrl: './register.css'
+  styleUrl: './register.css',
 })
 export class Register {
   registerForm: FormGroup;
   submitted = false;
+  loading = false;
   maxBirthDate: Date;
 
-  constructor(private fb: FormBuilder, private messageService: MessageService) {
+  constructor(
+    private fb: FormBuilder,
+    private messageService: MessageService,
+    private authService: AuthService,
+    private router: Router
+  ) {
     const today = new Date();
     this.maxBirthDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
     this.registerForm = this.fb.group(
@@ -82,7 +89,7 @@ export class Register {
         fullName: ['', [Validators.required]],
         birthDate: [null, [Validators.required, adultValidator]],
         address: ['', [Validators.required]],
-        phone: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]]
+        phone: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
       },
       { validators: passwordsMatchValidator }
     );
@@ -104,16 +111,32 @@ export class Register {
       this.messageService.add({
         severity: 'warn',
         summary: 'Formulario incompleto',
-        detail: 'Por favor corrige los errores antes de continuar'
+        detail: 'Por favor corrige los errores antes de continuar',
       });
       return;
     }
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Registro exitoso',
-      detail: `Bienvenido, ${this.registerForm.value.fullName}`
+
+    this.loading = true;
+    const { email, password, username, fullName, phone, address } = this.registerForm.value;
+
+    this.authService.register(email, password, { username, fullName, phone, address }).subscribe((result) => {
+      this.loading = false;
+      if (result.ok) {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Registro exitoso',
+          detail: result.message,
+        });
+        this.submitted = false;
+        this.registerForm.reset();
+        setTimeout(() => this.router.navigate(['/auth/login']), 2000);
+      } else {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error al registrar',
+          detail: result.message,
+        });
+      }
     });
-    this.submitted = false;
-    this.registerForm.reset();
   }
 }
