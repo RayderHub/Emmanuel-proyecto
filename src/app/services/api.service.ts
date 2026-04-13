@@ -59,12 +59,19 @@ export class ApiService {
     return this.delete<any>(`/users/${id}`);
   }
 
-  // ─── Estudiantes (Mocked in memory to avoid breaking prior views) ─────────
-  private studentsMock: any[] = [];
-  async getStudents() { return this.studentsMock; }
-  async createStudent(student: any) { this.studentsMock.push({ id: Date.now(), ...student }); return student; }
-  async updateStudent(id: number, student: any) { return student; }
-  async deleteStudent(id: number) { this.studentsMock = this.studentsMock.filter(s => s.id !== id); }
+  // ─── Estudiantes ─────────────────────────────────────────────────────────────
+  async getStudents() { 
+    return this.get<any[]>('/students'); 
+  }
+  async createStudent(student: any) { 
+    return this.post<any>('/students', student); 
+  }
+  async updateStudent(id: number, student: any) { 
+    return this.patch<any>(`/students/${id}`, student); 
+  }
+  async deleteStudent(id: number) { 
+    return this.delete<any>(`/students/${id}`); 
+  }
 
   // ─── Grupos ───────────────────────────────────────────────────────────────
 
