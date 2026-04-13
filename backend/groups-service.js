@@ -20,41 +20,36 @@ fastify.patch('/groups/:id', async (request, reply) => {
   return reply.send({ statusCode: 200, data: [data] });
 });
 
-// --- MIEMBROS DE GRUPO ---
-
-// Obtener usuarios de un grupo
+// --- MIEMBROS ---
 fastify.get('/groups/:groupId/users', async (request, reply) => {
   const { groupId } = request.params;
   const { data: perms } = await supabase.from('group_permissions').select('user_id').eq('group_id', groupId);
   if (!perms || perms.length === 0) return reply.send({ statusCode: 200, data: [] });
-  const userIds = [...new Set(perms.map(p => p.user_id))];
+  const userIds = perms.map(p => p.user_id);
   const { data: users } = await supabase.from('users').select('*').in('id', userIds);
   return reply.send({ statusCode: 200, data: users || [] });
 });
 
-// AGREGAR MIEMBRO A GRUPO (La ruta que faltaba)
 fastify.post('/groups/:groupId/users', async (request, reply) => {
   const { groupId } = request.params;
   const { userId } = request.body;
-  // Al agregar un miembro, le damos un permiso base para que aparezca
-  const { data, error } = await supabase.from('group_permissions').insert([{ 
-    group_id: groupId, user_id: userId, permission: 'group:view' 
-  }]).select();
+  const { data, error } = await supabase.from('group_permissions').insert([{ group_id: groupId, user_id: userId, permission: 'ticket:view' }]).select();
   if (error) return reply.status(500).send(error);
   return reply.send({ statusCode: 200, data });
 });
 
-// --- ESTUDIANTES REALES ---
+// --- ESTUDIANTES ---
 fastify.get('/students', async (request, reply) => {
   const { data, error } = await supabase.from('students').select('*');
   if (error) return reply.status(500).send(error);
-  return reply.send({ statusCode: 200, data: data || [] });
+  return reply.send({ statusCode: 200, intOpCode: 'SxST200', data: data || [] });
 });
 
-fastify.post('/students', async (request, reply) => {
-  const { data, error } = await supabase.from('students').insert([request.body]).select().single();
+// --- LISTA DE USUARIOS (Para el modal de agregar) ---
+fastify.get('/users', async (request, reply) => {
+  const { data, error } = await supabase.from('users').select('id, username, full_name, role, permissions');
   if (error) return reply.status(500).send(error);
-  return reply.send({ statusCode: 200, data: [data] });
+  return reply.send({ statusCode: 200, data: data || [] });
 });
 
 // --- PERMISOS ---
@@ -72,13 +67,6 @@ fastify.patch('/groups/:groupId/users/:userId/permissions', async (request, repl
   const { data, error } = await supabase.from('group_permissions').insert(inserts).select();
   if (error) return reply.status(500).send(error);
   return reply.send({ statusCode: 200, data });
-});
-
-// Listar usuarios para el buscador de miembros
-fastify.get('/users', async (request, reply) => {
-  const { data, error } = await supabase.from('users').select('id, username, full_name, role, permissions');
-  if (error) return reply.status(500).send(error);
-  return reply.send({ statusCode: 200, data: data || [] });
 });
 
 fastify.listen({ port: 3003, host: '0.0.0.0' }, (err, address) => {
