@@ -117,7 +117,7 @@ fastify.post('/auth/login', async (request, reply) => {
 });
 
 fastify.get('/users', async (request, reply) => {
-  const { data, error } = await supabase.from('users').select('*');
+  const { data, error } = await supabase.from('users').select('id, username, full_name, role, permissions');
   if (error) return reply.status(500).send(error);
   return reply.send({ statusCode: 200, data });
 });

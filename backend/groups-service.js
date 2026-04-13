@@ -34,7 +34,7 @@ fastify.post('/groups', async (request, reply) => {
 
 // Listar todos los usuarios
 fastify.get('/users', async (request, reply) => {
-  const { data, error } = await supabase.from('users').select('id, username, full_name, role');
+  const { data, error } = await supabase.from('users').select('id, username, full_name, role, permissions');
   if (error) return reply.status(500).send(error);
   return reply.send({ statusCode: 200, data });
 });
