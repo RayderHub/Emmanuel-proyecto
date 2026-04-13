@@ -1,125 +1,72 @@
 const fastify = require('fastify')({ logger: true });
-const cors = require('@fastify/cors');
-const fastifyJwt = require('@fastify/jwt');
-const rateLimit = require('@fastify/rate-limit');
 const proxy = require('@fastify/http-proxy');
+const cors = require('@fastify/cors'); // Requerimos CORS
 const supabase = require('./db');
 
-const JWT_SECRET = 'super-secret-key-for-school-project';
+// CONFIGURACIÓN DE CORS: Permite que Vercel hable con Render
+fastify.register(cors, {
+  origin: true, // En desarrollo/escuela podemos dejarlo en true para que acepte todo
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id']
+});
 
-async function build() {
-  await fastify.register(cors, { origin: '*' });
+// Registro de logs y métricas
+fastify.addHook('onResponse', async (request, reply) => {
+  const duration = reply.elapsedTime;
+  const { method, url } = request;
+  const statusCode = reply.statusCode;
 
-  await fastify.register(fastifyJwt, { secret: JWT_SECRET });
+  try {
+    await supabase.from('logs').insert([{ 
+      method, path: url, status_code: statusCode, duration: `${duration.toFixed(2)}ms` 
+    }]);
 
-  await fastify.register(rateLimit, {
-    max: 100,
-    timeWindow: '1 minute',
-    errorResponseBuilder: function (request, context) {
-      return {
-        statusCode: 429,
-        intOpCode: 'SxGW429',
-        data: null,
-        message: 'Too many requests'
-      };
+    const { data: metric } = await supabase.from('metrics').select('*').eq('endpoint', url).single();
+    if (metric) {
+      const newCount = metric.calls + 1;
+      const newAvg = (metric.avg_duration * metric.calls + duration) / newCount;
+      await supabase.from('metrics').update({ calls: newCount, avg_duration: newAvg }).eq('id', metric.id);
+    } else {
+      await supabase.from('metrics').insert([{ endpoint: url, avg_duration: duration }]);
     }
-  });
+  } catch (e) {
+    fastify.log.error('Error in metrics hook:', e);
+  }
+});
 
-  // Pre-handler metrics logging
-  fastify.addHook('onRequest', async (request, reply) => {
-    request.startTime = Date.now();
-  });
+// --- PROXIES A MICROSERVICIOS ---
 
-  // Database logging
-  fastify.addHook('onResponse', async (request, reply) => {
-    const responseTime = Date.now() - request.startTime;
-    const userId = request.user ? request.user.userId : null;
-    const ip = request.ip;
-    
-    // Insert into metrics logs
-    supabase.from('metrics').insert([{ 
-      endpoint: request.routerPath || request.url, 
-      method: request.method, 
-      response_time_ms: responseTime 
-    }]).then();
-    
-    // Insert into logs
-    supabase.from('logs').insert([{ 
-      endpoint: request.routerPath || request.url, 
-      method: request.method, 
-      user_id: userId, 
-      ip: ip, 
-      status_http: reply.statusCode 
-    }]).then();
-  });
-  
-  fastify.addHook('onError', async (request, reply, error) => {
-      supabase.from('logs').insert([{ 
-        endpoint: request.raw.url, 
-        method: request.method, 
-        error_msg: error.message 
-      }]).then();
-  });
+fastify.register(proxy, {
+  upstream: 'http://localhost:3001',
+  prefix: '/auth',
+  rewritePrefix: '/auth'
+});
 
-  // Auth Decorator to verify token
-  fastify.decorate("authenticate", async function(request, reply) {
-    try {
-      if (request.url.startsWith('/auth')) return; 
-      await request.jwtVerify()
-    } catch (err) {
-      reply.status(401).send({ statusCode: 401, intOpCode: 'SxGW401', data: null, message: "Unauthorized" });
-    }
-  });
+fastify.register(proxy, {
+  upstream: 'http://localhost:3002',
+  prefix: '/tickets',
+  rewritePrefix: '/tickets'
+});
 
-  // Proxy routes
-  fastify.register(proxy, {
-    upstream: 'http://localhost:3001',
-    prefix: '/auth',
-    rewritePrefix: '/auth'
-  });
+fastify.register(proxy, {
+  upstream: 'http://localhost:3003',
+  prefix: '/groups',
+  rewritePrefix: '/groups'
+});
 
-  fastify.register(proxy, {
-    upstream: 'http://localhost:3002',
-    prefix: '/tickets',
-    rewritePrefix: '/tickets',
-    preHandler: [fastify.authenticate],
-    replyOptions: {
-      rewriteRequestHeaders: (request, headers) => {
-        return { ...headers, 'x-user-id': request.user?.userId };
-      }
-    }
-  });
+fastify.register(proxy, {
+  upstream: 'http://localhost:3003',
+  prefix: '/users',
+  rewritePrefix: '/users'
+});
 
-  fastify.register(proxy, {
-    upstream: 'http://localhost:3003',
-    prefix: '/groups',
-    rewritePrefix: '/groups',
-    preHandler: [fastify.authenticate],
-    replyOptions: {
-      rewriteRequestHeaders: (request, headers) => {
-        return { ...headers, 'x-user-id': request.user?.userId };
-      }
-    }
-  });
-  fastify.register(proxy, {
-    upstream: 'http://localhost:3003',
-    prefix: '/users',
-    rewritePrefix: '/users',
-    preHandler: [fastify.authenticate],
-    replyOptions: {
-      rewriteRequestHeaders: (request, headers) => {
-        return { ...headers, 'x-user-id': request.user?.userId };
-      }
-    }
-  });
+fastify.register(proxy, {
+  upstream: 'http://localhost:3003',
+  prefix: '/students',
+  rewritePrefix: '/students'
+});
 
-  return fastify;
-}
-
-build().then(app => {
-  const port = process.env.PORT || 3000;
-  app.listen({ port: port, host: '0.0.0.0' }, (err, address) => {
-    if (err) { app.log.error(err); process.exit(1); }
-    console.log(`API Gateway listening at ${address}`);
-  });
+fastify.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {
+  if (err) { fastify.log.error(err); process.exit(1); }
+  console.log(`API Gateway listening at ${address}`);
 });
