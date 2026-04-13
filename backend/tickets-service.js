@@ -1,14 +1,28 @@
 const fastify = require('fastify')({ logger: true });
 const supabase = require('./db');
 
-// Función helper para mapear a CamelCase (lo que Angular espera)
-const mapTicket = (t) => ({
+// Función helper para enviar datos a Angular (CamelCase)
+const mapToFrontend = (t) => ({
   ...t,
-  groupId: t.group_id,      // Mapeo crítico para el Kanban
-  assignedTo: t.assigned_to // Mapeo para el responsable
+  groupId: t.group_id,
+  assignedTo: t.assigned_to
 });
 
-// LISTAR TICKETS
+// Función helper para recibir datos de Angular (snake_case)
+const mapToBackend = (body) => {
+  const newBody = { ...body };
+  if (newBody.groupId) {
+    newBody.group_id = newBody.groupId;
+    delete newBody.groupId;
+  }
+  if (newBody.assignedTo) {
+    newBody.assigned_to = newBody.assignedTo;
+    delete newBody.assignedTo;
+  }
+  return newBody;
+};
+
+// LISTAR
 fastify.get('/tickets', async (request, reply) => {
   const { groupId } = request.query;
   let query = supabase.from('tickets').select('*');
@@ -17,41 +31,41 @@ fastify.get('/tickets', async (request, reply) => {
   const { data, error } = await query.order('created_at', { ascending: false });
   if (error) return reply.status(500).send(error);
   
-  const mappedData = (data || []).map(mapTicket);
-  return reply.send({ statusCode: 200, data: mappedData });
+  return reply.send({ statusCode: 200, data: (data || []).map(mapToFrontend) });
 });
 
-// CREAR TICKET
+// CREAR
 fastify.post('/tickets', async (request, reply) => {
-  const { title, description, status, priority, assigned_to, group_id, groupId } = request.body;
-  const finalGroupId = groupId || group_id;
-
-  const { data, error } = await supabase.from('tickets').insert([{ 
-    title, 
-    description, 
-    status: status || 'pendiente', 
-    priority: priority || 'baja', 
-    assigned_to, 
-    group_id: finalGroupId 
-  }]).select().single();
+  const dbBody = mapToBackend(request.body);
+  const { data, error } = await supabase.from('tickets').insert([dbBody]).select().single();
 
   if (error) return reply.status(500).send(error);
-  
-  // Enviamos el ticket mapeado de vuelta
-  return reply.send({ statusCode: 200, data: [mapTicket(data)] });
+  return reply.send({ statusCode: 200, data: [mapToFrontend(data)] });
 });
 
-// EDITAR TICKET
+// ACTUALIZAR (PERSISTENCIA DEL KANBAN)
 fastify.patch('/tickets/:id', async (request, reply) => {
-  const { data, error } = await supabase.from('tickets').update(request.body).eq('id', request.params.id).select().single();
-  if (error) return reply.status(500).send(error);
-  return reply.send({ statusCode: 200, data: [mapTicket(data)] });
+  const { id } = request.params;
+  const dbBody = mapToBackend(request.body);
+
+  const { data, error } = await supabase
+    .from('tickets')
+    .update(dbBody)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Update Error:", error);
+    return reply.status(500).send(error);
+  }
+  
+  return reply.send({ statusCode: 200, data: [mapToFrontend(data)] });
 });
 
 fastify.delete('/tickets/:id', async (request, reply) => {
-  const { error } = await supabase.from('tickets').delete().eq('id', request.params.id);
-  if (error) return reply.status(500).send(error);
-  return reply.send({ statusCode: 200, message: 'Ticket deleted' });
+  await supabase.from('tickets').delete().eq('id', request.params.id);
+  return reply.send({ statusCode: 200, message: 'Deleted' });
 });
 
 fastify.listen({ port: 3002, host: '0.0.0.0' }, (err) => {
