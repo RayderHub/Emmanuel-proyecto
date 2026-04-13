@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { PermissionService } from './permission.service';
+import { CookieService } from './cookie.service';
 import { environment } from '../../environments/environment';
 
 const USER_COOKIE = 'erp_user';
