@@ -1,24 +1,25 @@
 const fastify = require('fastify')({ logger: true });
 const supabase = require('./db');
 
-// Función helper para enviar datos a Angular (CamelCase)
+// --- TRADUCTOR DEFINITIVO ---
 const mapToFrontend = (t) => ({
   ...t,
   groupId: t.group_id,
-  assignedTo: t.assigned_to
+  assignedTo: t.assigned_to,
+  status: (t.status || 'pendiente').toLowerCase() // Garantizamos minúsculas
 });
 
-// Función helper para recibir datos de Angular (snake_case)
 const mapToBackend = (body) => {
-  const newBody = { ...body };
-  if (newBody.groupId) {
-    newBody.group_id = newBody.groupId;
-    delete newBody.groupId;
-  }
-  if (newBody.assignedTo) {
-    newBody.assigned_to = newBody.assignedTo;
-    delete newBody.assignedTo;
-  }
+  const newBody = {};
+  // Solo permitimos los campos que existen en la DB
+  if (body.title) newBody.title = body.title;
+  if (body.description) newBody.description = body.description;
+  if (body.priority) newBody.priority = body.priority;
+  if (body.status) newBody.status = body.status.toLowerCase(); // Guardamos siempre en minúscula
+  
+  if (body.groupId || body.group_id) newBody.group_id = parseInt(body.groupId || body.group_id);
+  if (body.assignedTo || body.assigned_to) newBody.assigned_to = body.assignedTo || body.assigned_to;
+  
   return newBody;
 };
 
@@ -26,7 +27,7 @@ const mapToBackend = (body) => {
 fastify.get('/tickets', async (request, reply) => {
   const { groupId } = request.query;
   let query = supabase.from('tickets').select('*');
-  if (groupId) query = query.eq('group_id', groupId);
+  if (groupId) query = query.eq('group_id', parseInt(groupId));
   
   const { data, error } = await query.order('created_at', { ascending: false });
   if (error) return reply.status(500).send(error);
@@ -38,14 +39,13 @@ fastify.get('/tickets', async (request, reply) => {
 fastify.post('/tickets', async (request, reply) => {
   const dbBody = mapToBackend(request.body);
   const { data, error } = await supabase.from('tickets').insert([dbBody]).select().single();
-
   if (error) return reply.status(500).send(error);
   return reply.send({ statusCode: 200, data: [mapToFrontend(data)] });
 });
 
-// ACTUALIZAR (PERSISTENCIA DEL KANBAN)
+// ACTUALIZAR (¡ESTO ARREGLA LA PERSISTENCIA!)
 fastify.patch('/tickets/:id', async (request, reply) => {
-  const { id } = request.params;
+  const id = parseInt(request.params.id); // ¡CRÍTICO: Convertir a número!
   const dbBody = mapToBackend(request.body);
 
   const { data, error } = await supabase
@@ -64,7 +64,7 @@ fastify.patch('/tickets/:id', async (request, reply) => {
 });
 
 fastify.delete('/tickets/:id', async (request, reply) => {
-  await supabase.from('tickets').delete().eq('id', request.params.id);
+  await supabase.from('tickets').delete().eq('id', parseInt(request.params.id));
   return reply.send({ statusCode: 200, message: 'Deleted' });
 });
 

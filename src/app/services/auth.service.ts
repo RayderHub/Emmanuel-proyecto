@@ -96,9 +96,14 @@ export class AuthService {
   register(
     email: string,
     password: string,
-    extraData: { username: string; fullName: string; phone?: string; address?: string }
+    extraData: any
   ): Observable<{ ok: boolean; message: string }> {
-    return this.http.post<any>(`${API_URL}/auth/register`, { email, password, fullName: extraData.fullName }).pipe(
+    // Enviamos TODO el objeto extraData al servidor
+    return this.http.post<any>(`${API_URL}/auth/register`, { 
+      email, 
+      password, 
+      ...extraData 
+    }).pipe(
       map((response) => {
          if (response.statusCode === 200) {
             return { ok: true, message: 'Registro exitoso. Puedes iniciar sesión ahora.' };

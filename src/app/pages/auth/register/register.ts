@@ -117,9 +117,10 @@ export class Register {
     }
 
     this.loading = true;
-    const { email, password, username, fullName, phone, address } = this.registerForm.value;
-
-    this.authService.register(email, password, { username, fullName, phone, address }).subscribe((result) => {
+    const { email, password, username, fullName, phone, address, birthDate } = this.registerForm.value;
+    
+    // Ahora enviamos TODO: incluyendo birthDate
+    this.authService.register(email, password, { username, fullName, phone, address, birthDate }).subscribe((result) => {
       this.loading = false;
       if (result.ok) {
         this.messageService.add({
