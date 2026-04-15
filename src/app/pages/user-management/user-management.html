@@ -140,17 +140,42 @@
 
   <div class="dialog-form">
     <div class="form-field">
-      <label class="field-label" for="um-username">Correo Electrónico (Solo lectura)</label>
+      <label class="field-label" for="um-username">Correo Electrónico (Bloqueado al editar)</label>
       <input id="um-username" class="field-input" pInputText
         [(ngModel)]="selectedUser.username"
-        [disabled]="true"
+        [disabled]="editMode"
         placeholder="correo@ejemplo.com" />
     </div>
+    @if (!editMode) {
+      <div class="form-field">
+        <label class="field-label" for="um-password">Contraseña (Mín. 6 chars)</label>
+        <input id="um-password" class="field-input" type="password" pInputText
+          [(ngModel)]="selectedUser.password"
+          placeholder="Obligatoria para ingresar" />
+      </div>
+    }
     <div class="form-field">
       <label class="field-label" for="um-fullname">Nombre Completo</label>
       <input id="um-fullname" class="field-input" pInputText
         [(ngModel)]="selectedUser.fullName"
         placeholder="Nombre Completo" />
+    </div>
+    <div class="form-field">
+      <label class="field-label" for="um-phone">Celular / Teléfono</label>
+      <input id="um-phone" class="field-input" pInputText
+        [(ngModel)]="selectedUser.phone"
+        placeholder="Ej. 1234567890" />
+    </div>
+    <div class="form-field">
+      <label class="field-label" for="um-birthDate">Fecha Nacimiento</label>
+      <input id="um-birthDate" type="date" class="field-input" pInputText
+        [(ngModel)]="selectedUser.birthDate" />
+    </div>
+    <div class="form-field full">
+      <label class="field-label" for="um-address">Dirección</label>
+      <input id="um-address" class="field-input" pInputText
+        [(ngModel)]="selectedUser.address"
+        placeholder="Ej. Calle Falsa 123" />
     </div>
     <div class="form-field">
       <label class="field-label" for="um-role">Rol</label>
@@ -171,7 +196,7 @@
     </button>
     <button class="btn btn-primary"
       (click)="saveUser()"
-      [disabled]="!selectedUser.username || isSaving">
+      [disabled]="!selectedUser.username || (!editMode && !selectedUser.password) || isSaving">
       @if (isSaving) {
         <i class="pi pi-spin pi-spinner"></i> Guardando...
       } @else {

@@ -48,7 +48,7 @@ export class ApiService {
   }
 
   async createUser(user: any) {
-    return this.post<any>('/users', user);
+    return this.post<any>('/auth/register', user);
   }
 
   async updateUser(id: any, user: any) {

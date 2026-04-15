@@ -9,12 +9,16 @@ import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 
 export interface AppUser {
-  id: number;
-  username: string;
-  email: string;
-  fullName: string;
-  role: string;
+  id?: string | number;
+  username?: string;
+  email?: string;
+  fullName?: string;
+  role?: string;
   permissions: string[];
+  password?: string;
+  phone?: string;
+  address?: string;
+  birthDate?: string;
 }
 
 // Todos los permisos del sistema — keys canónicos (deben coincidir
@@ -29,7 +33,6 @@ export const ALL_PERMISSIONS: { key: string; label: string; group: string }[] = 
   { key: 'user:edit-self', label: 'Editar propio perfil',       group: 'Usuario' },
   { key: 'user:add',       label: 'Agregar usuario',            group: 'Usuario' },
   { key: 'user:edit',      label: 'Editar usuario',             group: 'Usuario' },
-  { key: 'user:manage',    label: 'Gestionar usuario',          group: 'Usuario' },
   { key: 'user:delete',    label: 'Eliminar usuario',           group: 'Usuario' },
   // ── Grupo ─────────────────────────────────────────────────────────────────
   { key: 'group:view',     label: 'Ver grupos',                 group: 'Grupo'   },
@@ -41,9 +44,7 @@ export const ALL_PERMISSIONS: { key: string; label: string; group: string }[] = 
   { key: 'ticket:view',    label: 'Ver tickets',                group: 'Ticket'  },
   { key: 'ticket:add',     label: 'Agregar ticket',             group: 'Ticket'  },
   { key: 'ticket:edit',    label: 'Editar ticket',              group: 'Ticket'  },
-  { key: 'ticket:comment', label: 'Comentar ticket',            group: 'Ticket'  },
   { key: 'ticket:move',    label: 'Cambiar estado ticket',      group: 'Ticket'  },
-  { key: 'ticket:manage',  label: 'Gestionar ticket',           group: 'Ticket'  },
   { key: 'ticket:delete',  label: 'Eliminar ticket',            group: 'Ticket'  },
 ];
 
@@ -96,6 +97,7 @@ export class UserManagement implements OnInit {
     return this.allPermissions.filter(p => p.group === group);
   }
 
+
   async ngOnInit() {
     await this.loadUsers();
   }
@@ -124,7 +126,7 @@ export class UserManagement implements OnInit {
   }
 
   async saveUser() {
-    if (!this.selectedUser.username || this.isSaving) return;
+    if (!this.selectedUser.username || (!this.editMode && !this.selectedUser.password) || this.isSaving) return;
     this.isSaving = true;
     this.showUserDialog = false; // cerrar inmediatamente
     try {
@@ -132,11 +134,13 @@ export class UserManagement implements OnInit {
         await this.supabase.updateUser(this.selectedUser.id!, this.selectedUser);
       } else {
         const newUser: any = {
-          username: this.selectedUser.username,
-          email: this.selectedUser.email,
+          email: this.selectedUser.username,
+          password: this.selectedUser.password,
           fullName: this.selectedUser.fullName || '',
-          role: this.selectedUser.role || 'Dev',
-          permissions: [] // default permissions
+          phone: this.selectedUser.phone || '',
+          address: this.selectedUser.address || '',
+          birthDate: this.selectedUser.birthDate || '',
+          role: this.selectedUser.role || 'user'
         };
         await this.supabase.createUser(newUser);
       }
@@ -230,10 +234,12 @@ export class UserManagement implements OnInit {
     return this.users.filter(u => u.role === 'superAdmin').length;
   }
 
-  roleClass(role: string): string {
+  roleClass(role?: string): string {
+    if (!role) return 'role-dev';
     const map: Record<string, string> = {
       superAdmin: 'role-super',
       Admin: 'role-admin',
+      user: 'role-user',
       PM: 'role-pm',
       Dev: 'role-dev',
       Support: 'role-support'

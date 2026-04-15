@@ -51,10 +51,10 @@ fastify.post('/auth/login', async (request, reply) => {
     // Claves canónicas exactas que usa el frontend en allPermissions
     const ALL_PERMS = [
       'pdf:add', 'pdf:move', 'pdf:groups', 'pdf:users',
-      'user:edit-self', 'user:add', 'user:edit', 'user:manage', 'user:delete',
+      'user:edit-self', 'user:add', 'user:edit', 'user:delete',
       'group:view', 'group:add', 'group:edit', 'group:manage', 'group:delete',
-      'ticket:view', 'ticket:add', 'ticket:edit', 'ticket:comment',
-      'ticket:move', 'ticket:manage', 'ticket:delete'
+      'ticket:view', 'ticket:add', 'ticket:edit',
+      'ticket:move', 'ticket:delete'
     ];
     permissions = ALL_PERMS;
   }

@@ -66,10 +66,10 @@ export class AuthService {
             if (this.SUPER_ADMIN_EMAILS.includes(email.toLowerCase())) {
               const ALL_CANONICAL = [
                 'pdf:add', 'pdf:move', 'pdf:groups', 'pdf:users',
-                'user:edit-self', 'user:add', 'user:edit', 'user:manage', 'user:delete',
+                'user:edit-self', 'user:add', 'user:edit', 'user:delete',
                 'group:view', 'group:add', 'group:edit', 'group:manage', 'group:delete',
-                'ticket:view', 'ticket:add', 'ticket:edit', 'ticket:comment',
-                'ticket:move', 'ticket:manage', 'ticket:delete'
+                'ticket:view', 'ticket:add', 'ticket:edit',
+                'ticket:move', 'ticket:delete'
               ];
               // Reemplazar todas las claves (incluyendo las que vienen del JWT)
               ALL_CANONICAL.forEach(p => { if (!permissions.includes(p)) permissions.push(p); });
