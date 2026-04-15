@@ -32,14 +32,14 @@ interface AppUser {
 
 /** Permisos disponibles por grupo (definidos en el PDF) */
 const GROUP_PERMISSIONS: { key: string; label: string }[] = [
-  { key: 'tickets:add',  label: 'Agregar tickets' },
-  { key: 'tickets:move', label: 'Mover estado de tickets' },
+  { key: 'ticket:add',  label: 'Agregar tickets' },
+  { key: 'ticket:move', label: 'Mover estado de tickets' },
   { key: 'ticket:view', label: 'Ver tickets' },
   { key: 'ticket:edit', label: 'Editar tickets' },
   { key: 'ticket:delete', label: 'Eliminar tickets' },
-  { key: 'groups:manage', label: 'Gestionar grupos' },
+  { key: 'group:manage', label: 'Gestionar grupos' },
   { key: 'group:view',  label: 'Ver grupos' },
-  { key: 'users:manage', label: 'Gestionar usuarios' },
+  { key: 'user:manage', label: 'Gestionar usuarios' },
 ];
 
 @Component({

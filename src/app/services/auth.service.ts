@@ -81,6 +81,7 @@ export class AuthService {
               displayName: response.data[0].user.name || email.split('@')[0],
               permissions,
               token,
+              role: decoded.role || response.data[0].user.role // Guardar el ROLE en la cookie
             };
 
             // ✅ Guardar token en cookie (requerimiento del PDF)
@@ -145,6 +146,7 @@ export class AuthService {
     displayName: string;
     permissions: string[];
     token?: string;
+    role?: string;
   } | null {
     if (!this.isBrowser) return null;
     const raw = this.cookieService.get(USER_COOKIE);
