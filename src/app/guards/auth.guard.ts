@@ -46,8 +46,12 @@ export function permissionGuard(permission: string): CanActivateFn {
       return false;
     }
 
+    // El rol 'admin' siempre tiene acceso total a todas las rutas
+    const currentUser = auth.getCurrentUser();
+    if ((currentUser as any)?.role === 'admin') return true;
+
     if (!permService.hasPermission(permission)) {
-      router.navigate(['/']);
+      router.navigate(['/dashboard']);
       return false;
     }
 

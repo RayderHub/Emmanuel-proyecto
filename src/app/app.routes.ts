@@ -60,13 +60,13 @@ export const routes: Routes = [
   {
     path: 'admin/groups',
     component: AdminGroup,
-    canActivate: [permissionGuard('groups:manage')],
+    canActivate: [permissionGuard('group:manage')],
   },
 
   // Admin: gestión de usuarios
   {
     path: 'admin/users',
     component: UserManagement,
-    canActivate: [permissionGuard('users:manage')],
+    canActivate: [permissionGuard('user:manage')],
   },
 ];
