@@ -355,22 +355,12 @@ export class Group implements OnInit {
     this.ticketView = 'lista';
   }
 
-  // Obtener tickets filtrados por grupo seleccionado y autorización de visualización
+  // Obtener tickets filtrados por grupo seleccionado (Todos pueden verlos ahora)
   getFilteredTickets(): Ticket[] {
-    const user = this.authService.getCurrentUser();
-    const canManageAdmin = this.can('ticket:edit') || this.can('ticket:delete') || user?.role === 'admin' || user?.role === 'superAdmin';
-
-    let filtered = this.tickets;
     if (this.selectedGroupForTickets) {
-      filtered = filtered.filter(ticket => ticket.groupId === this.selectedGroupForTickets?.id);
+      return this.tickets.filter(ticket => ticket.groupId === this.selectedGroupForTickets?.id);
     }
-    
-    // Si no es un admin/gestor con poderes altos, filtra forzosamente por lo suyo
-    if (!canManageAdmin) {
-      filtered = filtered.filter(ticket => ticket.assignedToId === user?.userId || ticket.assignedTo === user?.userId);
-    }
-    
-    return filtered;
+    return this.tickets;
   }
 
   getTicketsByStatus(status: Ticket['status']): Ticket[] {
@@ -420,10 +410,10 @@ export class Group implements OnInit {
   onDrop(event: DragEvent, status: Ticket['status']): void {
     event.preventDefault();
     this.dragOverStatus = null; // quitar highlight
-    if (!this.canMoveTicket()) return; // Blocker de seguridad
-    if (this.draggedTicket) {
-      this.updateTicketStatus(this.draggedTicket, status);
-      this.draggedTicket = null;
-    }
+    // Blocker de seguridad (ahora evalúa el ticket que estás intentando soltar)
+    if (!this.draggedTicket || !this.canMoveTicket(this.draggedTicket)) return; 
+    
+    this.updateTicketStatus(this.draggedTicket, status);
+    this.draggedTicket = null;
   }
 }
