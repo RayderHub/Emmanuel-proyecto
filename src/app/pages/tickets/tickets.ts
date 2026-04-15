@@ -54,6 +54,8 @@ export class Tickets implements OnInit {
 
   tickets: Ticket[] = [];
   users: any[] = [];
+  isLoading: boolean = false;  // ← spinner de carga inicial
+  isSaving: boolean = false;   // ← bloquea el botón guardar
 
   constructor(private supabase: ApiService) {}
 
@@ -62,11 +64,19 @@ export class Tickets implements OnInit {
   }
 
   async loadTickets() {
+    this.isLoading = true;
     try {
-      this.tickets = await this.supabase.getTickets() || [];
-      this.users = await this.supabase.getUsers() || [];
+      // Peticiones en paralelo: tickets y usuarios al mismo tiempo
+      const [tickets, users] = await Promise.all([
+        this.supabase.getTickets(),
+        this.supabase.getUsers()
+      ]);
+      this.tickets = tickets || [];
+      this.users   = users   || [];
     } catch (e) {
       console.error(e);
+    } finally {
+      this.isLoading = false;
     }
   }
 
@@ -99,6 +109,13 @@ export class Tickets implements OnInit {
   get pendienteCount(): number { return this.tickets.filter(t => t.status === 'pendiente').length; }
   get enProcesoCount(): number { return this.tickets.filter(t => t.status === 'en-proceso').length; }
   get finalizadoCount(): number { return this.tickets.filter(t => t.status === 'finalizado').length; }
+
+  /** Devuelve el nombre del usuario asignado, o 'Sin asignar' si no hay ninguno */
+  getUserName(userId: string | undefined): string {
+    if (!userId) return 'Sin asignar';
+    const user = this.users.find(u => u.id === userId);
+    return user ? (user.fullName || user.username || userId) : userId;
+  }
 
   addTicket(): void {
     this.selectedTicket = this.createEmptyTicket();
@@ -136,6 +153,9 @@ export class Tickets implements OnInit {
   }
 
   async saveTicket() {
+    if (this.isSaving) return;  // bloqueo anti-doble-click
+    this.isSaving = true;
+    this.displayTicketDialog = false; // cerrar dialog inmediatamente
     try {
       if (this.ticketEditMode) {
         await this.supabase.updateTicket(this.selectedTicket.id, this.selectedTicket);
@@ -147,9 +167,10 @@ export class Tickets implements OnInit {
       await this.loadTickets();
     } catch (e) {
       console.error(e);
+    } finally {
+      this.isSaving = false;
+      this.selectedTicket = this.createEmptyTicket();
     }
-    this.displayTicketDialog = false;
-    this.selectedTicket = this.createEmptyTicket();
   }
 
   hideTicketDialog(): void {

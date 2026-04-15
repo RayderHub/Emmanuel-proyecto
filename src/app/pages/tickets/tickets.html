@@ -89,8 +89,16 @@
     }
   </div>
 
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="loading-overlay">
+      <i class="pi pi-spin pi-spinner" style="font-size:2rem;color:#818cf8"></i>
+      <p style="margin:.75rem 0 0;color:#94a3b8">Cargando tickets...</p>
+    </div>
+  }
+
   <!-- Table -->
-  <div class="section">
+  @if (!isLoading) {
     <div class="table-wrap">
       <table class="app-table">
         <thead>
@@ -116,7 +124,7 @@
               <td>
                 <span class="priority-badge priority-{{ ticket.priority }}">{{ ticket.priority }}</span>
               </td>
-              <td class="td-muted">{{ ticket.assignedTo }}</td>
+              <td class="td-muted">{{ getUserName(ticket.assignedTo) }}</td>
               <td class="td-muted">{{ ticket.createdAt }}</td>
               <td class="td-muted">{{ ticket.dueDate }}</td>
               <td>
@@ -144,7 +152,7 @@
         </tbody>
       </table>
     </div>
-  </div>
+  }
 
   <!-- MODAL: Nuevo / Editar Ticket -->
   <p-dialog
@@ -215,9 +223,13 @@
       </button>
       <button class="btn btn-primary"
         (click)="saveTicket()"
-        [disabled]="!selectedTicket.title || !selectedTicket.description">
-        <i class="pi pi-check"></i>
-        {{ ticketEditMode ? 'Actualizar' : 'Guardar' }}
+        [disabled]="!selectedTicket.title || !selectedTicket.description || isSaving">
+        @if (isSaving) {
+          <i class="pi pi-spin pi-spinner"></i> Guardando...
+        } @else {
+          <i class="pi pi-check"></i>
+          {{ ticketEditMode ? 'Actualizar' : 'Guardar' }}
+        }
       </button>
     </ng-template>
   </p-dialog>

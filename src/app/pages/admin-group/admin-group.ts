@@ -82,6 +82,7 @@ export class AdminGroup implements OnInit {
   deleteTarget: GroupData | null = null;
 
   loading = false;
+  isSaving = false; // ← bloquea botones durante operaciones
 
   constructor(
     private supabase: ApiService,
@@ -95,12 +96,18 @@ export class AdminGroup implements OnInit {
   async loadData() {
     this.loading = true;
     try {
-      this.groups = await this.supabase.getGroups();
-      this.allUsers = await this.supabase.getUsers() as AppUser[];
+      // Peticiones en paralelo: grupos y usuarios al mismo tiempo
+      const [groups, users] = await Promise.all([
+        this.supabase.getGroups(),
+        this.supabase.getUsers()
+      ]);
+      this.groups   = groups;
+      this.allUsers = users as AppUser[];
     } catch (e) {
       console.error(e);
+    } finally {
+      this.loading = false;
     }
-    this.loading = false;
   }
 
   // ── CRUD de Grupos ───────────────────────────────────────
@@ -118,7 +125,9 @@ export class AdminGroup implements OnInit {
   }
 
   async saveGroup() {
-    if (!this.selectedGroup.name) return;
+    if (!this.selectedGroup.name || this.isSaving) return;
+    this.isSaving = true;
+    this.showGroupDialog = false; // cerrar inmediatamente
     try {
       if (this.groupEditMode && this.selectedGroup.id) {
         await this.supabase.updateGroup(this.selectedGroup.id, this.selectedGroup);
@@ -130,8 +139,9 @@ export class AdminGroup implements OnInit {
       await this.loadData();
     } catch (e: any) {
       this.toast(e.message || 'Error al guardar', 'error');
+    } finally {
+      this.isSaving = false;
     }
-    this.showGroupDialog = false;
   }
 
   askDelete(group: GroupData) {
@@ -218,15 +228,18 @@ export class AdminGroup implements OnInit {
   }
 
   async addMember() {
-    if (!this.selectedUserId || !this.currentGroup) return;
+    if (!this.selectedUserId || !this.currentGroup || this.isSaving) return;
+    this.isSaving = true;
+    this.showAddMemberDialog = false; // cerrar inmediatamente
     try {
       await this.supabase.addUserToGroup(this.selectedUserId, this.currentGroup.id);
       await this.loadGroupMembers(this.currentGroup.id);
       this.toast('Usuario añadido al grupo', 'success');
     } catch (e: any) {
       this.toast(e.message || 'Error al añadir', 'error');
+    } finally {
+      this.isSaving = false;
     }
-    this.showAddMemberDialog = false;
   }
 
   // ── Helpers ──────────────────────────────────────────────

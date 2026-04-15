@@ -29,6 +29,15 @@
     </div>
   </div>
 
+  <!-- ===== LOADING STATE ===== -->
+  @if (isLoading) {
+    <div class="loading-overlay">
+      <i class="pi pi-spin pi-spinner" style="font-size:2.5rem;color:#818cf8"></i>
+      <p style="margin:.75rem 0 0;color:#94a3b8;font-size:.95rem">Cargando datos...</p>
+    </div>
+  }
+
+  @if (!isLoading) {
   <!-- ===== STUDENTS SECTION (solo visualización) ===== -->
   <div class="section">
     <div class="section-head">
@@ -125,6 +134,7 @@
       </table>
     </div>
   </div>
+  } <!-- /if !isLoading -->
 
   <!-- ===== MODAL: TICKETS ===== -->
   <p-dialog
@@ -186,7 +196,7 @@
                   <td>
                     <span class="priority-badge priority-{{ ticket.priority }}">{{ ticket.priority }}</span>
                   </td>
-                  <td class="td-muted">{{ ticket.assignedTo }}</td>
+                  <td class="td-muted">{{ getUserName(ticket.assignedTo) }}</td>
                   <td class="td-muted">{{ ticket.createdAt }}</td>
                   <td class="td-muted">{{ ticket.dueDate }}</td>
                   <td>
@@ -221,7 +231,10 @@
         <div class="kanban-board">
           <!-- Pendiente -->
           <div class="kanban-col"
+            [class.drag-over]="dragOverStatus === 'pendiente'"
             (dragover)="onDragOver($event)"
+            (dragenter)="onDragEnter('pendiente')"
+            (dragleave)="onDragLeave($event)"
             (drop)="onDrop($event, 'pendiente')">
             <div class="kanban-col-header">
               <span class="col-indicator pendiente"></span>
@@ -238,7 +251,7 @@
                 </div>
                 <p class="card-desc">{{ ticket.description }}</p>
                 <div class="card-footer-row">
-                  <span><i class="pi pi-user"></i><span class="card-assignee">{{ ticket.assignedTo }}</span></span>
+                  <span><i class="pi pi-user"></i><span class="card-assignee">{{ getUserName(ticket.assignedTo) }}</span></span>
                   <span><i class="pi pi-calendar"></i>{{ ticket.dueDate }}</span>
                 </div>
               </div>
@@ -250,7 +263,10 @@
 
           <!-- En Proceso -->
           <div class="kanban-col"
+            [class.drag-over]="dragOverStatus === 'en-proceso'"
             (dragover)="onDragOver($event)"
+            (dragenter)="onDragEnter('en-proceso')"
+            (dragleave)="onDragLeave($event)"
             (drop)="onDrop($event, 'en-proceso')">
             <div class="kanban-col-header">
               <span class="col-indicator en-proceso"></span>
@@ -267,7 +283,7 @@
                 </div>
                 <p class="card-desc">{{ ticket.description }}</p>
                 <div class="card-footer-row">
-                  <span><i class="pi pi-user"></i><span class="card-assignee">{{ ticket.assignedTo }}</span></span>
+                  <span><i class="pi pi-user"></i><span class="card-assignee">{{ getUserName(ticket.assignedTo) }}</span></span>
                   <span><i class="pi pi-calendar"></i>{{ ticket.dueDate }}</span>
                 </div>
               </div>
@@ -279,7 +295,10 @@
 
           <!-- Revisión -->
           <div class="kanban-col"
+            [class.drag-over]="dragOverStatus === 'revision'"
             (dragover)="onDragOver($event)"
+            (dragenter)="onDragEnter('revision')"
+            (dragleave)="onDragLeave($event)"
             (drop)="onDrop($event, 'revision')">
             <div class="kanban-col-header">
               <span class="col-indicator revision"></span>
@@ -296,7 +315,7 @@
                 </div>
                 <p class="card-desc">{{ ticket.description }}</p>
                 <div class="card-footer-row">
-                  <span><i class="pi pi-user"></i><span class="card-assignee">{{ ticket.assignedTo }}</span></span>
+                  <span><i class="pi pi-user"></i><span class="card-assignee">{{ getUserName(ticket.assignedTo) }}</span></span>
                   <span><i class="pi pi-calendar"></i>{{ ticket.dueDate }}</span>
                 </div>
               </div>
@@ -308,7 +327,10 @@
 
           <!-- Finalizado -->
           <div class="kanban-col"
+            [class.drag-over]="dragOverStatus === 'finalizado'"
             (dragover)="onDragOver($event)"
+            (dragenter)="onDragEnter('finalizado')"
+            (dragleave)="onDragLeave($event)"
             (drop)="onDrop($event, 'finalizado')">
             <div class="kanban-col-header">
               <span class="col-indicator finalizado"></span>
@@ -325,7 +347,7 @@
                 </div>
                 <p class="card-desc">{{ ticket.description }}</p>
                 <div class="card-footer-row">
-                  <span><i class="pi pi-user"></i><span class="card-assignee">{{ ticket.assignedTo }}</span></span>
+                  <span><i class="pi pi-user"></i><span class="card-assignee">{{ getUserName(ticket.assignedTo) }}</span></span>
                   <span><i class="pi pi-calendar"></i>{{ ticket.dueDate }}</span>
                 </div>
               </div>
@@ -392,9 +414,13 @@
       </button>
       <button class="btn btn-primary"
         (click)="saveStudent()"
-        [disabled]="!selectedStudent.username || !selectedStudent.fullName">
-        <i class="pi pi-check"></i>
-        {{ editMode ? 'Actualizar' : 'Guardar' }}
+        [disabled]="!selectedStudent.username || !selectedStudent.fullName || isSaving">
+        @if (isSaving) {
+          <i class="pi pi-spin pi-spinner"></i> Guardando...
+        } @else {
+          <i class="pi pi-check"></i>
+          {{ editMode ? 'Actualizar' : 'Guardar' }}
+        }
       </button>
     </ng-template>
   </p-dialog>
@@ -447,9 +473,13 @@
       </button>
       <button class="btn btn-primary"
         (click)="saveGroup()"
-        [disabled]="!selectedGroup.name || !selectedGroup.course">
-        <i class="pi pi-check"></i>
-        {{ groupEditMode ? 'Actualizar' : 'Guardar' }}
+        [disabled]="!selectedGroup.name || !selectedGroup.course || isSaving">
+        @if (isSaving) {
+          <i class="pi pi-spin pi-spinner"></i> Guardando...
+        } @else {
+          <i class="pi pi-check"></i>
+          {{ groupEditMode ? 'Actualizar' : 'Guardar' }}
+        }
       </button>
     </ng-template>
   </p-dialog>
@@ -523,9 +553,13 @@
       </button>
       <button class="btn btn-primary"
         (click)="saveTicket()"
-        [disabled]="!selectedTicket.title || !selectedTicket.description">
-        <i class="pi pi-check"></i>
-        {{ ticketEditMode ? 'Actualizar' : 'Guardar' }}
+        [disabled]="!selectedTicket.title || !selectedTicket.description || isSaving">
+        @if (isSaving) {
+          <i class="pi pi-spin pi-spinner"></i> Guardando...
+        } @else {
+          <i class="pi pi-check"></i>
+          {{ ticketEditMode ? 'Actualizar' : 'Guardar' }}
+        }
       </button>
     </ng-template>
   </p-dialog>

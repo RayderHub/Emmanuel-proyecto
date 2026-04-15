@@ -65,6 +65,8 @@ export class UserManagement implements OnInit {
   showUserDialog = false;
   editMode = false;
   selectedUser: Partial<AppUser> = {};
+  isLoading = false;  // ← spinner de carga
+  isSaving = false;   // ← bloqueo anti-doble-click
 
   // ---- Permissions dialog ----
   showPermDialog = false;
@@ -91,9 +93,12 @@ export class UserManagement implements OnInit {
   }
 
   async loadUsers() {
+    this.isLoading = true;
     try {
       this.users = await this.supabase.getUsers() || [];
-    } catch(e) { console.error(e); }
+    } catch(e) { console.error(e); } finally {
+      this.isLoading = false;
+    }
   }
 
   // ---- CRUD ----
@@ -111,7 +116,9 @@ export class UserManagement implements OnInit {
   }
 
   async saveUser() {
-    if (!this.selectedUser.username || !this.selectedUser.email) return;
+    if (!this.selectedUser.username || !this.selectedUser.email || this.isSaving) return;
+    this.isSaving = true;
+    this.showUserDialog = false; // cerrar inmediatamente
     try {
       if (this.editMode) {
         await this.supabase.updateUser(this.selectedUser.id!, this.selectedUser);
@@ -126,8 +133,9 @@ export class UserManagement implements OnInit {
         await this.supabase.createUser(newUser);
       }
       await this.loadUsers();
-    } catch(e) { console.error(e); }
-    this.showUserDialog = false;
+    } catch(e) { console.error(e); } finally {
+      this.isSaving = false;
+    }
   }
 
   askDelete(user: AppUser): void {
@@ -136,20 +144,30 @@ export class UserManagement implements OnInit {
   }
 
   async confirmDelete() {
-    if (!this.deleteTarget) return;
+    if (!this.deleteTarget || this.isSaving) return;
+    this.isSaving = true;
+    this.showDeleteDialog = false; // cerrar inmediatamente
     try {
       await this.supabase.deleteUser(this.deleteTarget.id);
       await this.loadUsers();
-    } catch(e) { console.error(e); }
-    this.showDeleteDialog = false;
-    this.deleteTarget = null;
+    } catch(e) { console.error(e); } finally {
+      this.isSaving = false;
+      this.deleteTarget = null;
+    }
   }
 
   // ---- Permission management ----
 
   openPermissions(user: AppUser): void {
     this.permUser = user;
-    this.permEditing = new Set(user.permissions);
+    // CORRECCIÓN: filtrar permisos del usuario para solo incluir
+    // las claves que existen actualmente en allPermissions.
+    // Evita que keys legacy ('tickets:add', 'groups:view', etc.) aparezcan
+    // en el set y produzcan contadores imposibles como "23/21 activos".
+    const validKeys = new Set(this.allPermissions.map(p => p.key));
+    this.permEditing = new Set(
+      (user.permissions || []).filter(p => validKeys.has(p))
+    );
     this.showPermDialog = true;
   }
 
@@ -174,18 +192,26 @@ export class UserManagement implements OnInit {
   }
 
   async savePermissions() {
-    if (!this.permUser) return;
+    if (!this.permUser || this.isSaving) return;
+    this.isSaving = true;
+    this.showPermDialog = false; // cerrar inmediatamente
     try {
+      // Guardar solo permisos válidos (claves actuales)
       const permsArray = Array.from(this.permEditing);
       await this.supabase.updateUser(this.permUser.id, { permissions: permsArray });
       await this.loadUsers();
-    } catch(e) { console.error(e); }
-    this.showPermDialog = false;
+    } catch(e) {
+      console.error('Error al guardar permisos:', e);
+    } finally {
+      this.isSaving = false;
+    }
   }
 
   // Utilidades UI
   permCount(user: AppUser): number {
-    return user.permissions.length;
+    // Contar solo permisos cuya clave existe en allPermissions (no keys legacy)
+    const validKeys = new Set(this.allPermissions.map(p => p.key));
+    return (user.permissions || []).filter(p => validKeys.has(p)).length;
   }
 
   superAdminCount(): number {

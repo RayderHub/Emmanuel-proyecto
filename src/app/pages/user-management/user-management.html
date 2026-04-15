@@ -48,7 +48,15 @@
       <h2 class="um-section-title">Usuarios del Sistema</h2>
     </div>
 
-    <div class="table-wrap">
+    <!-- Loading State -->
+    @if (isLoading) {
+      <div class="loading-overlay">
+        <i class="pi pi-spin pi-spinner" style="font-size:2rem;color:#818cf8"></i>
+        <p style="margin:.75rem 0 0;color:#94a3b8">Cargando usuarios...</p>
+      </div>
+    }
+
+    <div class="table-wrap" [style.display]="isLoading ? 'none' : 'block'">
       <table class="app-table">
         <thead>
           <tr>
@@ -160,9 +168,13 @@
     </button>
     <button class="btn btn-primary"
       (click)="saveUser()"
-      [disabled]="!selectedUser.username || !selectedUser.email">
-      <i class="pi pi-check"></i>
-      {{ editMode ? 'Actualizar' : 'Guardar' }}
+      [disabled]="!selectedUser.username || !selectedUser.email || isSaving">
+      @if (isSaving) {
+        <i class="pi pi-spin pi-spinner"></i> Guardando...
+      } @else {
+        <i class="pi pi-check"></i>
+        {{ editMode ? 'Actualizar' : 'Guardar' }}
+      }
     </button>
   </ng-template>
 </p-dialog>

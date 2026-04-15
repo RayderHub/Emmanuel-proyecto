@@ -17,7 +17,8 @@ fastify.post('/auth/register', async (request, reply) => {
     username: email, 
     full_name: fullName, 
     role: 'user', 
-    permissions: ['tickets:view', 'groups:view', 'ticket:view', 'group:view'],
+    // Permisos iniciales con claves canónicas actuales (no legacy)
+    permissions: ['user:edit-self', 'group:view', 'ticket:view'],
     phone: phone || null,
     address: address || null,
     birth_date: birthDate || null
@@ -36,8 +37,22 @@ fastify.post('/auth/login', async (request, reply) => {
   const { data: groupPerms } = await supabase.from('group_permissions').select('permission').eq('user_id', userId);
   let permissions = (user && user.permissions) ? [...user.permissions] : [];
   if (groupPerms) groupPerms.forEach(p => permissions.push(p.permission));
-  if (user && user.role === 'admin') permissions = [...new Set([...permissions, 'pdf:tickets', 'pdf:status', 'pdf:groups', 'pdf:users', 'users:profile', 'users:add', 'users:edit', 'users:manage', 'users:delete', 'groups:view', 'groups:add', 'groups:edit', 'groups:manage', 'groups:delete', 'tickets:view', 'tickets:add', 'tickets:edit', 'tickets:comment', 'tickets:status', 'tickets:manage', 'tickets:delete', 'ticket:view', 'group:view'])];
-  const token = jwt.sign({ userId, email, role: user?.role || 'user', permissions: [...new Set(permissions)] }, JWT_SECRET, { expiresIn: '24h' });
+  if (user && user.role === 'admin') {
+    // Claves canónicas exactas que usa el frontend en allPermissions
+    const ALL_PERMS = [
+      'pdf:add', 'pdf:move', 'pdf:groups', 'pdf:users',
+      'user:edit-self', 'user:add', 'user:edit', 'user:manage', 'user:delete',
+      'group:view', 'group:add', 'group:edit', 'group:manage', 'group:delete',
+      'ticket:view', 'ticket:add', 'ticket:edit', 'ticket:comment',
+      'ticket:move', 'ticket:manage', 'ticket:delete'
+    ];
+    permissions = ALL_PERMS;
+  }
+  const token = jwt.sign(
+    { userId, email, role: user?.role || 'user', permissions: [...new Set(permissions)] },
+    JWT_SECRET,
+    { expiresIn: '24h' }
+  );
   return reply.send({ statusCode: 200, data: [{ token, user: { id: userId, username: email, name: user?.full_name || email, role: user?.role } }] });
 });
 

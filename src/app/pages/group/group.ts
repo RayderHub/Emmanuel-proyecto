@@ -55,6 +55,8 @@ interface Ticket {
 })
 export class Group implements OnInit {
   memberCount: number = 3; // Actualizado según la lista inicial
+  isLoading: boolean = false;  // ← indicador de carga de datos
+  isSaving: boolean = false;   // ← bloqueo de botones durante operaciones
   displayDialog: boolean = false;
   editMode: boolean = false;
   selectedStudent: Student = this.createEmptyStudent();
@@ -72,6 +74,7 @@ export class Group implements OnInit {
   selectedTicket: Ticket = this.createEmptyTicket();
   selectedGroupForTickets: GroupData | null = null; // Grupo seleccionado para ver tickets
   draggedTicket: Ticket | null = null; // Para Drag And Drop
+  dragOverStatus: string | null = null; // columna resaltada durante drag
   users: any[] = []; // Para el dropdown de tickets
 
   constructor(private permissionService: PermissionService, private supabase: ApiService) {}
@@ -92,14 +95,25 @@ export class Group implements OnInit {
   }
 
   async loadAllData() {
+    this.isLoading = true;
     try {
-      this.students = await this.supabase.getStudents() || [];
-      this.groups = await this.supabase.getGroups() || [];
-      this.tickets = await this.supabase.getTickets() || [];
-      this.users = await this.supabase.getUsers() || [];
+      // ── OPTIMIZACIÓN: peticiones en paralelo en lugar de secuencial ──
+      // Antes tardaba 4x el tiempo de red; ahora tarda solo 1x
+      const [students, groups, tickets, users] = await Promise.all([
+        this.supabase.getStudents(),
+        this.supabase.getGroups(),
+        this.supabase.getTickets(),
+        this.supabase.getUsers()
+      ]);
+      this.students = students || [];
+      this.groups   = groups   || [];
+      this.tickets  = tickets  || [];
+      this.users    = users    || [];
       this.memberCount = this.students.length;
     } catch(e) {
       console.error(e);
+    } finally {
+      this.isLoading = false;
     }
   }
 
@@ -137,17 +151,24 @@ export class Group implements OnInit {
   }
 
   async saveStudent() {
-    if (this.editMode) {
-      await this.supabase.updateStudent(this.selectedStudent.id, this.selectedStudent);
-    } else {
-      const newStudent: any = { ...this.selectedStudent, email: this.selectedStudent.username.substring(1) + '@email.com' };
-      delete newStudent.id;
-      await this.supabase.createStudent(newStudent);
+    if (this.isSaving) return;
+    this.isSaving = true;
+    this.displayDialog = false; // cerrar inmediatamente para evitar doble click
+    try {
+      if (this.editMode) {
+        await this.supabase.updateStudent(this.selectedStudent.id, this.selectedStudent);
+      } else {
+        const newStudent: any = { ...this.selectedStudent, email: this.selectedStudent.username.substring(1) + '@email.com' };
+        delete newStudent.id;
+        await this.supabase.createStudent(newStudent);
+      }
+      await this.loadAllData();
+    } catch(e) {
+      console.error(e);
+    } finally {
+      this.isSaving = false;
+      this.selectedStudent = this.createEmptyStudent();
     }
-    await this.loadAllData();
-    
-    this.displayDialog = false;
-    this.selectedStudent = this.createEmptyStudent();
   }
 
   hideDialog(): void {
@@ -190,17 +211,24 @@ export class Group implements OnInit {
   }
 
   async saveGroup() {
-    if (this.groupEditMode) {
-      await this.supabase.updateGroup(this.selectedGroup.id, this.selectedGroup);
-    } else {
-      const newGroup: any = { ...this.selectedGroup };
-      delete newGroup.id;
-      await this.supabase.createGroup(newGroup);
+    if (this.isSaving) return;
+    this.isSaving = true;
+    this.displayGroupDialog = false; // cerrar inmediatamente
+    try {
+      if (this.groupEditMode) {
+        await this.supabase.updateGroup(this.selectedGroup.id, this.selectedGroup);
+      } else {
+        const newGroup: any = { ...this.selectedGroup };
+        delete newGroup.id;
+        await this.supabase.createGroup(newGroup);
+      }
+      await this.loadAllData();
+    } catch(e) {
+      console.error(e);
+    } finally {
+      this.isSaving = false;
+      this.selectedGroup = this.createEmptyGroup();
     }
-    await this.loadAllData();
-    
-    this.displayGroupDialog = false;
-    this.selectedGroup = this.createEmptyGroup();
   }
 
   hideGroupDialog(): void {
@@ -244,17 +272,24 @@ export class Group implements OnInit {
   }
 
   async saveTicket() {
-    if (this.ticketEditMode) {
-      await this.supabase.updateTicket(this.selectedTicket.id, this.selectedTicket);
-    } else {
-      const newTicket: any = { ...this.selectedTicket };
-      delete newTicket.id;
-      await this.supabase.createTicket(newTicket);
+    if (this.isSaving) return;
+    this.isSaving = true;
+    this.displayTicketDialog = false; // cerrar inmediatamente
+    try {
+      if (this.ticketEditMode) {
+        await this.supabase.updateTicket(this.selectedTicket.id, this.selectedTicket);
+      } else {
+        const newTicket: any = { ...this.selectedTicket };
+        delete newTicket.id;
+        await this.supabase.createTicket(newTicket);
+      }
+      await this.loadAllData();
+    } catch(e) {
+      console.error(e);
+    } finally {
+      this.isSaving = false;
+      this.selectedTicket = this.createEmptyTicket();
     }
-    await this.loadAllData();
-    
-    this.displayTicketDialog = false;
-    this.selectedTicket = this.createEmptyTicket();
   }
 
   hideTicketDialog(): void {
@@ -262,10 +297,25 @@ export class Group implements OnInit {
     this.selectedTicket = this.createEmptyTicket();
   }
 
-  updateTicketStatus(ticket: Ticket, newStatus: Ticket['status']): void {
+  // ── PROBLEMA 3 FIX: ahora persiste el cambio en la DB ──────────────────
+  async updateTicketStatus(ticket: Ticket, newStatus: Ticket['status']): Promise<void> {
+    // Evitar llamada innecesaria si el status no cambió
+    if (ticket.status === newStatus) return;
+
+    const oldStatus = ticket.status;
     const index = this.tickets.findIndex(t => t.id === ticket.id);
-    if (index !== -1) {
-      this.tickets[index].status = newStatus;
+    if (index === -1) return;
+
+    // 1. Actualización optimista: cambio visual INMEDIATO (sin esperar API)
+    this.tickets[index].status = newStatus;
+
+    try {
+      // 2. Persistir en la base de datos
+      await this.supabase.updateTicket(ticket.id, { status: newStatus });
+    } catch (e) {
+      // 3. Rollback: si el API falla, revertir el cambio visual
+      this.tickets[index].status = oldStatus;
+      console.error('Error al actualizar status del ticket en DB:', e);
     }
   }
 
@@ -289,6 +339,13 @@ export class Group implements OnInit {
     return filteredTickets.filter(ticket => ticket.status === status);
   }
 
+  /** Devuelve el nombre del usuario asignado, o 'Sin asignar' si no hay ninguno */
+  getUserName(userId: string | undefined): string {
+    if (!userId) return 'Sin asignar';
+    const user = this.users.find(u => u.id === userId);
+    return user ? (user.fullName || user.username || userId) : userId;
+  }
+
   // Drag and Drop Methods
   onDragStart(event: DragEvent, ticket: Ticket): void {
     this.draggedTicket = ticket;
@@ -305,10 +362,22 @@ export class Group implements OnInit {
     }
   }
 
+  onDragEnter(status: string): void {
+    this.dragOverStatus = status; // resaltar columna destino
+  }
+
+  onDragLeave(event: DragEvent): void {
+    // Solo limpiar si salimos de la columna (no de elementos hijos)
+    const relatedTarget = event.relatedTarget as Element;
+    if (!relatedTarget || !(event.currentTarget as Element).contains(relatedTarget)) {
+      this.dragOverStatus = null;
+    }
+  }
+
   onDrop(event: DragEvent, status: Ticket['status']): void {
     event.preventDefault();
+    this.dragOverStatus = null; // quitar highlight
     if (this.draggedTicket) {
-      // Evitar abrir el el edit dialog al soltar
       this.updateTicketStatus(this.draggedTicket, status);
       this.draggedTicket = null;
     }

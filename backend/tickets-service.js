@@ -4,22 +4,34 @@ const supabase = require('./db');
 // --- TRADUCTOR DEFINITIVO ---
 const mapToFrontend = (t) => ({
   ...t,
-  groupId: t.group_id,
-  assignedTo: t.assigned_to,
-  status: (t.status || 'pendiente').toLowerCase() // Garantizamos minúsculas
+  groupId:    t.group_id,
+  assignedTo:   t.assigned_to,   // UUID del asignado
+  assignedToId: t.assigned_to,   // alias para el select del formulario
+  dueDate:    t.due_date,        // ← CORREGIDO: antes faltaba este mapeo
+  createdAt:  t.created_at,      // ← CORREGIDO: antes faltaba este mapeo
+  status: (t.status || 'pendiente').toLowerCase()
 });
 
 const mapToBackend = (body) => {
   const newBody = {};
   // Solo permitimos los campos que existen en la DB
-  if (body.title) newBody.title = body.title;
+  if (body.title)       newBody.title       = body.title;
   if (body.description) newBody.description = body.description;
-  if (body.priority) newBody.priority = body.priority;
-  if (body.status) newBody.status = body.status.toLowerCase(); // Guardamos siempre en minúscula
-  
-  if (body.groupId || body.group_id) newBody.group_id = parseInt(body.groupId || body.group_id);
-  if (body.assignedTo || body.assigned_to) newBody.assigned_to = body.assignedTo || body.assigned_to;
-  
+  if (body.priority)    newBody.priority    = body.priority;
+  if (body.status)      newBody.status      = body.status.toLowerCase();
+
+  // ← CORREGIDO: el frontend envía groupId (camelCase)
+  if (body.groupId   != null) newBody.group_id   = parseInt(body.groupId);
+  if (body.group_id  != null) newBody.group_id   = parseInt(body.group_id);
+
+  // ← CORREGIDO: el selector del formulario usa assignedToId, no assignedTo
+  const assignee = body.assignedToId || body.assignedTo || body.assigned_to;
+  if (assignee) newBody.assigned_to = assignee;
+
+  // ← CORREGIDO: dueDate nunca se guardaba, ahora sí
+  const dueDate = body.dueDate || body.due_date;
+  if (dueDate) newBody.due_date = dueDate;
+
   return newBody;
 };
 
