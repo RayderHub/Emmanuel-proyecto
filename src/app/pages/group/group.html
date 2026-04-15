@@ -235,7 +235,7 @@
             </div>
             @for (ticket of getTicketsByStatus('pendiente'); track ticket.id) {
               <div class="kanban-card status-pendiente"
-                [draggable]="canMoveTicket()"
+                [draggable]="canMoveTicket(ticket)"
                 (dragstart)="onDragStart($event, ticket)">
                 <div class="card-header-row">
                   <span class="card-title">{{ ticket.title }}</span>
@@ -267,7 +267,7 @@
             </div>
             @for (ticket of getTicketsByStatus('en-proceso'); track ticket.id) {
               <div class="kanban-card status-en-proceso"
-                [draggable]="canMoveTicket()"
+                [draggable]="canMoveTicket(ticket)"
                 (dragstart)="onDragStart($event, ticket)">
                 <div class="card-header-row">
                   <span class="card-title">{{ ticket.title }}</span>
@@ -299,7 +299,7 @@
             </div>
             @for (ticket of getTicketsByStatus('revision'); track ticket.id) {
               <div class="kanban-card status-revision"
-                [draggable]="canMoveTicket()"
+                [draggable]="canMoveTicket(ticket)"
                 (dragstart)="onDragStart($event, ticket)">
                 <div class="card-header-row">
                   <span class="card-title">{{ ticket.title }}</span>
@@ -331,7 +331,7 @@
             </div>
             @for (ticket of getTicketsByStatus('finalizado'); track ticket.id) {
               <div class="kanban-card status-finalizado"
-                [draggable]="canMoveTicket()"
+                [draggable]="canMoveTicket(ticket)"
                 (dragstart)="onDragStart($event, ticket)">
                 <div class="card-header-row">
                   <span class="card-title">{{ ticket.title }}</span>
