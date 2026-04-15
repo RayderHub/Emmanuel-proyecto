@@ -9,6 +9,11 @@ fastify.register(cors, {
   allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id']
 });
 
+fastify.register(require('@fastify/rate-limit'), {
+  max: 100, // Límite de 100 peticiones
+  timeWindow: '1 minute' // Por ventana de 1 minuto por IP
+});
+
 // --- OPTIMIZACIÓN: LOGS EN SEGUNDO PLANO ---
 // Eliminamos los 'await' para que la respuesta al usuario sea instantánea
 fastify.addHook('onResponse', (request, reply) => {

@@ -47,8 +47,24 @@ fastify.get('/tickets', async (request, reply) => {
   return reply.send({ statusCode: 200, data: (data || []).map(mapToFrontend) });
 });
 
+// ESQUEMA JSON PARA POST (Requerimiento del profesor)
+const createTicketSchema = {
+  schema: {
+    body: {
+      type: 'object',
+      required: ['title'],
+      properties: {
+        title: { type: 'string', maxLength: 100 },
+        description: { type: 'string' },
+        priority: { enum: ['baja', 'media', 'alta', 'urgente'] },
+        status: { enum: ['pendiente', 'en-proceso', 'revision', 'finalizado'] }
+      }
+    }
+  }
+};
+
 // CREAR
-fastify.post('/tickets', async (request, reply) => {
+fastify.post('/tickets', createTicketSchema, async (request, reply) => {
   const dbBody = mapToBackend(request.body);
   const { data, error } = await supabase.from('tickets').insert([dbBody]).select().single();
   if (error) return reply.status(500).send(error);

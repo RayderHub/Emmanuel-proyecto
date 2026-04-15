@@ -12,6 +12,9 @@ import { CommonModule } from '@angular/common';
 import { PermissionService } from '../../services/permission.service';
 import { PermissionDirective } from '../../directives/permission.directive';
 import { ApiService } from '../../services/api.service';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { AuthService } from '../../services/auth.service';
 
 interface Student {
   id: number;
@@ -49,7 +52,8 @@ interface Ticket {
 @Component({
     selector: 'app-group',
     standalone: true,
-    imports: [RouterLink, ButtonModule, CardModule, DialogModule, InputTextModule, InputMaskModule, DatePicker, FormsModule, Sidebar, CommonModule, PermissionDirective],
+    imports: [RouterLink, ButtonModule, CardModule, DialogModule, InputTextModule, InputMaskModule, DatePicker, FormsModule, Sidebar, CommonModule, PermissionDirective, ToastModule],
+    providers: [MessageService],
     templateUrl: './group.html',
     styleUrl: './group.css'
 })
@@ -76,8 +80,14 @@ export class Group implements OnInit {
   draggedTicket: Ticket | null = null; // Para Drag And Drop
   dragOverStatus: string | null = null; // columna resaltada durante drag
   users: any[] = []; // Para el dropdown de tickets
+  todayDate: Date = new Date(); // Límite para evitar fechas pasadas
 
-  constructor(private permissionService: PermissionService, private supabase: ApiService) {}
+  constructor(
+    private permissionService: PermissionService, 
+    private supabase: ApiService,
+    private messageService: MessageService,
+    private authService: AuthService
+  ) {}
 
   can(permission: string): boolean {
     return this.permissionService.hasPermission(permission);
@@ -85,7 +95,19 @@ export class Group implements OnInit {
 
   /** Verifica si el usuario actual puede mover un ticket (tiene permiso Y está asignado a él) */
   canMoveTicket(ticket?: Ticket): boolean {
-    return this.can('ticket:move');
+    if (!ticket) return false;
+    const user = this.authService.getCurrentUser();
+    const canManageAdmin = this.can('ticket:edit') || this.can('ticket:delete') || user?.role === 'admin' || user?.role === 'superAdmin';
+    
+    // El admin puede gestionar y saltar la barrera
+    if (canManageAdmin) return true;
+    
+    // Los estudiantes o perfiles con permiso base solo pueden si es suyo el ticket
+    if (this.can('ticket:move') && (ticket.assignedToId === user?.userId || ticket.assignedTo === user?.userId)) {
+      return true;
+    }
+    
+    return false;
   }
 
   async ngOnInit() {
@@ -265,8 +287,14 @@ export class Group implements OnInit {
   }
 
   async deleteTicket(id: number) {
-    await this.supabase.deleteTicket(id);
-    await this.loadAllData();
+    try {
+      await this.supabase.deleteTicket(id);
+      this.messageService.add({ severity: 'success', summary: 'Ticket Eliminado', detail: 'El ticket se eliminó correctamente' });
+      await this.loadAllData();
+    } catch(e) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Ocurrió un error al eliminar el ticket' });
+      console.error(e);
+    }
   }
 
   async saveTicket() {
@@ -276,13 +304,16 @@ export class Group implements OnInit {
     try {
       if (this.ticketEditMode) {
         await this.supabase.updateTicket(this.selectedTicket.id, this.selectedTicket);
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Ticket actualizado correctamente' });
       } else {
         const newTicket: any = { ...this.selectedTicket };
         delete newTicket.id;
         await this.supabase.createTicket(newTicket);
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Ticket creado exitosamente' });
       }
       await this.loadAllData();
     } catch(e) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Ocurrió un error al guardar el ticket' });
       console.error(e);
     } finally {
       this.isSaving = false;
@@ -324,12 +355,22 @@ export class Group implements OnInit {
     this.ticketView = 'lista';
   }
 
-  // Obtener tickets filtrados por grupo seleccionado
+  // Obtener tickets filtrados por grupo seleccionado y autorización de visualización
   getFilteredTickets(): Ticket[] {
+    const user = this.authService.getCurrentUser();
+    const canManageAdmin = this.can('ticket:edit') || this.can('ticket:delete') || user?.role === 'admin' || user?.role === 'superAdmin';
+
+    let filtered = this.tickets;
     if (this.selectedGroupForTickets) {
-      return this.tickets.filter(ticket => ticket.groupId === this.selectedGroupForTickets?.id);
+      filtered = filtered.filter(ticket => ticket.groupId === this.selectedGroupForTickets?.id);
     }
-    return this.tickets;
+    
+    // Si no es un admin/gestor con poderes altos, filtra forzosamente por lo suyo
+    if (!canManageAdmin) {
+      filtered = filtered.filter(ticket => ticket.assignedToId === user?.userId || ticket.assignedTo === user?.userId);
+    }
+    
+    return filtered;
   }
 
   getTicketsByStatus(status: Ticket['status']): Ticket[] {

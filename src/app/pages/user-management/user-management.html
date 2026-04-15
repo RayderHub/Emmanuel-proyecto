@@ -158,12 +158,16 @@
       <label class="field-label" for="um-fullname">Nombre Completo</label>
       <input id="um-fullname" class="field-input" pInputText
         [(ngModel)]="selectedUser.fullName"
+        maxlength="60"
         placeholder="Nombre Completo" />
     </div>
     <div class="form-field">
-      <label class="field-label" for="um-phone">Celular / Teléfono</label>
+      <label class="field-label" for="um-phone">Celular / Teléfono (10 dígitos)</label>
       <input id="um-phone" class="field-input" pInputText
         [(ngModel)]="selectedUser.phone"
+        maxlength="10"
+        pattern="[0-9]*"
+        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
         placeholder="Ej. 1234567890" />
     </div>
     <div class="form-field">
@@ -175,6 +179,7 @@
       <label class="field-label" for="um-address">Dirección</label>
       <input id="um-address" class="field-input" pInputText
         [(ngModel)]="selectedUser.address"
+        maxlength="150"
         placeholder="Ej. Calle Falsa 123" />
     </div>
     <div class="form-field">
@@ -196,7 +201,7 @@
     </button>
     <button class="btn btn-primary"
       (click)="saveUser()"
-      [disabled]="!selectedUser.username || (!editMode && !selectedUser.password) || isSaving">
+      [disabled]="!selectedUser.username || (!editMode && !selectedUser.password) || (selectedUser.phone && selectedUser.phone.length > 0 && selectedUser.phone.length < 10) || isSaving">
       @if (isSaving) {
         <i class="pi pi-spin pi-spinner"></i> Guardando...
       } @else {
@@ -292,3 +297,4 @@
     </button>
   </ng-template>
 </p-dialog>
+<p-toast position="bottom-right"></p-toast>

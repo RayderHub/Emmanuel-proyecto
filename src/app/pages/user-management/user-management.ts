@@ -7,6 +7,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { Sidebar } from '../../components/sidebar/sidebar';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 export interface AppUser {
   id?: string | number;
@@ -54,7 +56,8 @@ const SUPER_ADMIN_PERMISSIONS = ALL_PERMISSIONS.map(p => p.key);
 @Component({
   selector: 'app-user-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, DialogModule, ButtonModule, InputTextModule, Sidebar],
+  imports: [CommonModule, FormsModule, DialogModule, ButtonModule, InputTextModule, Sidebar, ToastModule],
+  providers: [MessageService],
   templateUrl: './user-management.html',
   styleUrl: './user-management.css'
 })
@@ -67,7 +70,8 @@ export class UserManagement implements OnInit {
 
   constructor(
     private supabase: ApiService,
-    private authService: AuthService
+    private authService: AuthService,
+    private messageService: MessageService
   ) {}
 
   // ---- CRUD dialog ----
@@ -132,6 +136,7 @@ export class UserManagement implements OnInit {
     try {
       if (this.editMode) {
         await this.supabase.updateUser(this.selectedUser.id!, this.selectedUser);
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Usuario actualizado correctamente' });
       } else {
         const newUser: any = {
           email: this.selectedUser.username,
@@ -143,9 +148,13 @@ export class UserManagement implements OnInit {
           role: this.selectedUser.role || 'user'
         };
         await this.supabase.createUser(newUser);
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Usuario creado exitosamente' });
       }
       await this.loadUsers();
-    } catch(e) { console.error(e); } finally {
+    } catch(e) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Ocurrió un error al guardar' });
+      console.error(e);
+    } finally {
       this.isSaving = false;
     }
   }
@@ -161,8 +170,12 @@ export class UserManagement implements OnInit {
     this.showDeleteDialog = false; // cerrar inmediatamente
     try {
       await this.supabase.deleteUser(this.deleteTarget.id);
+      this.messageService.add({ severity: 'success', summary: 'Usuario Eliminado', detail: 'El usuario fue eliminado' });
       await this.loadUsers();
-    } catch(e) { console.error(e); } finally {
+    } catch(e) { 
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar el usuario' });
+      console.error(e); 
+    } finally {
       this.isSaving = false;
       this.deleteTarget = null;
     }

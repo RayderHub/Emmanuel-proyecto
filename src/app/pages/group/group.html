@@ -490,13 +490,15 @@
         <label class="field-label" for="ticketTitle">Título</label>
         <input id="ticketTitle" class="field-input" pInputText
           [(ngModel)]="selectedTicket.title"
-          placeholder="Título del ticket" />
+          maxlength="60"
+          placeholder="Título del ticket (Máx 60 caract.)" />
       </div>
       <div class="form-field full">
         <label class="field-label" for="ticketDescription">Descripción</label>
         <textarea id="ticketDescription" class="field-input"
           [(ngModel)]="selectedTicket.description"
-          placeholder="Descripción detallada del ticket"
+          maxlength="250"
+          placeholder="Descripción detallada del ticket (Máx 250 caract.)"
           rows="3"></textarea>
       </div>
       <div class="form-field" *appPermission="'ticket:move'">
@@ -532,6 +534,7 @@
         <label class="field-label" for="ticketDueDate">Fecha Límite</label>
         <p-datePicker id="ticketDueDate"
           [(ngModel)]="selectedTicket.dueDate"
+          [minDate]="todayDate"
           dateFormat="dd/mm/yy"
           placeholder="dd/mm/aaaa"
           appendTo="body"
@@ -557,3 +560,4 @@
   </p-dialog>
 
 </div>
+<p-toast position="bottom-right"></p-toast>
