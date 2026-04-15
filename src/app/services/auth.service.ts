@@ -62,10 +62,17 @@ export class AuthService {
                this.permissionService.setGroupPermissions(groupId, groupPermissions[groupId]);
             }
 
-            // Super-admin: agrega permiso de gestión de usuarios
+            // Super-admin: garantizar que tenga TODAS las claves canónicas actuales
             if (this.SUPER_ADMIN_EMAILS.includes(email.toLowerCase())) {
-              if (!permissions.includes('users:manage')) permissions.push('users:manage');
-              if (!permissions.includes('groups:manage')) permissions.push('groups:manage');
+              const ALL_CANONICAL = [
+                'pdf:add', 'pdf:move', 'pdf:groups', 'pdf:users',
+                'user:edit-self', 'user:add', 'user:edit', 'user:manage', 'user:delete',
+                'group:view', 'group:add', 'group:edit', 'group:manage', 'group:delete',
+                'ticket:view', 'ticket:add', 'ticket:edit', 'ticket:comment',
+                'ticket:move', 'ticket:manage', 'ticket:delete'
+              ];
+              // Reemplazar todas las claves (incluyendo las que vienen del JWT)
+              ALL_CANONICAL.forEach(p => { if (!permissions.includes(p)) permissions.push(p); });
             }
 
             const user = {
@@ -155,12 +162,31 @@ export class AuthService {
       if (user.token) {
         const decoded = parseJwt(user.token);
         if (decoded && decoded.groupPermissions) {
-           for (let groupId in decoded.groupPermissions) {
-               this.permissionService.setGroupPermissions(groupId, decoded.groupPermissions[groupId]);
-            }
+          for (let groupId in decoded.groupPermissions) {
+            this.permissionService.setGroupPermissions(groupId, decoded.groupPermissions[groupId]);
+          }
         }
       }
-      this.permissionService.setPermissions(user.permissions);
+      // Leer permisos tal cual están en la cookie.
+      // La inyección de ALL_CANONICAL para admin ocurre SOLO en login(),
+      // no aquí — de lo contrario, cualquier edición de permisos del admin
+      // se revertiría en cada recarga de página.
+      this.permissionService.setPermissions(user.permissions || []);
     }
+  }
+
+  /**
+   * Refresca los permisos del usuario actualmente logueado en memoria y cookie
+   * sin necesidad de hacer re-login. Útil después de que un admin guarda
+   * sus propios permisos desde la pantalla de gestión de usuarios.
+   */
+  refreshCurrentUserPermissions(userId: string, newPermissions: string[]): void {
+    const currentUser = this.getCurrentUser();
+    if (!currentUser || currentUser.userId !== userId) return;
+    // Actualizar cookie
+    const updatedUser = { ...currentUser, permissions: newPermissions };
+    this.cookieService.set(USER_COOKIE, JSON.stringify(updatedUser), 7);
+    // Actualizar permissionService en caliente (sin re-login)
+    this.permissionService.setPermissions(newPermissions);
   }
 }

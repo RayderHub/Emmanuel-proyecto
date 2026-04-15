@@ -85,18 +85,25 @@
                 <span class="role-badge {{ roleClass(user.role) }}">{{ user.role }}</span>
               </td>
               <td>
-                <span class="perm-count-badge">
-                  <i class="pi pi-key"></i> {{ permCount(user) }} / {{ allPermissions.length }}
-                </span>
+                @if (user.role === 'admin') {
+                  <span class="perm-count-badge perm-all">
+                    <i class="pi pi-crown"></i> Todos (Rol Admin)
+                  </span>
+                } @else {
+                  <span class="perm-count-badge">
+                    <i class="pi pi-key"></i> {{ permCount(user) }} / {{ allPermissions.length }}
+                  </span>
+                }
               </td>
               <td>
                 <div class="action-group">
                   <button class="btn btn-sm btn-purple"
                     id="btn-perms-{{ user.id }}"
                     (click)="openPermissions(user)"
-                    title="Gestionar permisos">
-                    <i class="pi pi-shield"></i>
-                    Permisos
+                    [title]="user.role === 'admin' ? 'El admin siempre tiene todos los permisos al re-login' : 'Gestionar permisos'"
+                    [style.opacity]="user.role === 'admin' ? '0.6' : '1'">
+                    <i class="pi pi-{{ user.role === 'admin' ? 'crown' : 'shield' }}"></i>
+                    {{ user.role === 'admin' ? 'Admin' : 'Permisos' }}
                   </button>
                   <button class="btn btn-sm btn-info"
                     id="btn-edit-{{ user.id }}"
