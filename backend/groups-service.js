@@ -42,6 +42,22 @@ fastify.post('/groups/:groupId/users', async (request, reply) => {
     permission: 'ticket:view' 
   }]);
 
+  // Sincronización en segundo plano hacia la tabla heredada group_members
+  // 1. Buscamos el email del usuario usando su UUID
+  // 2. Buscamos el student_id usando su email en la tabla students
+  // 3. Insertamos en group_members
+  supabase.from('users').select('username').eq('id', userId).single().then(({ data: user }) => {
+    if (user && user.username) {
+      supabase.from('students').select('id').eq('email', user.username).single().then(({ data: student }) => {
+        if (student) {
+          supabase.from('group_members')
+            .insert({ group_id: groupId, student_id: student.id })
+            .then(() => console.log('Sincronizado group_members'));
+        }
+      });
+    }
+  });
+
   if (error) return reply.status(500).send(error);
   return reply.send({ statusCode: 200, message: 'Usuario añadido al grupo' });
 });

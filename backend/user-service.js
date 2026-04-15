@@ -24,6 +24,16 @@ fastify.post('/auth/register', async (request, reply) => {
     birth_date: birthDate || null
   }]);
 
+  // Sincronizar hacia la tabla "students" para que exista el registro ahí también
+  await supabase.from('students').insert([{
+    username: email.split('@')[0],
+    email: email,
+    full_name: fullName,
+    phone: phone || null,
+    address: address || null,
+    birth_date: birthDate || null
+  }]);
+
   return reply.send({ statusCode: 200, data: [{ id: authData.user.id, email }] });
 });
 

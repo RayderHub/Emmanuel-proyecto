@@ -99,7 +99,7 @@ export class AdminGroup implements OnInit {
       // Peticiones en paralelo: grupos y usuarios al mismo tiempo
       const [groups, users] = await Promise.all([
         this.supabase.getGroups(),
-        this.supabase.getUsers()
+        this.supabase.getStudents() // Solo estudiantes!
       ]);
       this.groups   = groups;
       this.allUsers = users as AppUser[];
@@ -176,7 +176,7 @@ export class AdminGroup implements OnInit {
       // Cargar permisos por usuario para este grupo
       this.groupPermsMap = {};
       for (const member of this.groupMembers) {
-        const userId = member.user_id;
+        const userId = member.id || member.user_id; // FIX: el backend devuelve member.id
         const perms = await this.supabase.getGroupPermissions(userId, groupId);
         this.groupPermsMap[userId] = new Set(perms);
       }
