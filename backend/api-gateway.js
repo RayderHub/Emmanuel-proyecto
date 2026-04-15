@@ -48,10 +48,17 @@ fastify.addHook('onResponse', (request, reply) => {
 });
 
 // --- PROXIES DEFINITIVOS ---
-fastify.register(proxy, { upstream: 'http://localhost:3001', prefix: '/auth', rewritePrefix: '/auth' });
-fastify.register(proxy, { upstream: 'http://localhost:3001', prefix: '/users', rewritePrefix: '/users' });
-fastify.register(proxy, { upstream: 'http://localhost:3002', prefix: '/tickets', rewritePrefix: '/tickets' });
-fastify.register(proxy, { upstream: 'http://localhost:3003', prefix: '/groups', rewritePrefix: '/groups' });
+fastify.register(proxy, { upstream: 'http://localhost:3001', prefix: '/auth',     rewritePrefix: '/auth' });
+
+// ⚠️  El proxy específico /users/:id/groups DEBE ir ANTES del genérico /users
+// porque Fastify resuelve los prefijos por orden de registro.
+// GET /users/:userId/groups → groups-service (3003)
+fastify.register(proxy, { upstream: 'http://localhost:3003', prefix: '/users/:userId/groups', rewritePrefix: '/users/:userId/groups' });
+
+// Resto de /users → user-service (3001)
+fastify.register(proxy, { upstream: 'http://localhost:3001', prefix: '/users',    rewritePrefix: '/users' });
+fastify.register(proxy, { upstream: 'http://localhost:3002', prefix: '/tickets',  rewritePrefix: '/tickets' });
+fastify.register(proxy, { upstream: 'http://localhost:3003', prefix: '/groups',   rewritePrefix: '/groups' });
 fastify.register(proxy, { upstream: 'http://localhost:3003', prefix: '/students', rewritePrefix: '/students' });
 
 fastify.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {

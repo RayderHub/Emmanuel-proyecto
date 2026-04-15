@@ -46,6 +46,27 @@ fastify.post('/groups/:groupId/users', async (request, reply) => {
   return reply.send({ statusCode: 200, message: 'Usuario añadido al grupo' });
 });
 
+// Grupos a los que pertenece un usuario específico
+fastify.get('/users/:userId/groups', async (request, reply) => {
+  const { userId } = request.params;
+  const { data: memberships } = await supabase
+    .from('group_permissions')
+    .select('group_id')
+    .eq('user_id', userId);
+
+  if (!memberships || memberships.length === 0)
+    return reply.send({ statusCode: 200, data: [] });
+
+  const groupIds = [...new Set(memberships.map(m => m.group_id))];
+  const { data: groups, error } = await supabase
+    .from('groups')
+    .select('*')
+    .in('id', groupIds);
+
+  if (error) return reply.status(500).send(error);
+  return reply.send({ statusCode: 200, data: groups || [] });
+});
+
 // --- ALUMNOS (Vista unificada desde la tabla Users) ---
 fastify.get('/students', async (request, reply) => {
   const { data, error } = await supabase.from('users').select('*').eq('role', 'user');
