@@ -125,27 +125,27 @@
     </div>
     } @else {
     <div class="members-list">
-      @for (member of groupMembers; track member.user_id) {
+      @for (member of groupMembers; track member.id) {
       <div class="member-row">
         <div class="member-info">
           <div class="member-avatar">
             <i class="pi pi-user"></i>
           </div>
           <div>
-            <span class="member-name">{{ getUserName(member.user_id) }}</span>
-            <span class="member-id">{{ member.user_id }}</span>
+            <span class="member-name">{{ member.fullName || member.username }}</span>
+            <span class="member-id">{{ member.id }}</span>
           </div>
-          <button class="btn-remove-member" (click)="removeFromGroup(member.user_id)" title="Quitar del grupo">
+          <button class="btn-remove-member" (click)="removeFromGroup(member.id)" title="Quitar del grupo">
             <i class="pi pi-times"></i>
           </button>
         </div>
         <div class="member-perms">
           @for (perm of allPermissions; track perm.key) {
-          <label class="perm-toggle" [class.active]="hasPerm(member.user_id, perm.key)">
+          <label class="perm-toggle" [class.active]="hasPerm(member.id, perm.key)">
             <input
               type="checkbox"
-              [checked]="hasPerm(member.user_id, perm.key)"
-              (change)="togglePerm(member.user_id, perm.key)"
+              [checked]="hasPerm(member.id, perm.key)"
+              (change)="togglePerm(member.id, perm.key)"
             />
             <span>{{ perm.label }}</span>
           </label>

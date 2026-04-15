@@ -62,6 +62,40 @@ fastify.post('/groups/:groupId/users', async (request, reply) => {
   return reply.send({ statusCode: 200, message: 'Usuario añadido al grupo' });
 });
 
+// --- PERMISOS POR USUARIO POR GRUPO ---
+fastify.get('/groups/:groupId/users/:userId/permissions', async (request, reply) => {
+  const { groupId, userId } = request.params;
+  const { data, error } = await supabase
+    .from('group_permissions')
+    .select('permission')
+    .eq('group_id', groupId)
+    .eq('user_id', userId);
+    
+  if (error) return reply.status(500).send(error);
+  return reply.send({ statusCode: 200, data: (data || []).map(p => p.permission) });
+});
+
+fastify.patch('/groups/:groupId/users/:userId/permissions', async (request, reply) => {
+  const { groupId, userId } = request.params;
+  const { permissions } = request.body;
+  
+  await supabase.from('group_permissions').delete().eq('group_id', groupId).eq('user_id', userId);
+  
+  if (permissions && permissions.length > 0) {
+    const toInsert = permissions.map(p => ({ group_id: groupId, user_id: userId, permission: p }));
+    const { error } = await supabase.from('group_permissions').insert(toInsert);
+    if (error) return reply.status(500).send(error);
+  }
+  return reply.send({ statusCode: 200, message: 'Permisos actualizados' });
+});
+
+fastify.get('/groups/:groupId/permissions', async (request, reply) => {
+  const { groupId } = request.params;
+  const { data, error } = await supabase.from('group_permissions').select('*').eq('group_id', groupId);
+  if (error) return reply.status(500).send(error);
+  return reply.send({ statusCode: 200, data: data || [] });
+});
+
 // Grupos a los que pertenece un usuario específico
 fastify.get('/users/:userId/groups', async (request, reply) => {
   const { userId } = request.params;
