@@ -87,6 +87,7 @@ export class AuthService {
             // ✅ Guardar token en cookie (requerimiento del PDF)
             this.cookieService.set(USER_COOKIE, JSON.stringify(user), 7);
             this.permissionService.setPermissions(permissions);
+            this.permissionService.setRole(user.role || 'user'); // Suministrar Rol al PermissionService
             return true;
           }
         }
@@ -174,6 +175,9 @@ export class AuthService {
       // no aquí — de lo contrario, cualquier edición de permisos del admin
       // se revertiría en cada recarga de página.
       this.permissionService.setPermissions(user.permissions || []);
+      if (user.role) {
+        this.permissionService.setRole(user.role);
+      }
     }
   }
 

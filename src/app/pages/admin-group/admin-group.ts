@@ -185,31 +185,7 @@ export class AdminGroup implements OnInit {
     }
   }
 
-  hasPerm(userId: string, perm: string): boolean {
-    return this.groupPermsMap[userId]?.has(perm) ?? false;
-  }
 
-  togglePerm(userId: string, perm: string) {
-    if (!this.groupPermsMap[userId]) this.groupPermsMap[userId] = new Set();
-    if (this.groupPermsMap[userId].has(perm)) {
-      this.groupPermsMap[userId].delete(perm);
-    } else {
-      this.groupPermsMap[userId].add(perm);
-    }
-  }
-
-  async saveAllPerms() {
-    if (!this.currentGroup) return;
-    try {
-      for (const userId of Object.keys(this.groupPermsMap)) {
-        const perms = Array.from(this.groupPermsMap[userId]);
-        await this.supabase.setGroupPermissions(userId, this.currentGroup.id, perms);
-      }
-      this.toast('Permisos guardados correctamente', 'success');
-    } catch (e: any) {
-      this.toast(e.message || 'Error al guardar permisos', 'error');
-    }
-  }
 
   async removeFromGroup(userId: string) {
     if (!this.currentGroup) return;

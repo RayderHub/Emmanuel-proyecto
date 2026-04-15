@@ -163,7 +163,7 @@
             <i class="pi pi-th-large"></i> Kanban
           </button>
         </div>
-        <button *appPermission="'tickets:add'" class="btn btn-success" (click)="addTicket()">
+        <button *appPermission="'ticket:add'" class="btn btn-success" (click)="addTicket()">
           <i class="pi pi-plus"></i>
           Nuevo Ticket
         </button>
@@ -201,7 +201,7 @@
                   <td class="td-muted">{{ ticket.dueDate }}</td>
                   <td>
                     <div class="action-group">
-                      <button *appPermission="'ticket:edit:comment'" class="btn btn-sm btn-secondary" (click)="commentTicket(ticket)">
+                      <button *appPermission="'ticket:comment'" class="btn btn-sm btn-secondary" (click)="commentTicket(ticket)">
                         <i class="pi pi-comments"></i>
                         Comentar
                       </button>
@@ -507,7 +507,7 @@
           placeholder="Descripción detallada del ticket"
           rows="3"></textarea>
       </div>
-      <div class="form-field" *appPermission="'ticket:edit:state'">
+      <div class="form-field" *appPermission="'ticket:move'">
         <label class="field-label" for="ticketStatus">Estado</label>
         <select id="ticketStatus" class="field-input"
           [(ngModel)]="selectedTicket.status">

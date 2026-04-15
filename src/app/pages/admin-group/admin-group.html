@@ -113,9 +113,6 @@
       <button class="btn-primary-sm" (click)="openAddMember()">
         <i class="pi pi-user-plus"></i> Agregar Miembro
       </button>
-      <button class="btn-save-perms" (click)="saveAllPerms()">
-        <i class="pi pi-save"></i> Guardar Permisos
-      </button>
     </div>
 
     @if (groupMembers.length === 0) {
@@ -138,18 +135,6 @@
           <button class="btn-remove-member" (click)="removeFromGroup(member.id)" title="Quitar del grupo">
             <i class="pi pi-times"></i>
           </button>
-        </div>
-        <div class="member-perms">
-          @for (perm of allPermissions; track perm.key) {
-          <label class="perm-toggle" [class.active]="hasPerm(member.id, perm.key)">
-            <input
-              type="checkbox"
-              [checked]="hasPerm(member.id, perm.key)"
-              (change)="togglePerm(member.id, perm.key)"
-            />
-            <span>{{ perm.label }}</span>
-          </label>
-          }
         </div>
       </div>
       }

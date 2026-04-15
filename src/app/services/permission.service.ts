@@ -7,6 +7,9 @@ export class PermissionService {
 
   /** Permisos activos = base + grupo actual */
   private permissions: Set<string> = new Set();
+  
+  /** Rol del usuario logueado para bypass de superadmin */
+  private userRole: string = 'user';
 
   /** Permisos indexados por grupo (cargados desde Supabase al seleccionar grupo) */
   private groupPermissionsMap: Map<string, Set<string>> = new Map();
@@ -21,6 +24,7 @@ export class PermissionService {
    * Verifica si el usuario tiene el permiso en el contexto actual (global + grupo).
    */
   hasPermission(permission: string): boolean {
+    if (this.userRole === 'admin') return true;
     return this.permissions.has(permission);
   }
 
@@ -41,6 +45,11 @@ export class PermissionService {
   setPermissions(permissions: string[]): void {
     this.basePermissions = new Set(permissions);
     this.permissions = new Set(permissions);
+  }
+
+  /** Almacena el rol para bypass de UI */
+  setRole(role: string): void {
+    this.userRole = role;
   }
 
   /** Almacena los permisos para un grupo específico (sin activarlos todavía) */
