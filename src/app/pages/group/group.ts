@@ -97,23 +97,29 @@ export class Group implements OnInit {
   canMoveTicket(ticket?: Ticket): boolean {
     if (!ticket) return false;
     const user = this.authService.getCurrentUser();
+    if (!user || !user.userId) return false;
     
-    // 1. ¿Es Administrador global o Gestor de Proyecto?
-    const isGlobalAdmin = user?.role?.toLowerCase() === 'admin' || user?.role?.toLowerCase() === 'superadmin' || user?.role?.toLowerCase() === 'pm';
+    // 1. Administrador de Sistema (solo superAdmin y admin explícito)
+    const role = user.role ? user.role.toLowerCase() : '';
+    const isSystemAdmin = role === 'admin' || role === 'superadmin';
     
-    // 2. ¿Tiene derechos especiales sobre este grupo?
-    const hasGroupAdminPerms = this.can('ticket:edit') || this.can('ticket:delete') || this.can('group:manage');
+    // 2. Tienen permisos fuertes explícitamente configurados en el Sistema/Grupo?
+    const hasStrongPerms = this.can('ticket:edit') || this.can('ticket:delete') || this.can('group:manage');
     
-    if (isGlobalAdmin || hasGroupAdminPerms) {
-      return true; // Pueden mover cualquier ticket de todos
+    if (isSystemAdmin || hasStrongPerms) {
+      return true; // Acceso universal concedido
     }
     
-    // 3. ¿Es solo un estudiante o empleado común?
-    // ÚNICAMENTE puede moverlo si su ID exacto coincide con el asignado
-    const isExplicitlyAssigned = (ticket.assignedTo || ticket.assignedToId) && user?.userId && 
-      (ticket.assignedToId === user?.userId || ticket.assignedTo === user?.userId);
-
-    return !!isExplicitlyAssigned;
+    // 3. Muro de Contención para Usuarios/Estudiantes regulares
+    // El estudiante debe poseer obligatoriamente SU UUID guardado en el ticket.
+    const ticketOwnerAsString = (ticket.assignedToId || ticket.assignedTo || '').toString().trim();
+    const currentUserIdAsString = user.userId.toString().trim();
+    
+    // Si el ticket no es de nadie, el estudiante regular tampoco puede robarlo ni moverlo
+    if (!ticketOwnerAsString) return false;
+    
+    // Solo si coinciden exactamente los UUIDs el muro se abre.
+    return ticketOwnerAsString === currentUserIdAsString;
   }
 
   async ngOnInit() {
