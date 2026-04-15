@@ -20,6 +20,13 @@ fastify.patch('/groups/:id', async (request, reply) => {
   return reply.send({ statusCode: 200, data: [data] });
 });
 
+fastify.delete('/groups/:id', async (request, reply) => {
+  const { id } = request.params;
+  const { error } = await supabase.from('groups').delete().eq('id', id);
+  if (error) return reply.status(500).send(error);
+  return reply.send({ statusCode: 200, message: 'Grupo eliminado exitosamente' });
+});
+
 // --- MIEMBROS DE GRUPO ---
 fastify.get('/groups/:groupId/users', async (request, reply) => {
   const { groupId } = request.params;
@@ -60,6 +67,34 @@ fastify.post('/groups/:groupId/users', async (request, reply) => {
 
   if (error) return reply.status(500).send(error);
   return reply.send({ statusCode: 200, message: 'Usuario añadido al grupo' });
+});
+
+fastify.delete('/groups/:groupId/users/:userId', async (request, reply) => {
+  const { groupId, userId } = request.params;
+  
+  // 1. Eliminar permisos de group_permissions
+  const { error } = await supabase.from('group_permissions')
+    .delete()
+    .eq('group_id', groupId)
+    .eq('user_id', userId);
+    
+  // 2. Sincronización inversa de group_members
+  supabase.from('users').select('username').eq('id', userId).single().then(({ data: user }) => {
+    if (user && user.username) {
+      supabase.from('students').select('id').eq('email', user.username).single().then(({ data: student }) => {
+        if (student) {
+          supabase.from('group_members')
+            .delete()
+            .eq('group_id', groupId)
+            .eq('student_id', student.id)
+            .then(() => console.log('Sincronizado delete en group_members'));
+        }
+      });
+    }
+  });
+
+  if (error) return reply.status(500).send(error);
+  return reply.send({ statusCode: 200, message: 'Usuario removido del grupo' });
 });
 
 // --- PERMISOS POR USUARIO POR GRUPO ---

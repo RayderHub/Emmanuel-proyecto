@@ -124,7 +124,7 @@ export class UserManagement implements OnInit {
   }
 
   async saveUser() {
-    if (!this.selectedUser.username || !this.selectedUser.email || this.isSaving) return;
+    if (!this.selectedUser.username || this.isSaving) return;
     this.isSaving = true;
     this.showUserDialog = false; // cerrar inmediatamente
     try {

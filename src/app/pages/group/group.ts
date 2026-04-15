@@ -84,10 +84,8 @@ export class Group implements OnInit {
   }
 
   /** Verifica si el usuario actual puede mover un ticket (tiene permiso Y está asignado a él) */
-  canMoveTicket(ticket: Ticket): boolean {
-    if (!this.can('tickets:move')) return false;
-    const currentUser = this.permissionService.getCurrentGroupId(); // proxy: we check via auth service
-    return true; // La validación completa la hace el componente padre viendo assignedToId
+  canMoveTicket(ticket?: Ticket): boolean {
+    return this.can('ticket:move');
   }
 
   async ngOnInit() {
@@ -348,6 +346,10 @@ export class Group implements OnInit {
 
   // Drag and Drop Methods
   onDragStart(event: DragEvent, ticket: Ticket): void {
+    if (!this.canMoveTicket(ticket)) {
+      event.preventDefault();
+      return;
+    }
     this.draggedTicket = ticket;
     if (event.dataTransfer) {
       event.dataTransfer.effectAllowed = 'move';
@@ -377,6 +379,7 @@ export class Group implements OnInit {
   onDrop(event: DragEvent, status: Ticket['status']): void {
     event.preventDefault();
     this.dragOverStatus = null; // quitar highlight
+    if (!this.canMoveTicket()) return; // Blocker de seguridad
     if (this.draggedTicket) {
       this.updateTicketStatus(this.draggedTicket, status);
       this.draggedTicket = null;

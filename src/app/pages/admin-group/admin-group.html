@@ -47,13 +47,13 @@
       }
       <div class="group-card-actions">
         <button class="btn-sm btn-members" (click)="openMembers(group)">
-          <i class="pi pi-users"></i> Miembros & Permisos
+          <i class="pi pi-users"></i> Miembros
         </button>
         <button class="btn-sm btn-edit" (click)="openEditGroup(group)" title="Editar grupo">
-          <i class="pi pi-pencil"></i>
+          <i class="pi pi-pencil"></i> Editar
         </button>
         <button class="btn-sm btn-delete" (click)="askDelete(group)" title="Eliminar grupo">
-          <i class="pi pi-trash"></i>
+          <i class="pi pi-trash"></i> Eliminar
         </button>
       </div>
     </div>
@@ -65,13 +65,8 @@
 </div>
 
 <!-- ── Dialog: Crear / Editar Grupo ────────────────────────────────── -->
-<p-dialog
-  [header]="groupEditMode ? 'Editar Grupo' : 'Nuevo Grupo'"
-  [(visible)]="showGroupDialog"
-  [modal]="true"
-  [style]="{ width: '480px' }"
-  [draggable]="false"
->
+<p-dialog [header]="groupEditMode ? 'Editar Grupo' : 'Nuevo Grupo'" [(visible)]="showGroupDialog" [modal]="true"
+  [style]="{ width: '480px' }" [draggable]="false">
   <div class="dialog-form">
     <div class="form-field">
       <label>Nombre *</label>
@@ -100,14 +95,9 @@
   </ng-template>
 </p-dialog>
 
-<!-- ── Dialog: Miembros & Permisos ─────────────────────────────────── -->
-<p-dialog
-  [header]="'Miembros de: ' + (currentGroup?.name || '')"
-  [(visible)]="showMembersDialog"
-  [modal]="true"
-  [style]="{ width: '760px', maxWidth: '95vw' }"
-  [draggable]="false"
->
+<!-- ── Dialog: Miembros ─────────────────────────────────── -->
+<p-dialog [header]="'Miembros de: ' + (currentGroup?.name || '')" [(visible)]="showMembersDialog" [modal]="true"
+  [style]="{ width: '760px', maxWidth: '95vw' }" [draggable]="false">
   <div class="members-dialog-content">
     <div class="members-actions-row">
       <button class="btn-primary-sm" (click)="openAddMember()">
@@ -144,13 +134,8 @@
 </p-dialog>
 
 <!-- ── Dialog: Añadir Miembro ──────────────────────────────────────── -->
-<p-dialog
-  header="Añadir Miembro al Grupo"
-  [(visible)]="showAddMemberDialog"
-  [modal]="true"
-  [style]="{ width: '400px' }"
-  [draggable]="false"
->
+<p-dialog header="Añadir Miembro al Grupo" [(visible)]="showAddMemberDialog" [modal]="true" [style]="{ width: '400px' }"
+  [draggable]="false">
   <div class="dialog-form">
     <div class="form-field">
       <label>Selecciona un usuario</label>
@@ -171,13 +156,8 @@
 </p-dialog>
 
 <!-- ── Dialog: Confirmar Eliminación ──────────────────────────────── -->
-<p-dialog
-  header="Confirmar eliminación"
-  [(visible)]="showDeleteDialog"
-  [modal]="true"
-  [style]="{ width: '380px' }"
-  [draggable]="false"
->
+<p-dialog header="Confirmar eliminación" [(visible)]="showDeleteDialog" [modal]="true" [style]="{ width: '380px' }"
+  [draggable]="false">
   <p class="delete-confirm-msg">
     ¿Estás seguro de eliminar el grupo <strong>{{ deleteTarget?.name }}</strong>? Esta acción no se puede deshacer.
   </p>

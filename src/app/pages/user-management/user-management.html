@@ -140,15 +140,10 @@
 
   <div class="dialog-form">
     <div class="form-field">
-      <label class="field-label" for="um-username">Nombre de Usuario</label>
+      <label class="field-label" for="um-username">Correo Electrónico (Solo lectura)</label>
       <input id="um-username" class="field-input" pInputText
         [(ngModel)]="selectedUser.username"
-        placeholder="@usuario" />
-    </div>
-    <div class="form-field">
-      <label class="field-label" for="um-email">Correo Electrónico</label>
-      <input id="um-email" class="field-input" pInputText
-        [(ngModel)]="selectedUser.email"
+        [disabled]="true"
         placeholder="correo@ejemplo.com" />
     </div>
     <div class="form-field">
@@ -162,6 +157,7 @@
       <select id="um-role" class="field-input" [(ngModel)]="selectedUser.role">
         <option value="superAdmin">superAdmin</option>
         <option value="Admin">Admin</option>
+        <option value="user">User</option>
         <option value="PM">PM</option>
         <option value="Dev">Dev</option>
         <option value="Support">Support</option>
@@ -175,7 +171,7 @@
     </button>
     <button class="btn btn-primary"
       (click)="saveUser()"
-      [disabled]="!selectedUser.username || !selectedUser.email || isSaving">
+      [disabled]="!selectedUser.username || isSaving">
       @if (isSaving) {
         <i class="pi pi-spin pi-spinner"></i> Guardando...
       } @else {

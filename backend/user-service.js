@@ -76,15 +76,34 @@ fastify.get('/users', async (request, reply) => {
 
 fastify.patch('/users/:id', async (request, reply) => {
   const { id } = request.params;
-  const { permissions, role, full_name, fullName, phone, address, birthDate, birth_date } = request.body;
   const updateData = { ...request.body };
+  
   // Limpieza de nombres de campos para la base de datos
-  if (fullName) { updateData.full_name = fullName; delete updateData.fullName; }
-  if (birthDate) { updateData.birth_date = birthDate; delete updateData.birthDate; }
+  if (updateData.fullName) { updateData.full_name = updateData.fullName; }
+  if (updateData.birthDate) { updateData.birth_date = updateData.birthDate; }
+  
+  // Eliminar propiedades que no existen como columnas en la BD 'users'
+  delete updateData.fullName;
+  delete updateData.birthDate;
+  delete updateData.email; 
 
   const { data, error } = await supabase.from('users').update(updateData).eq('id', id).select().single();
   if (error) return reply.status(500).send(error);
   return reply.send({ statusCode: 200, data: [data] });
+});
+
+fastify.delete('/users/:id', async (request, reply) => {
+  const { id } = request.params;
+  
+  const { data: user } = await supabase.from('users').select('username').eq('id', id).single();
+  const { error } = await supabase.from('users').delete().eq('id', id);
+  if (error) return reply.status(500).send(error);
+
+  if (user && user.username) {
+    supabase.from('students').delete().eq('email', user.username).then();
+  }
+  
+  return reply.send({ statusCode: 200, message: 'Usuario eliminado' });
 });
 
 fastify.listen({ port: 3001, host: '0.0.0.0' }, (err) => {
