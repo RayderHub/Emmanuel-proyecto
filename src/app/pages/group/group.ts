@@ -93,21 +93,27 @@ export class Group implements OnInit {
     return this.permissionService.hasPermission(permission);
   }
 
-  /** Verifica si el usuario actual puede mover un ticket (tiene permiso Y está asignado a él) */
+  /** Verifica si el usuario actual puede mover un ticket */
   canMoveTicket(ticket?: Ticket): boolean {
     if (!ticket) return false;
     const user = this.authService.getCurrentUser();
-    const canManageAdmin = this.can('ticket:edit') || this.can('ticket:delete') || user?.role === 'admin' || user?.role === 'superAdmin';
     
-    // El admin puede gestionar y saltar la barrera
-    if (canManageAdmin) return true;
+    // 1. ¿Es Administrador global o Gestor de Proyecto?
+    const isGlobalAdmin = user?.role?.toLowerCase() === 'admin' || user?.role?.toLowerCase() === 'superadmin' || user?.role?.toLowerCase() === 'pm';
     
-    // Los estudiantes o perfiles con permiso base solo pueden si es suyo el ticket
-    if (this.can('ticket:move') && (ticket.assignedToId === user?.userId || ticket.assignedTo === user?.userId)) {
-      return true;
+    // 2. ¿Tiene derechos especiales sobre este grupo?
+    const hasGroupAdminPerms = this.can('ticket:edit') || this.can('ticket:delete') || this.can('group:manage');
+    
+    if (isGlobalAdmin || hasGroupAdminPerms) {
+      return true; // Pueden mover cualquier ticket de todos
     }
     
-    return false;
+    // 3. ¿Es solo un estudiante o empleado común?
+    // ÚNICAMENTE puede moverlo si su ID exacto coincide con el asignado
+    const isExplicitlyAssigned = (ticket.assignedTo || ticket.assignedToId) && user?.userId && 
+      (ticket.assignedToId === user?.userId || ticket.assignedTo === user?.userId);
+
+    return !!isExplicitlyAssigned;
   }
 
   async ngOnInit() {
@@ -351,6 +357,9 @@ export class Group implements OnInit {
   // Método para ver tickets de un grupo específico
   viewGroupTickets(group: GroupData): void {
     this.selectedGroupForTickets = group;
+    // CRÍTICO: Recargar los permisos ESPECÍFICOS para este grupo (para saber si le dimos permisos al Developer)
+    this.permissionService.refreshPermissionsForGroup(group.id.toString());
+    
     this.displayTicketsModal = true;
     this.ticketView = 'lista';
   }
