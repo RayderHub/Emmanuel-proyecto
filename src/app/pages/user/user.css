@@ -57,14 +57,14 @@
   width: 90px;
   height: 90px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1, #a855f7);
+  background: linear-gradient(135deg, #10b981, #10b981);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 2.2rem;
   color: #fff;
   margin-bottom: 1rem;
-  box-shadow: 0 8px 24px rgba(99,102,241,0.35);
+  box-shadow: 0 8px 24px rgba(16,185,129,0.35);
 }
 
 .profile-name {
@@ -76,15 +76,15 @@
 
 .profile-handle {
   font-size: 0.85rem;
-  color: #818cf8;
+  color: #34d399;
   margin-bottom: 0.75rem;
 }
 
 .profile-role-badge {
   display: inline-block;
-  background: rgba(99,102,241,0.12);
-  border: 1px solid rgba(99,102,241,0.25);
-  color: #818cf8;
+  background: rgba(16,185,129,0.12);
+  border: 1px solid rgba(16,185,129,0.25);
+  color: #34d399;
   font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -176,8 +176,8 @@
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: rgba(99,102,241,0.1);
-  color: #818cf8;
+  background: rgba(16,185,129,0.1);
+  color: #34d399;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -228,8 +228,8 @@
   transition: all 0.2s;
   text-decoration: none;
 }
-.btn-primary  { background: #6366f1; color: #fff; }
-.btn-primary:hover  { background: #818cf8; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99,102,241,0.35); }
+.btn-primary  { background: #10b981; color: #fff; }
+.btn-primary:hover  { background: #34d399; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(16,185,129,0.35); }
 .btn-info     { background: #0891b2; color: #fff; }
 .btn-info:hover     { background: #06b6d4; transform: translateY(-1px); }
 .btn-danger   { background: #dc2626; color: #fff; }

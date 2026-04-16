@@ -24,7 +24,7 @@
   right: -100px;
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -38,9 +38,9 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(99,102,241,0.1);
-  border: 1px solid rgba(99,102,241,0.25);
-  color: #818cf8;
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.25);
+  color: #10b981;
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.05em;
@@ -74,10 +74,7 @@
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #10b981;
 }
 
 .hero-subtitle {
@@ -131,7 +128,7 @@
 }
 
 .feature-card:hover {
-  border-color: rgba(99,102,241,0.25);
+  border-color: rgba(16,185,129,0.3);
   box-shadow: 0 12px 24px -10px rgba(0,0,0,0.1);
 }
 
@@ -174,12 +171,12 @@
   border: none;
 }
 .btn-primary {
-  background: #6366f1;
+  background: #10b981;
   color: #fff;
 }
 .btn-primary:hover {
-  background: #818cf8;
-  box-shadow: 0 4px 20px rgba(99,102,241,0.35);
+  background: #059669;
+  box-shadow: 0 4px 20px rgba(16,185,129,0.35);
   transform: translateY(-2px);
 }
 .btn-secondary {
@@ -190,7 +187,7 @@
 .btn-secondary:hover {
   background: #f1f5f9;
   color: #0f172a;
-  border-color: #cbd5e1;
+  border-color: #10b981;
   transform: translateY(-2px);
 }
 

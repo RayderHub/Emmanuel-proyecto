@@ -6,8 +6,8 @@
   justify-content: center;
   padding: 2rem;
   background:
-    radial-gradient(ellipse at 20% 50%, rgba(99,102,241,0.1) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(168,85,247,0.07) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 50%, rgba(16,185,129,0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(16,185,129,0.07) 0%, transparent 50%),
     #f8fafc;
 }
 
@@ -32,14 +32,14 @@
 .auth-logo-icon {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #6366f1, #a855f7);
+  background: linear-gradient(135deg, #10b981, #10b981);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
   font-size: 1.1rem;
-  box-shadow: 0 4px 12px rgba(99,102,241,0.4);
+  box-shadow: 0 4px 12px rgba(16,185,129,0.4);
 }
 
 .auth-logo-name {
@@ -91,8 +91,8 @@
 }
 
 .form-input:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.12);
 }
 
 .form-input::placeholder { color: #94a3b8; }
@@ -118,8 +118,8 @@
 }
 
 :host ::ng-deep .p-password input:focus {
-  border-color: #6366f1 !important;
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.12) !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.12) !important;
 }
 
 :host ::ng-deep .p-password .p-password-toggle-mask-icon {
@@ -149,7 +149,7 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.8rem;
-  background: linear-gradient(135deg, #6366f1, #818cf8);
+  background: linear-gradient(135deg, #10b981, #34d399);
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -164,7 +164,7 @@
 
 .btn-submit:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(99,102,241,0.25);
+  box-shadow: 0 8px 24px rgba(16,185,129,0.25);
 }
 
 .btn-submit:disabled {
@@ -203,7 +203,7 @@
 .link-btn {
   background: none;
   border: none;
-  color: #818cf8;
+  color: #34d399;
   font-family: 'Outfit', sans-serif;
   font-size: 0.82rem;
   font-weight: 600;
@@ -229,7 +229,7 @@
 .hint-title {
   font-size: 0.72rem;
   font-weight: 700;
-  color: #818cf8;
+  color: #34d399;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-bottom: 0.75rem;

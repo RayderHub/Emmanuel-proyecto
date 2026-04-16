@@ -45,7 +45,7 @@
   gap: 1rem;
   transition: box-shadow 0.2s, transform 0.2s;
 }
-.stat-card:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -10px rgba(0,0,0,0.1); border-color: #6366f1; }
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -10px rgba(0,0,0,0.1); border-color: #10b981; }
 .stat-icon {
   width: 48px;
   height: 48px;
@@ -56,7 +56,7 @@
   font-size: 1.5rem;
   flex-shrink: 0;
 }
-.stat-icon.indigo { background: rgba(99,102,241,0.12); color: #818cf8; }
+.stat-icon.indigo { background: rgba(16,185,129,0.12); color: #34d399; }
 .stat-icon.green  { background: rgba(16,185,129,0.12);  color: #34d399; }
 .stat-icon.yellow { background: rgba(245,158,11,0.12);  color: #fbbf24; }
 .stat-icon.blue   { background: rgba(14,165,233,0.12);  color: #38bdf8; }
@@ -112,8 +112,8 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .filter-input:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.12);
 }
 .filter-input::placeholder { color: #94a3b8; }
 .filter-select {
@@ -130,8 +130,8 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .filter-select:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.12);
 }
 
 /* ===== SECTION / TABLE ===== */
@@ -204,8 +204,8 @@
 }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
 .btn-sm { padding: 0.35rem 0.7rem; font-size: 0.75rem; }
-.btn-primary { background: #6366f1; color: #fff; }
-.btn-primary:hover:not(:disabled) { background: #818cf8; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99,102,241,0.35); }
+.btn-primary { background: #10b981; color: #fff; }
+.btn-primary:hover:not(:disabled) { background: #34d399; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(16,185,129,0.35); }
 .btn-success { background: #059669; color: #fff; }
 .btn-success:hover { background: #10b981; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(16,185,129,0.3); }
 .btn-info    { background: #0891b2; color: #fff; }
@@ -234,12 +234,12 @@
 }
 .status-pendiente  { background: rgba(239,68,68,0.12);  color: #f87171; }
 .status-en-proceso { background: rgba(245,158,11,0.12); color: #fbbf24; }
-.status-revision   { background: rgba(99,102,241,0.12); color: #818cf8; }
+.status-revision   { background: rgba(16,185,129,0.12); color: #34d399; }
 .status-finalizado { background: rgba(16,185,129,0.12); color: #34d399; }
 .priority-baja    { background: rgba(16,185,129,0.12);  color: #34d399; }
 .priority-media   { background: rgba(245,158,11,0.12);  color: #fbbf24; }
 .priority-alta    { background: rgba(239,68,68,0.12);   color: #f87171; }
-.priority-urgente { background: rgba(168,85,247,0.12);  color: #c084fc; animation: urgente-pulse 2s infinite; }
+.priority-urgente { background: rgba(16,185,129,0.12);  color: #c084fc; animation: urgente-pulse 2s infinite; }
 @keyframes urgente-pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
 
 /* ===== DIALOG OVERRIDES ===== */
@@ -307,8 +307,8 @@
   resize: vertical;
 }
 .field-input:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.12);
 }
 .field-input::placeholder { color: #94a3b8; }
 
@@ -323,8 +323,8 @@
   width: 100% !important;
 }
 :host ::ng-deep .p-inputtext:focus {
-  border-color: #6366f1 !important;
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.12) !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.12) !important;
 }
 :host ::ng-deep .p-datepicker-input {
   background: #ffffff !important;

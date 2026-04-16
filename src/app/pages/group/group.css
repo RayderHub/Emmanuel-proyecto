@@ -39,7 +39,7 @@
   gap: 1rem;
   transition: box-shadow 0.2s, transform 0.2s;
 }
-.stat-card:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -10px rgba(0,0,0,0.1); border-color: #6366f1; }
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -10px rgba(0,0,0,0.1); border-color: #10b981; }
 .stat-icon {
   width: 48px;
   height: 48px;
@@ -50,7 +50,7 @@
   font-size: 1.5rem;
   flex-shrink: 0;
 }
-.stat-icon.indigo { background: rgba(99,102,241,0.12); color: #818cf8; }
+.stat-icon.indigo { background: rgba(16,185,129,0.12); color: #34d399; }
 .stat-icon.green  { background: rgba(16,185,129,0.12);  color: #34d399; }
 .stat-label {
   font-size: 0.68rem;
@@ -152,15 +152,15 @@
   white-space: nowrap;
 }
 .btn-sm { padding: 0.35rem 0.7rem; font-size: 0.75rem; }
-.btn-primary  { background: #6366f1; color: #fff; }
-.btn-primary:hover  { background: #818cf8; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99,102,241,0.35); }
+.btn-primary  { background: #10b981; color: #fff; }
+.btn-primary:hover  { background: #34d399; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(16,185,129,0.35); }
 .btn-success  { background: #059669; color: #fff; }
 .btn-success:hover  { background: #10b981; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(16,185,129,0.3); }
 .btn-info     { background: #0891b2; color: #fff; }
 .btn-info:hover     { background: #06b6d4; transform: translateY(-1px); }
 .btn-danger   { background: #dc2626; color: #fff; }
 .btn-danger:hover   { background: #ef4444; transform: translateY(-1px); }
-.btn-purple   { background: #7c3aed; color: #fff; }
+.btn-purple   { background: #10b981; color: #fff; }
 .btn-purple:hover   { background: #8b5cf6; transform: translateY(-1px); }
 .btn-ghost {
   background: #ffffff;
@@ -201,8 +201,8 @@
   transition: all 0.15s;
 }
 .page-btn:hover, .page-btn.active {
-  background: #6366f1;
-  border-color: #6366f1;
+  background: #10b981;
+  border-color: #10b981;
   color: #fff;
 }
 
@@ -219,7 +219,7 @@
 }
 .status-pendiente  { background: rgba(239,68,68,0.12);  color: #f87171; }
 .status-en-proceso { background: rgba(245,158,11,0.12); color: #fbbf24; }
-.status-revision   { background: rgba(99,102,241,0.12); color: #818cf8; }
+.status-revision   { background: rgba(16,185,129,0.12); color: #34d399; }
 .status-finalizado { background: rgba(16,185,129,0.12); color: #34d399; }
 
 .priority-badge {
@@ -235,7 +235,7 @@
 .priority-baja    { background: rgba(16,185,129,0.12);  color: #34d399; }
 .priority-media   { background: rgba(245,158,11,0.12);  color: #fbbf24; }
 .priority-alta    { background: rgba(239,68,68,0.12);   color: #f87171; }
-.priority-urgente { background: rgba(168,85,247,0.12);  color: #c084fc; animation: urgente-pulse 2s infinite; }
+.priority-urgente { background: rgba(16,185,129,0.12);  color: #c084fc; animation: urgente-pulse 2s infinite; }
 @keyframes urgente-pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
 
 /* ===== KANBAN ===== */
@@ -256,9 +256,9 @@
 
 /* Resaltado cuando se arrastra un ticket sobre la columna */
 .kanban-col.drag-over {
-  border-color: #6366f1;
-  background: rgba(99,102,241,0.06);
-  box-shadow: inset 0 0 0 1px rgba(99,102,241,0.3);
+  border-color: #10b981;
+  background: rgba(16,185,129,0.06);
+  box-shadow: inset 0 0 0 1px rgba(16,185,129,0.3);
 }
 .kanban-col-header {
   display: flex;
@@ -275,7 +275,7 @@
 }
 .col-indicator.pendiente  { background: #ef4444; }
 .col-indicator.en-proceso { background: #f59e0b; }
-.col-indicator.revision   { background: #6366f1; }
+.col-indicator.revision   { background: #10b981; }
 .col-indicator.finalizado { background: #10b981; }
 .col-title {
   font-size: 0.72rem;
@@ -309,11 +309,11 @@
 .kanban-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-  border-color: rgba(99,102,241,0.25);
+  border-color: rgba(16,185,129,0.25);
 }
 .kanban-card.status-pendiente  { border-left-color: #ef4444; }
 .kanban-card.status-en-proceso { border-left-color: #f59e0b; }
-.kanban-card.status-revision   { border-left-color: #6366f1; }
+.kanban-card.status-revision   { border-left-color: #10b981; }
 .kanban-card.status-finalizado { border-left-color: #10b981; }
 
 .card-header-row {
@@ -339,7 +339,7 @@
 .priority-dot.priority-baja    { background: #10b981; }
 .priority-dot.priority-media   { background: #f59e0b; }
 .priority-dot.priority-alta    { background: #ef4444; }
-.priority-dot.priority-urgente { background: #a855f7; animation: urgente-pulse 2s infinite; }
+.priority-dot.priority-urgente { background: #10b981; animation: urgente-pulse 2s infinite; }
 .card-desc {
   font-size: 0.77rem;
   color: #475569;
@@ -386,7 +386,7 @@
   gap: 0.35rem;
 }
 .toggle-btn.active {
-  background: #6366f1;
+  background: #10b981;
   color: #fff;
 }
 .toggle-btn:not(.active):hover {
@@ -466,8 +466,8 @@
   resize: vertical;
 }
 .field-input:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.12);
 }
 .field-input::placeholder { color: #94a3b8; }
 
@@ -483,8 +483,8 @@
   width: 100% !important;
 }
 :host ::ng-deep .p-inputtext:focus {
-  border-color: #6366f1 !important;
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.12) !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.12) !important;
 }
 :host ::ng-deep .p-datepicker-input {
   background: #ffffff !important;
