@@ -8,17 +8,17 @@
   background:
     radial-gradient(ellipse at 80% 20%, rgba(168,85,247,0.08) 0%, transparent 50%),
     radial-gradient(ellipse at 20% 80%, rgba(99,102,241,0.08) 0%, transparent 50%),
-    #08080f;
+    #f8fafc;
 }
 
 .register-box {
   width: 100%;
   max-width: 640px;
-  background: #161625;
-  border: 1px solid rgba(255,255,255,0.07);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 24px;
   padding: 2.5rem 2.25rem;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.05);
 }
 
 /* Logo */
@@ -45,20 +45,20 @@
 .auth-logo-name {
   font-size: 1rem;
   font-weight: 700;
-  color: #f1f5f9;
+  color: #0f172a;
 }
 
 .auth-title {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #f1f5f9;
+  color: #0f172a;
   margin-bottom: 0.3rem;
   letter-spacing: -0.025em;
 }
 
 .auth-subtitle {
   font-size: 0.875rem;
-  color: #64748b;
+  color: #475569;
   margin-bottom: 1.75rem;
 }
 
@@ -79,18 +79,18 @@
 .form-label {
   font-size: 0.77rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: #64748b;
   letter-spacing: 0.02em;
 }
 
 .req { color: #f87171; }
 
 .form-input {
-  background: #0f0f1a;
-  border: 1px solid rgba(255,255,255,0.07);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 10px;
-  color: #f1f5f9;
-  font-family: 'Inter', sans-serif;
+  color: #0f172a;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.875rem;
   padding: 0.65rem 0.875rem;
   transition: border-color 0.2s, box-shadow 0.2s;
@@ -103,7 +103,7 @@
   box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
 }
 
-.form-input::placeholder { color: #374151; }
+.form-input::placeholder { color: #94a3b8; }
 
 .form-input.input-error {
   border-color: rgba(239,68,68,0.4);
@@ -115,11 +115,11 @@
   display: block;
 }
 :host ::ng-deep .p-password .p-password-input {
-  background: #0f0f1a !important;
-  border: 1px solid rgba(255,255,255,0.07) !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
   border-radius: 10px !important;
-  color: #f1f5f9 !important;
-  font-family: 'Inter', sans-serif !important;
+  color: #0f172a !important;
+  font-family: 'Outfit', sans-serif !important;
   font-size: 0.875rem !important;
   padding: 0.65rem 0.875rem !important;
   width: 100% !important;
@@ -130,11 +130,11 @@
 }
 :host ::ng-deep .p-datepicker-input,
 :host ::ng-deep .p-inputmask {
-  background: #0f0f1a !important;
-  border: 1px solid rgba(255,255,255,0.07) !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
   border-radius: 10px !important;
-  color: #f1f5f9 !important;
-  font-family: 'Inter', sans-serif !important;
+  color: #0f172a !important;
+  font-family: 'Outfit', sans-serif !important;
   font-size: 0.875rem !important;
   padding: 0.65rem 0.875rem !important;
   width: 100% !important;
@@ -166,7 +166,7 @@
   color: #fff;
   border: none;
   border-radius: 10px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
@@ -177,7 +177,7 @@
 
 .btn-submit:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(99,102,241,0.4);
+  box-shadow: 0 8px 24px rgba(99,102,241,0.25);
 }
 
 .auth-footer-row {
@@ -186,14 +186,14 @@
   justify-content: center;
   gap: 0.5rem;
   font-size: 0.82rem;
-  color: #64748b;
+  color: #475569;
 }
 
 .link-btn {
   background: none;
   border: none;
   color: #818cf8;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;

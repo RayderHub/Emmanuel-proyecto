@@ -2,9 +2,9 @@
 .dashboard-page {
   margin-left: 260px;
   min-height: 100vh;
-  background: #0f172a;
-  color: #e2e8f0;
-  font-family: 'Inter', system-ui, sans-serif;
+  background: #f8fafc;
+  color: #0f172a;
+  font-family: 'Outfit', system-ui, sans-serif;
 }
 
 /* ── Hero Header (bg: #F54927) ──────────────────────────────────────── */
@@ -140,8 +140,8 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 14px;
   padding: 1.1rem 1.4rem;
   transition: transform 0.2s, box-shadow 0.2s;
@@ -149,7 +149,7 @@
 
 .stat-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  box-shadow: 0 12px 24px -10px rgba(0,0,0,0.1);
 }
 
 .stat-icon-wrap {
@@ -170,8 +170,8 @@
 .stat-card.finalizado .stat-icon-wrap { background: rgba(16,185,129,0.12); color: #34d399; }
 
 .stat-info { display: flex; flex-direction: column; }
-.stat-label { font-size: 0.76rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em; }
-.stat-value { font-size: 1.8rem; font-weight: 800; color: #f1f5f9; line-height: 1.2; }
+.stat-label { font-size: 0.76rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; }
+.stat-value { font-size: 1.8rem; font-weight: 800; color: #0f172a; line-height: 1.2; }
 
 /* ── Main Grid ───────────────────────────────────────────────────────── */
 .dash-grid {
@@ -182,8 +182,8 @@
 }
 
 .dash-card {
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 16px;
   padding: 1.5rem;
 }
@@ -203,7 +203,7 @@
 .card-header h2 {
   font-size: 1rem;
   font-weight: 700;
-  color: #e2e8f0;
+  color: #0f172a;
   margin: 0;
 }
 
@@ -224,12 +224,12 @@
   display: flex;
   justify-content: space-between;
   font-size: 0.82rem;
-  color: #94a3b8;
+  color: #64748b;
 }
 
 .progress-count {
   font-weight: 700;
-  color: #e2e8f0;
+  color: #0f172a;
 }
 
 /* Groups */
@@ -247,7 +247,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 2rem;
-  color: #475569;
+  color: #94a3b8;
   font-size: 0.9rem;
 }
 
@@ -264,8 +264,8 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem 1.2rem;
-  background: #0f172a;
-  border: 1.5px solid #334155;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s;
@@ -273,7 +273,7 @@
 
 .group-item:hover {
   border-color: #F54927;
-  background: #1a2235;
+  background: #f8fafc;
   transform: translateY(-1px);
 }
 
@@ -296,10 +296,10 @@
 }
 
 .group-info { flex: 1; }
-.group-name { display: block; font-weight: 700; font-size: 0.9rem; color: #e2e8f0; }
+.group-name { display: block; font-weight: 700; font-size: 0.9rem; color: #0f172a; }
 .group-meta { font-size: 0.75rem; color: #64748b; }
 
-.group-arrow { color: #475569; font-size: 0.8rem; transition: color 0.2s; }
+.group-arrow { color: #94a3b8; font-size: 0.8rem; transition: color 0.2s; }
 .group-item:hover .group-arrow { color: #F54927; }
 
 /* Responsive */

@@ -1,9 +1,9 @@
 .admin-group-page {
   margin-left: 260px;
   min-height: 100vh;
-  background: #0f172a;
-  color: #e2e8f0;
-  font-family: 'Inter', system-ui, sans-serif;
+  background: #f8fafc;
+  color: #0f172a;
+  font-family: 'Outfit', system-ui, sans-serif;
   padding: 2rem;
 }
 
@@ -20,7 +20,7 @@
 .header-info h1 {
   font-size: 1.6rem;
   font-weight: 800;
-  color: #f1f5f9;
+  color: #0f172a;
   margin: 0 0 0.3rem;
   display: flex;
   align-items: center;
@@ -31,7 +31,7 @@
 
 .header-info p {
   font-size: 0.85rem;
-  color: #64748b;
+  color: #475569;
   margin: 0;
 }
 
@@ -78,15 +78,15 @@
   gap: 0.4rem;
   padding: 0.5rem 1rem;
   background: transparent;
-  color: #e2e8f0;
-  border: 1.5px solid #334155;
+  color: #475569;
+  border: 1.5px solid #e2e8f0;
   border-radius: 8px;
   font-size: 0.83rem;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.btn-outline-sm:hover { border-color: #94a3b8; background: #1e293b; }
+.btn-outline-sm:hover { border-color: #cbd5e1; background: #ffffff; }
 
 .btn-danger-sm {
   display: inline-flex;
@@ -150,7 +150,7 @@
   justify-content: center;
   padding: 4rem;
   gap: 1rem;
-  color: #475569;
+  color: #94a3b8;
 }
 
 .loading-state i, .empty-state i { font-size: 2.5rem; }
@@ -163,8 +163,8 @@
 }
 
 .group-card {
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 16px;
   padding: 1.4rem;
   display: flex;
@@ -173,7 +173,7 @@
   transition: all 0.2s;
 }
 
-.group-card:hover { border-color: #475569; transform: translateY(-2px); }
+.group-card:hover { border-color: #cbd5e1; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
 .group-card-header { display: flex; align-items: center; gap: 0.9rem; }
 
@@ -190,9 +190,9 @@
   flex-shrink: 0;
 }
 
-.group-card-name { display: block; font-weight: 700; font-size: 1rem; color: #e2e8f0; }
+.group-card-name { display: block; font-weight: 700; font-size: 1rem; color: #0f172a; }
 .group-card-meta { font-size: 0.75rem; color: #64748b; }
-.group-card-desc { font-size: 0.82rem; color: #94a3b8; margin: 0; }
+.group-card-desc { font-size: 0.82rem; color: #475569; margin: 0; }
 
 .group-card-actions { display: flex; gap: 0.5rem; margin-top: 0.2rem; }
 
@@ -207,7 +207,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 2rem;
-  color: #475569;
+  color: #94a3b8;
 }
 
 .empty-members i { font-size: 2rem; }
@@ -215,8 +215,8 @@
 .members-list { display: flex; flex-direction: column; gap: 1rem; }
 
 .member-row {
-  background: #0f172a;
-  border: 1px solid #334155;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
   padding: 1rem;
 }
@@ -240,8 +240,8 @@
   flex-shrink: 0;
 }
 
-.member-name { display: block; font-weight: 700; font-size: 0.88rem; color: #e2e8f0; }
-.member-id { font-size: 0.72rem; color: #475569; }
+.member-name { display: block; font-weight: 700; font-size: 0.88rem; color: #0f172a; }
+.member-id { font-size: 0.72rem; color: #64748b; }
 
 .btn-remove-member {
   margin-left: auto;
@@ -271,11 +271,11 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.3rem 0.75rem;
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 20px;
   font-size: 0.76rem;
-  color: #94a3b8;
+  color: #475569;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -289,7 +289,7 @@
   font-weight: 600;
 }
 
-.perm-toggle:hover { border-color: #F54927; color: #e2e8f0; }
+.perm-toggle:hover { border-color: #F54927; color: #0f172a; }
 
 /* Form fields */
 .dialog-form { display: flex; flex-direction: column; gap: 1rem; padding: 0.5rem 0; }
@@ -298,15 +298,15 @@
 
 .form-field { display: flex; flex-direction: column; gap: 0.4rem; }
 
-.form-field label { font-size: 0.82rem; color: #94a3b8; font-weight: 600; }
+.form-field label { font-size: 0.82rem; color: #64748b; font-weight: 600; }
 
 .form-select {
   width: 100%;
   padding: 0.6rem 0.85rem;
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
-  color: #e2e8f0;
+  color: #0f172a;
   font-size: 0.88rem;
   outline: none;
 }
@@ -315,7 +315,7 @@
 
 .delete-confirm-msg {
   font-size: 0.9rem;
-  color: #cbd5e1;
+  color: #475569;
   padding: 0.5rem 0;
 }
 
