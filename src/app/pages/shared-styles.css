@@ -1,34 +1,50 @@
-/* ===== SISTEMA DE DISEÑO UNIFICADO ===== */
-/* Basado en el estilo visual del Kanban */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
-/* Colores Principales */
+/* ===== SISTEMA DE DISEÑO UNIFICADO - PREMIUM LIGHT ===== */
+
 :root {
-  --primary-bg: #1e1e2d;
-  --secondary-bg: #2a2a3d;
-  --card-bg: #1e1e2d;
-  --text-primary: #ffffff;
-  --text-secondary: #a0a0a0;
-  --text-muted: #888888;
-  --border-color: #2a2a3d;
-  --accent-blue: #3498db;
-  --accent-green: #2ecc71;
-  --accent-red: #e74c3c;
-  --accent-orange: #f39c12;
-  --accent-purple: #9b59b6;
+  --primary-bg: #f8fafc;
+  --secondary-bg: #f1f5f9;
+  --card-bg: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border-color: #e2e8f0;
+  
+  --accent-blue: #3b82f6;
+  --accent-green: #10b981;
+  --accent-red: #ef4444;
+  --accent-orange: #f59e0b;
+  --accent-purple: #6366f1;
+  
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.02);
+  --shadow-hover: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.02);
+}
+
+body {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--primary-bg);
+  color: var(--text-primary);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Botones Mejorados */
 .unified-btn {
   border-radius: 0.75rem !important;
-  border: none !important;
+  border: 1px solid transparent !important;
   font-weight: 600 !important;
-  transition: all 0.2s ease !important;
+  font-family: 'Outfit', sans-serif !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   padding: 0.75rem 1.5rem !important;
+  box-shadow: var(--shadow-sm);
 }
 
 .unified-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .unified-btn:active {
@@ -38,30 +54,33 @@
 /* Tarjetas y Contenedores */
 .unified-card {
   background: var(--card-bg) !important;
-  border-radius: 0.75rem !important;
+  border-radius: 1rem !important;
   border: 1px solid var(--border-color) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-  transition: all 0.2s ease !important;
+  box-shadow: var(--shadow-sm) !important;
+  transition: all 0.3s ease !important;
 }
 
 .unified-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-  border-color: var(--accent-blue) !important;
+  box-shadow: var(--shadow-md) !important;
+  border-color: rgba(99,102,241,0.2) !important;
 }
 
 /* Formularios y Inputs */
 .unified-input {
-  background: var(--secondary-bg) !important;
+  background: var(--card-bg) !important;
   border: 1px solid var(--border-color) !important;
-  border-radius: 0.5rem !important;
+  border-radius: 0.75rem !important;
   color: var(--text-primary) !important;
   padding: 0.75rem 1rem !important;
+  font-family: 'Outfit', sans-serif !important;
   transition: all 0.2s ease !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
 }
 
 .unified-input:focus {
-  border-color: var(--accent-blue) !important;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1) !important;
+  border-color: var(--accent-purple) !important;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+  outline: none;
 }
 
 .unified-input::placeholder {
@@ -69,23 +88,16 @@
 }
 
 /* Espaciado Consistente */
-.unified-spacing {
-  margin-bottom: 1.5rem !important;
-}
-
-.unified-spacing-sm {
-  margin-bottom: 1rem !important;
-}
-
-.unified-spacing-lg {
-  margin-bottom: 2rem !important;
-}
+.unified-spacing { margin-bottom: 1.5rem !important; }
+.unified-spacing-sm { margin-bottom: 1rem !important; }
+.unified-spacing-lg { margin-bottom: 2rem !important; }
 
 /* Tipografía Mejorada */
 .unified-title {
   color: var(--text-primary) !important;
   font-weight: 700 !important;
   margin-bottom: 1rem !important;
+  letter-spacing: -0.02em;
 }
 
 .unified-subtitle {
@@ -96,23 +108,24 @@
 
 .unified-text {
   color: var(--text-secondary) !important;
-  line-height: 1.5 !important;
+  line-height: 1.6 !important;
 }
 
 /* Badges y Indicadores */
 .unified-badge {
-  border-radius: 1rem !important;
+  border-radius: 99px !important;
   padding: 0.25rem 0.75rem !important;
   font-size: 0.75rem !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   text-transform: uppercase !important;
+  letter-spacing: 0.05em;
 }
 
 /* Animaciones */
 @keyframes unified-pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.7; }
-  100% { opacity: 1; }
+  0% { box-shadow: 0 0 0 0 rgba(99,102,241,0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(99,102,241,0); }
+  100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
 }
 
 .unified-pulse {
@@ -132,12 +145,13 @@
 }
 
 /* Estados de Prioridad (para tickets) */
-.priority-baja { background-color: var(--accent-green) !important; color: white !important; }
-.priority-media { background-color: var(--accent-orange) !important; color: white !important; }
-.priority-alta { background-color: var(--accent-red) !important; color: white !important; }
+.priority-baja { background-color: rgba(16,185,129,0.1) !important; color: #059669 !important; border: 1px solid rgba(16,185,129,0.2) !important; }
+.priority-media { background-color: rgba(245,158,11,0.1) !important; color: #d97706 !important; border: 1px solid rgba(245,158,11,0.2) !important; }
+.priority-alta { background-color: rgba(239,68,68,0.1) !important; color: #dc2626 !important; border: 1px solid rgba(239,68,68,0.2) !important; }
 .priority-urgente { 
-  background-color: var(--accent-purple) !important; 
-  color: white !important; 
+  background-color: rgba(99,102,241,0.1) !important; 
+  color: #4f46e5 !important; 
+  border: 1px solid rgba(99,102,241,0.3) !important;
   animation: unified-pulse 2s infinite;
 }
 
@@ -147,7 +161,7 @@
 .status-revision { border-left: 4px solid var(--accent-blue) !important; }
 .status-finalizado { border-left: 4px solid var(--accent-green) !important; }
 
-/* ── Loading Overlay (compartido por todos los componentes) ── */
+/* ── Loading Overlay ── */
 .loading-overlay {
   display: flex;
   flex-direction: column;
@@ -158,7 +172,7 @@
   text-align: center;
 }
 
-/* Deshabilitar botones visualmente mientras procesan */
+/* Deshabilitar botones */
 button:disabled {
   opacity: 0.55;
   cursor: not-allowed !important;
